@@ -1,5 +1,4 @@
-package com.vinsguru.dto
-
+package com.group1.orchestrator.dto
 import com.vinsguru.enums.InventoryStatus
 import lombok.Data
 import java.util.UUID
