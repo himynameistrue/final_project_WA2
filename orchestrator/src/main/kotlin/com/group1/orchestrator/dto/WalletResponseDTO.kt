@@ -1,12 +1,10 @@
 package com.group1.orchestrator.dto
-import com.vinsguru.enums.PaymentStatus
-import lombok.Data
+import com.group1.orchestrator.enums.WalletStatus
 import java.util.UUID
 
-@Data
-class PaymentResponseDTO {
-    private val userId: Integer? = null
-    private val orderId: UUID? = null
-    private val amount: Double? = null
-    private val status: PaymentStatus? = null
-}
+data class WalletResponseDTO (
+    val userId: Int,
+    val orderId: UUID,
+    val amount: Double,
+    val status: WalletStatus
+)

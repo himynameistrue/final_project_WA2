@@ -1,8 +1,8 @@
 package com.group1.orchestrator.config
 
-import com.vinsguru.dto.OrchestratorRequestDTO
-import com.vinsguru.dto.OrchestratorResponseDTO
-import com.vinsguru.saga.service.OrchestratorService
+import com.group1.orchestrator.dto.OrchestratorRequestDTO
+import com.group1.orchestrator.dto.OrchestratorResponseDTO
+import com.group1.orchestrator.service.OrchestratorService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,8 +18,8 @@ class OrchestratorConfig {
     fun processor(): Function<Flux<OrchestratorRequestDTO>, Flux<OrchestratorResponseDTO>> {
         return Function<Flux<OrchestratorRequestDTO>, Flux<OrchestratorResponseDTO>> { flux ->
             flux
-                .flatMap { dto -> orchestratorService.orderProduct(dto) }
-                .doOnNext { dto -> System.out.println("Status : " + dto.getStatus()) }
+                .flatMap { dto -> orchestratorService!!.orderProduct(dto) }
+                .doOnNext { dto -> System.out.println("Status : " + dto.status) }
         }
     }
 }

@@ -1,37 +1,32 @@
 package com.group1.orchestrator.service.steps
 
-import com.vinsguru.dto.PaymentRequestDTO
-import com.vinsguru.dto.PaymentResponseDTO
-import com.vinsguru.enums.PaymentStatus
-import com.vinsguru.saga.service.WorkflowStep
-import com.vinsguru.saga.service.WorkflowStepStatus
+import com.group1.orchestrator.dto.WalletRequestDTO
+import com.group1.orchestrator.dto.WalletResponseDTO
+import com.group1.orchestrator.enums.WalletStatus
+import com.group1.orchestrator.service.WorkflowStep
+import com.group1.orchestrator.service.WorkflowStepStatus
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
-class PaymentStep(webClient: WebClient, requestDTO: PaymentRequestDTO) : WorkflowStep {
+class WalletStep(webClient: WebClient, requestDTO: WalletRequestDTO) : WorkflowStep {
     private val webClient: WebClient
-    private val requestDTO: PaymentRequestDTO
-    private var stepStatus: WorkflowStepStatus = WorkflowStepStatus.PENDING
+    private val requestDTO: WalletRequestDTO
 
-    @get:Override
-    val status: WorkflowStepStatus
-        get() = stepStatus
+    override var status: WorkflowStepStatus = WorkflowStepStatus.PENDING
 
-    @Override
-    fun process(): Mono<Boolean> {
+    override fun process(): Mono<Boolean> {
         return webClient
             .post()
             .uri("/payment/debit")
             .body(BodyInserters.fromValue(requestDTO))
             .retrieve()
-            .bodyToMono(PaymentResponseDTO::class.java)
-            .map { r -> r.getStatus().equals(PaymentStatus.PAYMENT_APPROVED) }
-            .doOnNext { b -> stepStatus = if (b) WorkflowStepStatus.COMPLETE else WorkflowStepStatus.FAILED }
+            .bodyToMono(WalletResponseDTO::class.java)
+            .map { r -> r.status == WalletStatus.PAYMENT_APPROVED }
+            .doOnNext { b -> status = if (b) WorkflowStepStatus.COMPLETE else WorkflowStepStatus.FAILED }
     }
 
-    @Override
-    fun revert(): Mono<Boolean> {
+    override fun revert(): Mono<Boolean> {
         return webClient
             .post()
             .uri("/payment/credit")
