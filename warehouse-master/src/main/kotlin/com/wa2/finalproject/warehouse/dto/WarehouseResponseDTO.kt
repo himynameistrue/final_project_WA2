@@ -1,13 +1,11 @@
 package com.wa2.finalproject.warehouse.dto
 
-import com.vinsguru.enums.InventoryStatus
-import lombok.Data
+import com.wa2.finalproject.warehouse.enums.InventoryStatus
 import java.util.UUID
 
-@Data
-class InventoryResponseDTO {
-    private val orderId: UUID? = null
-    private val userId: Integer? = null
-    private val productId: Integer? = null
-    private val status: InventoryStatus? = null
-}
+data class WarehouseResponseDTO (
+    val orderId: UUID,
+    val userId: Int,
+    val productId: Int,
+    val status: InventoryStatus
+)

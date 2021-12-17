@@ -1,5 +1,5 @@
 package com.group1.orchestrator.service
 
 interface Workflow {
-    val steps: List<Any?>
+    val steps: List<WorkflowStep>
 }

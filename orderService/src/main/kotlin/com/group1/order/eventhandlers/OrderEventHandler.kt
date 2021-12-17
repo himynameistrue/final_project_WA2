@@ -1,23 +1,21 @@
 package com.group1.order.eventhandlers
 
-import com.vinsguru.dto.OrchestratorRequestDTO
-import com.vinsguru.dto.OrchestratorResponseDTO
-import com.vinsguru.order.service.OrderEventUpdateService
+import com.group1.order.dto.OrchestratorRequestDTO
+import com.group1.order.dto.OrchestratorResponseDTO
+import com.group1.order.service.OrderEventUpdateService
+import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import reactor.core.publisher.DirectProcessor
 import reactor.core.publisher.Flux
 import java.util.function.Consumer
 import java.util.function.Supplier
 
 @Configuration
-class OrderEventHandler {
-    @Autowired
-    private val source: DirectProcessor<OrchestratorRequestDTO>? = null
+class OrderEventHandler(
+    val source: Publisher<OrchestratorRequestDTO>,
+    val service: OrderEventUpdateService) {
 
-    @Autowired
-    private val service: OrderEventUpdateService? = null
     @Bean
     fun supplier(): Supplier<Flux<OrchestratorRequestDTO>> {
         return Supplier<Flux<OrchestratorRequestDTO>> { Flux.from(source) }

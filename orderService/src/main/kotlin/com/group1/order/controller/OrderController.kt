@@ -1,26 +1,24 @@
 package com.group1.order.controller
 
-import com.vinsguru.dto.OrderRequestDTO
-import com.vinsguru.dto.OrderResponseDTO
-import com.vinsguru.order.entity.PurchaseOrder
-import com.vinsguru.order.service.OrderService
-import org.springframework.beans.factory.annotation.Autowired
+import com.group1.order.dto.OrderRequestDTO
+import com.group1.order.entity.PurchaseOrder
+import com.group1.order.service.OrderService
 import org.springframework.web.bind.annotation.*
-import java.util.List
+import kotlin.collections.List;
 import java.util.UUID
 
 @RestController
 @RequestMapping("order")
-class OrderController {
-    @Autowired
-    private val service: OrderService? = null
+class OrderController(val service: OrderService) {
+
     @PostMapping("/create")
     fun createOrder(@RequestBody requestDTO: OrderRequestDTO): PurchaseOrder {
-        requestDTO.setOrderId(UUID.randomUUID())
+        requestDTO.orderId = UUID.randomUUID()
         return service.createOrder(requestDTO)
     }
 
-    @get:GetMapping("/all")
-    val orders: List<Any>
-        get() = service.getAll()
+    @GetMapping("/all")
+    fun list(): List<Any> {
+        return service.all;
+    }
 }

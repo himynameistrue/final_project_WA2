@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class WebClientConfig {
     @Bean
     @Qualifier("wallet")
-    fun paymentClient(@Value("\${service.endpoints.payment}") endpoint: String): WebClient {
+    fun walletClient(@Value("\${service.endpoints.wallet}") endpoint: String): WebClient {
         return WebClient.builder()
             .baseUrl(endpoint)
             .build()
@@ -18,7 +18,7 @@ class WebClientConfig {
 
     @Bean
     @Qualifier("warehouse")
-    fun inventoryClient(@Value("\${service.endpoints.inventory}") endpoint: String): WebClient {
+    fun warehouseClient(@Value("\${service.endpoints.warehouse}") endpoint: String): WebClient {
         return WebClient.builder()
             .baseUrl(endpoint)
             .build()

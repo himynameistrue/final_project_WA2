@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.SynchronousSink
 
 @Service
 class OrchestratorService {
@@ -27,9 +28,10 @@ class OrchestratorService {
 
     fun orderProduct(requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
         val orderWorkflow: Workflow = getOrderWorkflow(requestDTO)
+
         return Flux.fromStream { orderWorkflow.steps.stream() }
-            .flatMap{it -> it.process()}
-            .handle { aBoolean, synchronousSink ->
+            .flatMap(WorkflowStep::process)
+            .handle { aBoolean, synchronousSink : SynchronousSink<Boolean> ->
                 if (aBoolean) synchronousSink.next(true) else synchronousSink.error(
                     WorkflowException("create order failed!")
                 )
@@ -53,31 +55,28 @@ class OrchestratorService {
     }
 
     private fun getResponseDTO(requestDTO: OrchestratorRequestDTO, status: OrderStatus): OrchestratorResponseDTO {
-        val responseDTO = OrchestratorResponseDTO(
+        return OrchestratorResponseDTO(
             requestDTO.userId,
-                requestDTO.productId,
-                requestDTO.orderId,
-                requestDTO.amount,
-                status
+            requestDTO.productId,
+            requestDTO.orderId,
+            requestDTO.amount,
+            status
         )
-        return responseDTO
     }
 
     private fun getPaymentRequestDTO(requestDTO: OrchestratorRequestDTO): WalletRequestDTO {
-        val walletRequestDTO = WalletRequestDTO(
+        return WalletRequestDTO(
             requestDTO.userId,
             requestDTO.orderId,
             requestDTO.amount,
         )
-        return walletRequestDTO
     }
 
     private fun getInventoryRequestDTO(requestDTO: OrchestratorRequestDTO): WarehouseRequestDTO {
-        val warehouseRequestDTO = WarehouseRequestDTO(
+        return WarehouseRequestDTO(
             requestDTO.userId,
             requestDTO.productId,
             requestDTO.orderId,
         )
-        return warehouseRequestDTO
     }
 }

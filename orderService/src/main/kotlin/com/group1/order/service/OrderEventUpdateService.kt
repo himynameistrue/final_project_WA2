@@ -1,21 +1,19 @@
 package com.group1.order.service
 
-import com.vinsguru.dto.OrchestratorResponseDTO
-import com.vinsguru.order.repository.PurchaseOrderRepository
-import org.springframework.beans.factory.annotation.Autowired
+import com.group1.order.dto.OrchestratorResponseDTO
+import com.group1.order.repository.PurchaseOrderRepository
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
-class OrderEventUpdateService {
-    @Autowired
-    private val repository: PurchaseOrderRepository? = null
+class OrderEventUpdateService(val repository: PurchaseOrderRepository) {
+
     @Transactional
     fun updateOrder(responseDTO: OrchestratorResponseDTO) {
         repository
-            .findById(responseDTO.getOrderId())
+            .findById(responseDTO.orderId)
             .ifPresent { po ->
-                po.setStatus(responseDTO.getStatus())
+                po.status = responseDTO.status
                 repository.save(po)
             }
     }
