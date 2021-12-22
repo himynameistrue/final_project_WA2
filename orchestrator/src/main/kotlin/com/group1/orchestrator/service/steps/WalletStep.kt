@@ -2,7 +2,7 @@ package com.group1.orchestrator.service.steps
 
 import com.group1.orchestrator.dto.WalletRequestDTO
 import com.group1.orchestrator.dto.WalletResponseDTO
-import com.group1.orchestrator.enums.WalletStatus
+import com.group1.orchestrator.enums.PaymentStatus
 import com.group1.orchestrator.service.WorkflowStep
 import com.group1.orchestrator.service.WorkflowStepStatus
 import org.springframework.web.reactive.function.BodyInserters
@@ -16,23 +16,28 @@ class WalletStep(webClient: WebClient, requestDTO: WalletRequestDTO) : WorkflowS
     override var status: WorkflowStepStatus = WorkflowStepStatus.PENDING
 
     override fun process(): Mono<Boolean> {
+        println("walletStep process")
         return webClient
             .post()
             .uri("/payment/debit")
             .body(BodyInserters.fromValue(requestDTO))
             .retrieve()
             .bodyToMono(WalletResponseDTO::class.java)
-            .map { r -> r.status == WalletStatus.PAYMENT_APPROVED }
+            .doOnNext { r -> println(r.toString()) }
+            .map { r -> r.status == PaymentStatus.PAYMENT_APPROVED }
             .doOnNext { b -> status = if (b) WorkflowStepStatus.COMPLETE else WorkflowStepStatus.FAILED }
     }
 
     override fun revert(): Mono<Boolean> {
+        println("walletStep revert")
+
         return webClient
             .post()
             .uri("/payment/credit")
             .body(BodyInserters.fromValue(requestDTO))
             .retrieve()
             .bodyToMono(Void::class.java)
+            .doOnNext { r -> println(r.toString()) }
             .map { r -> true }
             .onErrorReturn(false)
     }

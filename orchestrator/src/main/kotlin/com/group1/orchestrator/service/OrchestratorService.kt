@@ -28,6 +28,8 @@ class OrchestratorService {
 
     fun orderProduct(requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
         val orderWorkflow: Workflow = getOrderWorkflow(requestDTO)
+        println("orderProduct")
+
 
         return Flux.fromStream { orderWorkflow.steps.stream() }
             .flatMap(WorkflowStep::process)
@@ -41,6 +43,7 @@ class OrchestratorService {
     }
 
     private fun revertOrder(workflow: Workflow, requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
+        println("Reverting order")
         return Flux.fromStream { workflow.steps.stream() }
             .filter { wf -> wf.status.equals(WorkflowStepStatus.COMPLETE) }
             .flatMap(WorkflowStep::revert)

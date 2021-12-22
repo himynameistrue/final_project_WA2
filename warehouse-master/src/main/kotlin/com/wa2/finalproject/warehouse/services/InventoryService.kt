@@ -22,10 +22,10 @@ class InventoryService {
     fun deductInventory(requestDTO: WarehouseRequestDTO): WarehouseResponseDTO {
         val quantity = productInventoryMap!!.getOrDefault(requestDTO.productId, 0)
 
-        var status = InventoryStatus.AVAILABLE
+        var status = InventoryStatus.UNAVAILABLE
 
         if (quantity > 0) {
-            status = InventoryStatus.UNAVAILABLE
+            status = InventoryStatus.AVAILABLE
             productInventoryMap!![requestDTO.productId] = quantity - 1
         }
 

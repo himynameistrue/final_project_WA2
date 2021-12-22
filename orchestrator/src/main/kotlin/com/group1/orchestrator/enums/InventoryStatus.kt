@@ -1,6 +1,6 @@
 package com.group1.orchestrator.enums
 
-enum class WarehouseStatus {
+enum class InventoryStatus {
     AVAILABLE,
     UNAVAILABLE
 }

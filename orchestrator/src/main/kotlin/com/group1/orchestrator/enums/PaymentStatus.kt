@@ -1,6 +1,6 @@
 package com.group1.orchestrator.enums
 
-enum class WalletStatus {
+enum class PaymentStatus {
     PAYMENT_APPROVED,
     PAYMENT_REJECTED
 }

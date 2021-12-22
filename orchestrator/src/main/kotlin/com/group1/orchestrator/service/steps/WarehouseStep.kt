@@ -2,7 +2,7 @@ package com.group1.orchestrator.service.steps
 
 import com.group1.orchestrator.dto.WarehouseRequestDTO
 import com.group1.orchestrator.dto.WarehouseResponseDTO
-import com.group1.orchestrator.enums.WarehouseStatus
+import com.group1.orchestrator.enums.InventoryStatus
 import com.group1.orchestrator.service.WorkflowStep
 import com.group1.orchestrator.service.WorkflowStepStatus
 import org.springframework.web.reactive.function.BodyInserters
@@ -16,23 +16,29 @@ class WarehouseStep(webClient: WebClient, requestDTO: WarehouseRequestDTO) : Wor
     override var status: WorkflowStepStatus = WorkflowStepStatus.PENDING
 
     override fun process(): Mono<Boolean> {
+        println("warehouseStep process")
+
         return webClient
             .post()
             .uri("/inventory/deduct")
             .body(BodyInserters.fromValue(requestDTO))
             .retrieve()
             .bodyToMono(WarehouseResponseDTO::class.java)
-            .map { r -> r.status == WarehouseStatus.AVAILABLE }
+            .doOnNext { r -> println(r.toString()) }
+            .map { r -> r.status == InventoryStatus.AVAILABLE }
             .doOnNext { b -> status = if (b) WorkflowStepStatus.COMPLETE else WorkflowStepStatus.FAILED }
     }
 
     override fun revert(): Mono<Boolean> {
+        println("warehouseStep revert")
+
         return webClient
             .post()
             .uri("/inventory/add")
             .body(BodyInserters.fromValue(requestDTO))
             .retrieve()
             .bodyToMono(Void::class.java)
+            .doOnNext { r -> println(r.toString()) }
             .map { r -> true }
             .onErrorReturn(false)
     }
