@@ -1,8 +1,8 @@
-package com.group1.order.dto
+package com.group1.dto
 
 import java.util.UUID
 
-data class OrchestratorRequestDTO (
+data class OrchestratorRequestDTO(
     val userId: Int,
     val productId: Int,
     val orderId: UUID,

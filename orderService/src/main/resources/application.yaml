@@ -1,8 +1,11 @@
-spring.cloud.stream:
-  function:
-    definition: supplier;consumer
-  bindings:
-    supplier-out-0:
-      destination: order-created
-    consumer-in-0:
-      destination: order-updated
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"

@@ -1,11 +1,11 @@
 package com.group1.orchestrator.service
 
 
-import com.group1.orchestrator.dto.OrchestratorRequestDTO
-import com.group1.orchestrator.dto.OrchestratorResponseDTO
+import com.group1.dto.OrchestratorRequestDTO
+import com.group1.dto.OrchestratorResponseDTO
 import com.group1.orchestrator.dto.WalletRequestDTO
 import com.group1.orchestrator.dto.WarehouseRequestDTO
-import com.group1.orchestrator.enums.OrderStatus
+import com.group1.enums.OrderStatus
 import com.group1.orchestrator.service.steps.WalletStep
 import com.group1.orchestrator.service.steps.WarehouseStep
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,19 +37,20 @@ class OrchestratorService {
                 if (aBoolean) synchronousSink.next(true) else synchronousSink.error(
                     WorkflowException("create order failed!")
                 )
+
             }
             .then(Mono.fromCallable { getResponseDTO(requestDTO, OrderStatus.ORDER_COMPLETED) })
-            .onErrorResume { ex -> revertOrder(orderWorkflow, requestDTO) }
+            /* TODO HANDLE via Debezium .onErrorResume { ex -> revertOrder(orderWorkflow, requestDTO) }*/
     }
 
-    private fun revertOrder(workflow: Workflow, requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
+  /*  private fun revertOrder(workflow: Workflow, requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
         println("Reverting order")
         return Flux.fromStream { workflow.steps.stream() }
             .filter { wf -> wf.status.equals(WorkflowStepStatus.COMPLETE) }
             .flatMap(WorkflowStep::revert)
             .retry(3)
             .then(Mono.just(getResponseDTO(requestDTO, OrderStatus.ORDER_CANCELLED)))
-    }
+    }*/
 
     private fun getOrderWorkflow(requestDTO: OrchestratorRequestDTO): Workflow {
         val walletStep: WorkflowStep = WalletStep(walletClient, getPaymentRequestDTO(requestDTO))

@@ -1,22 +1,55 @@
 package com.group1.order.service
 
-import com.group1.order.dto.OrchestratorRequestDTO
+import com.group1.dto.OrchestratorRequestDTO
+import com.group1.dto.OrchestratorResponseDTO
 import com.group1.order.dto.OrderRequestDTO
 import com.group1.order.dto.OrderResponseDTO
 import com.group1.order.entity.PurchaseOrder
-import com.group1.order.enums.OrderStatus
+import com.group1.enums.OrderStatus
 import com.group1.order.repository.PurchaseOrderRepository
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.internals.RecordHeader
+import org.springframework.kafka.requestreply.ReplyingKafkaTemplate
+import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.stereotype.Service
-import reactor.core.publisher.FluxSink
 import java.util.stream.Collectors
 
 @Service
-class OrderService(val purchaseOrderRepository: PurchaseOrderRepository, val sink: FluxSink<OrchestratorRequestDTO>) {
+class OrderService(
+    val purchaseOrderRepository: PurchaseOrderRepository,
+    val template: ReplyingKafkaTemplate<String, OrchestratorRequestDTO, OrchestratorResponseDTO>
+) {
 
     fun createOrder(orderRequestDTO: OrderRequestDTO): PurchaseOrder {
-        val purchaseOrder: PurchaseOrder = purchaseOrderRepository.save(dtoToEntity(orderRequestDTO))
-        sink.next(getOrchestratorRequestDTO(orderRequestDTO))
-        return purchaseOrder
+        val purchaseOrder: PurchaseOrder = dtoToEntity(orderRequestDTO)
+
+        val orchestratorRequestDTO = getOrchestratorRequestDTO(orderRequestDTO);
+        val record = ProducerRecord<String, OrchestratorRequestDTO>("order-created", orchestratorRequestDTO)
+
+        record.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-updated".toByteArray()))
+
+        try {
+            println("sending")
+            val replyFuture = template.sendAndReceive(record)
+            val orchestratorResponse = replyFuture.get().value()
+
+            println("Orchestrator response is")
+            println(orchestratorResponse)
+
+            if (orchestratorResponse.status === OrderStatus.ORDER_COMPLETED) {
+                purchaseOrder.status = OrderStatus.ORDER_COMPLETED
+            } else {
+                println("Kafka response failure")
+                purchaseOrder.status = OrderStatus.ORDER_CANCELLED
+            }
+
+        } catch (e: Exception) {
+            println("Kafka timeout failure")
+            purchaseOrder.status = OrderStatus.ORDER_CANCELLED
+        }
+
+
+        return purchaseOrderRepository.save(purchaseOrder)
     }
 
     val all: List<Any>

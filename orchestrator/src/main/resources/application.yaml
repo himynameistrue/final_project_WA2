@@ -1,16 +1,19 @@
 server:
   port: 8083
 ---
-spring.cloud.stream:
-  function:
-    definition: processor
-  bindings:
-    processor-in-0:
-      destination: order-created
-    processor-out-0:
-      destination: order-updated
+spring:
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 ---
 service:
   endpoints:
     warehouse: http://localhost:8084
     wallet: http://localhost:8082
+

@@ -1,6 +1,6 @@
 package com.group1.order.entity
 
-import com.group1.order.enums.OrderStatus
+import com.group1.enums.OrderStatus
 import javax.persistence.Entity
 import javax.persistence.Id
 import java.util.UUID

@@ -1,5 +1,6 @@
-package com.group1.orchestrator.dto
-import com.group1.orchestrator.enums.OrderStatus
+package com.group1.dto
+
+import com.group1.enums.OrderStatus
 import java.util.UUID
 
 data class OrchestratorResponseDTO (
