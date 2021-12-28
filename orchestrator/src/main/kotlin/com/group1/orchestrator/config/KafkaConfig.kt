@@ -15,7 +15,11 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
     /**
      * All topics this service is going to wait for
      */
-    private val allTopics = arrayOf("order-create-wallet-to-orchestrator", "order-create-warehouse-to-orchestrator")
+    private val allTopics = arrayOf(
+        "order-create-wallet-to-orchestrator",
+        "order-create-warehouse-to-orchestrator",
+        "order-create-rollback-wallet-to-orchestrator"
+    )
 
     /**
      * The target group for all messages

@@ -32,7 +32,8 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
         pf: ProducerFactory<String?, Any?>?,
         container: KafkaMessageListenerContainer<String?, Any?>?
     ): ReplyingKafkaTemplate<*, *, *>? {
-        return ReplyingKafkaTemplate(pf, container);
+        val template = ReplyingKafkaTemplate(pf, container);
+        return template;
     }
 
     @Bean
