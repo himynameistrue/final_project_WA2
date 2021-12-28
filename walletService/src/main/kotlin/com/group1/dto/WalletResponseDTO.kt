@@ -1,6 +1,6 @@
-package com.group1.wallet.dto
+package com.group1.dto
 
-import com.group1.wallet.enums.PaymentStatus
+import com.group1.enums.PaymentStatus
 import java.util.UUID
 
 data class WalletResponseDTO (

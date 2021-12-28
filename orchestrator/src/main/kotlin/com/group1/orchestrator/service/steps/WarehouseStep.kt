@@ -1,8 +1,8 @@
 package com.group1.orchestrator.service.steps
 
-import com.group1.orchestrator.dto.WarehouseRequestDTO
-import com.group1.orchestrator.dto.WarehouseResponseDTO
-import com.group1.orchestrator.enums.InventoryStatus
+import com.group1.dto.WarehouseRequestDTO
+import com.group1.dto.WarehouseResponseDTO
+import com.group1.enums.InventoryStatus
 import com.group1.orchestrator.service.WorkflowStep
 import com.group1.orchestrator.service.WorkflowStepStatus
 import org.springframework.web.reactive.function.BodyInserters

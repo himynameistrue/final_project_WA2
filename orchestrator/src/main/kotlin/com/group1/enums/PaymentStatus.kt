@@ -1,4 +1,4 @@
-package com.group1.orchestrator.enums
+package com.group1.enums
 
 enum class PaymentStatus {
     PAYMENT_APPROVED,

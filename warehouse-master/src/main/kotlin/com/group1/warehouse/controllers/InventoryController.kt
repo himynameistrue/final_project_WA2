@@ -1,8 +1,8 @@
-package com.wa2.finalproject.warehouse.controllers
+package com.group1.warehouse.controllers
 
-import com.wa2.finalproject.warehouse.dto.WarehouseRequestDTO
-import com.wa2.finalproject.warehouse.dto.WarehouseResponseDTO
-import com.wa2.finalproject.warehouse.services.InventoryService
+import com.group1.dto.WarehouseRequestDTO
+import com.group1.dto.WarehouseResponseDTO
+import com.group1.warehouse.services.InventoryService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

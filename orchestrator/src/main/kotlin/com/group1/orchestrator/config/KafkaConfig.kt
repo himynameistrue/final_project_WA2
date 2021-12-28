@@ -1,4 +1,4 @@
-package com.group1.order.config
+package com.group1.orchestrator.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +15,7 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
     /**
      * All topics this service is going to wait for
      */
-    private val allTopics = arrayOf("order-create-orchestrator-to-order")
+    private val allTopics = arrayOf("order-create-wallet-to-orchestrator", "order-create-warehouse-to-orchestrator")
 
     /**
      * The target group for all messages

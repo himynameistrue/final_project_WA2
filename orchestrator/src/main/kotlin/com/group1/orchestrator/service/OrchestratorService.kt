@@ -3,8 +3,8 @@ package com.group1.orchestrator.service
 
 import com.group1.dto.OrchestratorRequestDTO
 import com.group1.dto.OrchestratorResponseDTO
-import com.group1.orchestrator.dto.WalletRequestDTO
-import com.group1.orchestrator.dto.WarehouseRequestDTO
+import com.group1.dto.WalletRequestDTO
+import com.group1.dto.WarehouseRequestDTO
 import com.group1.enums.OrderStatus
 import com.group1.orchestrator.service.steps.WalletStep
 import com.group1.orchestrator.service.steps.WarehouseStep
@@ -25,6 +25,7 @@ class OrchestratorService {
     @Autowired
     @Qualifier("warehouse")
     private lateinit var warehouseClient: WebClient
+
 
     fun orderProduct(requestDTO: OrchestratorRequestDTO): Mono<OrchestratorResponseDTO> {
         val orderWorkflow: Workflow = getOrderWorkflow(requestDTO)

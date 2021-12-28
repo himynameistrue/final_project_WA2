@@ -1,8 +1,8 @@
 package com.group1.orchestrator.service.steps
 
-import com.group1.orchestrator.dto.WalletRequestDTO
-import com.group1.orchestrator.dto.WalletResponseDTO
-import com.group1.orchestrator.enums.PaymentStatus
+import com.group1.dto.WalletRequestDTO
+import com.group1.dto.WalletResponseDTO
+import com.group1.enums.PaymentStatus
 import com.group1.orchestrator.service.WorkflowStep
 import com.group1.orchestrator.service.WorkflowStepStatus
 import org.springframework.web.reactive.function.BodyInserters

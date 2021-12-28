@@ -24,9 +24,9 @@ class OrderService(
         val purchaseOrder: PurchaseOrder = dtoToEntity(orderRequestDTO)
 
         val orchestratorRequestDTO = getOrchestratorRequestDTO(orderRequestDTO);
-        val record = ProducerRecord<String, OrchestratorRequestDTO>("order-created", orchestratorRequestDTO)
+        val record = ProducerRecord<String, OrchestratorRequestDTO>("order-create-order-to-orchestrator", orchestratorRequestDTO)
 
-        record.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-updated".toByteArray()))
+        record.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-orchestrator-to-order".toByteArray()))
 
         try {
             println("sending")

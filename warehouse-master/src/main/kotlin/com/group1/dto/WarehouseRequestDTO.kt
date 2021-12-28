@@ -1,4 +1,5 @@
-package com.group1.orchestrator.dto
+package com.group1.dto
+
 import java.util.UUID
 
 data class WarehouseRequestDTO (

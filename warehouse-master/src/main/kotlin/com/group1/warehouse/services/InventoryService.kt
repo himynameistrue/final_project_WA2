@@ -1,8 +1,8 @@
-package com.wa2.finalproject.warehouse.services
+package com.group1.warehouse.services
 
-import com.wa2.finalproject.warehouse.dto.WarehouseRequestDTO
-import com.wa2.finalproject.warehouse.dto.WarehouseResponseDTO
-import com.wa2.finalproject.warehouse.enums.InventoryStatus
+import com.group1.dto.WarehouseRequestDTO
+import com.group1.dto.WarehouseResponseDTO
+import com.group1.enums.InventoryStatus
 import org.springframework.stereotype.Service
 import javax.annotation.PostConstruct
 

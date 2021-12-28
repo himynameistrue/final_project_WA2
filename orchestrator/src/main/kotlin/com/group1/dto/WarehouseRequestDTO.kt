@@ -1,5 +1,4 @@
-package com.wa2.finalproject.warehouse.dto
-
+package com.group1.dto
 import java.util.UUID
 
 data class WarehouseRequestDTO (

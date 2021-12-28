@@ -1,5 +1,5 @@
-package com.group1.orchestrator.dto
-import com.group1.orchestrator.enums.PaymentStatus
+package com.group1.dto
+import com.group1.enums.PaymentStatus
 import java.util.UUID
 
 data class WalletResponseDTO (

@@ -1,4 +1,4 @@
-package com.wa2.finalproject.warehouse.enums
+package com.group1.enums
 
 enum class InventoryStatus {
     AVAILABLE, UNAVAILABLE;

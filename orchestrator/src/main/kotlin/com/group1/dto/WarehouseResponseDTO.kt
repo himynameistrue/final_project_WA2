@@ -1,6 +1,5 @@
-package com.wa2.finalproject.warehouse.dto
-
-import com.wa2.finalproject.warehouse.enums.InventoryStatus
+package com.group1.dto
+import com.group1.enums.InventoryStatus
 import java.util.UUID
 
 data class WarehouseResponseDTO (

@@ -1,10 +1,9 @@
 package com.group1.wallet.service
 
-import com.group1.wallet.dto.WalletRequestDTO
-import com.group1.wallet.dto.WalletResponseDTO
-import com.group1.wallet.enums.PaymentStatus
+import com.group1.dto.WalletRequestDTO
+import com.group1.dto.WalletResponseDTO
+import com.group1.enums.PaymentStatus
 import org.springframework.stereotype.Service
-import java.util.function.BiFunction
 import javax.annotation.PostConstruct
 
 @Service
@@ -14,7 +13,7 @@ class WalletService {
     @PostConstruct
     private fun init() {
         userBalanceMap = mutableMapOf(
-            1 to 1000.0,
+            1 to 15000.0,
             2 to 1000.0,
             3 to 1000.0
         )

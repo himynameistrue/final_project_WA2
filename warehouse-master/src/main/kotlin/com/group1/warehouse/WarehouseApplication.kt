@@ -1,4 +1,4 @@
-package com.wa2.finalproject.warehouse
+package com.group1.warehouse
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
