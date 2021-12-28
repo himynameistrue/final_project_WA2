@@ -4,7 +4,6 @@ import com.group1.dto.*
 import com.group1.enums.InventoryStatus
 import com.group1.enums.OrderStatus
 import com.group1.enums.PaymentStatus
-import com.group1.orchestrator.service.OrchestratorService
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.header.internals.RecordHeader
 import org.springframework.context.annotation.Configuration
@@ -15,7 +14,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 
 @Configuration
 class OrderCreatedEventHandler(
-    val orchestratorService: OrchestratorService,
     val walletTemplate: ReplyingKafkaTemplate<String, WalletRequestDTO, WalletResponseDTO>,
     val warehouseTemplate: ReplyingKafkaTemplate<String, WarehouseRequestDTO, WarehouseResponseDTO>,
     val walletRollbackTemplate: ReplyingKafkaTemplate<String, WalletRequestDTO, Boolean>
@@ -68,7 +66,6 @@ class OrderCreatedEventHandler(
         } catch (e: Exception){
             println(e)
             if(::walletResponse.isInitialized){
-
                 val walletRollbackRecord = ProducerRecord<String, WalletRequestDTO>("order-create-rollback-orchestrator-to-wallet", walletRequestDTO)
                 walletRollbackRecord.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-rollback-wallet-to-orchestrator".toByteArray()))
 
@@ -77,7 +74,6 @@ class OrderCreatedEventHandler(
                 println("Sending wallet rollback request")
                 val walletRollbackResponse =  walletRollbackReplyFuture.get().value()
                 println(walletRollbackResponse)
-                // TODO rollback wallet operation
             }
         }
 

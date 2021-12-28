@@ -11,9 +11,3 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
----
-service:
-  endpoints:
-    warehouse: http://localhost:8084
-    wallet: http://localhost:8082
-
