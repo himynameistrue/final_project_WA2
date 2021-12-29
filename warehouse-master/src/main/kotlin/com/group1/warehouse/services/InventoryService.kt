@@ -16,6 +16,7 @@ class InventoryService {
             1 to 5,
             2 to 5,
             3 to 5,
+            4 to 0
         )
     }
 

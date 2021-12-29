@@ -92,7 +92,8 @@ class OrderService(
         private val PRODUCT_PRICE: Map<Int, Double> = mapOf(
             1 to 100.0,
             2 to 200.0,
-            3 to 300.0
+            3 to 300.0,
+            4 to 100.0
         )
     }
 }

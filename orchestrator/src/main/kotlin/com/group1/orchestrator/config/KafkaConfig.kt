@@ -2,6 +2,7 @@ package com.group1.orchestrator.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
@@ -17,8 +18,7 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
      */
     private val allTopics = arrayOf(
         "order-create-wallet-to-orchestrator",
-        "order-create-warehouse-to-orchestrator",
-        "order-create-rollback-wallet-to-orchestrator"
+        "order-create-warehouse-to-orchestrator"
     )
 
     /**
@@ -26,8 +26,9 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
      */
     private val consumerGroup = "orchestrator-group"
 
+    @Primary
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<*, *>? {
+    fun kafkaTemplate(): KafkaTemplate<*, *> {
         return KafkaTemplate(producerFactory)
     }
 
@@ -35,12 +36,12 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
     fun replyingKafkaTemplate(
         pf: ProducerFactory<String?, Any?>?,
         container: KafkaMessageListenerContainer<String?, Any?>?
-    ): ReplyingKafkaTemplate<*, *, *>? {
+    ): ReplyingKafkaTemplate<*, *, *> {
         return ReplyingKafkaTemplate(pf, container);
     }
 
     @Bean
-    fun replyContainer(cf: ConsumerFactory<String, Any>): KafkaMessageListenerContainer<String, Any>? {
+    fun replyContainer(cf: ConsumerFactory<String, Any>): KafkaMessageListenerContainer<String, Any> {
         val containerProperties = ContainerProperties(*allTopics)
         containerProperties.setGroupId(consumerGroup)
         return KafkaMessageListenerContainer(cf, containerProperties)

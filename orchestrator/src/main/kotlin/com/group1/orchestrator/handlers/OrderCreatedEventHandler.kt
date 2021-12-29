@@ -8,18 +8,19 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.header.internals.RecordHeader
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.SendTo
+import java.util.concurrent.CompletableFuture.allOf
 
 @Configuration
 class OrderCreatedEventHandler(
     val walletTemplate: ReplyingKafkaTemplate<String, WalletRequestDTO, WalletResponseDTO>,
     val warehouseTemplate: ReplyingKafkaTemplate<String, WarehouseRequestDTO, WarehouseResponseDTO>,
-    val walletRollbackTemplate: ReplyingKafkaTemplate<String, WalletRequestDTO, Boolean>
-
+    val walletRollbackTemplate: KafkaTemplate<String, WalletRequestDTO>,
+    val warehouseRollbackTemplate: KafkaTemplate<String, WarehouseRequestDTO>,
     ) {
-    lateinit var walletResponse: WalletResponseDTO
 
     @KafkaListener(topics = ["order-create-order-to-orchestrator"], groupId = "orchestrator-group")
     @SendTo
@@ -30,29 +31,41 @@ class OrderCreatedEventHandler(
         val walletRequestDTO = WalletRequestDTO(requestDTO.userId, requestDTO.orderId, requestDTO.amount)
         val warehouseRequestDTO = WarehouseRequestDTO(requestDTO.userId, requestDTO.productId, requestDTO.orderId)
 
-        val walletRecord = ProducerRecord<String, WalletRequestDTO>("order-create-orchestrator-to-wallet", walletRequestDTO)
-        walletRecord.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-wallet-to-orchestrator".toByteArray()))
+        val walletRecord =
+            ProducerRecord<String, WalletRequestDTO>("order-create-orchestrator-to-wallet", walletRequestDTO)
+        walletRecord.headers()
+            .add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-wallet-to-orchestrator".toByteArray()))
 
 
-        val warehouseRecord = ProducerRecord<String, WarehouseRequestDTO>("order-create-orchestrator-to-warehouse", warehouseRequestDTO)
-        warehouseRecord.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-warehouse-to-orchestrator".toByteArray()))
+        val warehouseRecord =
+            ProducerRecord<String, WarehouseRequestDTO>("order-create-orchestrator-to-warehouse", warehouseRequestDTO)
+        warehouseRecord.headers()
+            .add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-warehouse-to-orchestrator".toByteArray()))
 
+        val walletReplyFuture = walletTemplate.sendAndReceive(walletRecord).completable()
+        val warehouseReplyFuture = warehouseTemplate.sendAndReceive(warehouseRecord).completable()
 
         try {
-            val walletReplyFuture = walletTemplate.sendAndReceive(walletRecord)
-            val warehouseReplyFuture = warehouseTemplate.sendAndReceive(warehouseRecord)
+            println("Sending both requests")
+            val allFuturesResult = allOf(walletReplyFuture, warehouseReplyFuture)
 
-            println("Sending wallet request")
-            walletResponse = walletReplyFuture.get().value()
+            // Wait for both responses to be resolved
+            allFuturesResult.get()
+
+            // Retrieve content of both responses
+            val walletResponse = walletReplyFuture.get().value()
+            val warehouseResponse = warehouseReplyFuture.get().value()
+            println("Wallet response:")
             println(walletResponse)
 
-            println("Sending warehouse request")
-            val warehouseResponse = warehouseReplyFuture.get().value()
+            println("Warehouse response:")
             println(warehouseResponse)
 
             if (walletResponse.status === PaymentStatus.PAYMENT_APPROVED
                 && warehouseResponse.status === InventoryStatus.AVAILABLE
             ) {
+                println("Order created successfully")
+
                 return OrchestratorResponseDTO(
                     requestDTO.userId,
                     requestDTO.productId,
@@ -63,20 +76,56 @@ class OrderCreatedEventHandler(
 
             }
 
-        } catch (e: Exception){
+        } catch (e: Exception) {
             println(e)
-            if(::walletResponse.isInitialized){
-                val walletRollbackRecord = ProducerRecord<String, WalletRequestDTO>("order-create-rollback-orchestrator-to-wallet", walletRequestDTO)
-                walletRollbackRecord.headers().add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "order-create-rollback-wallet-to-orchestrator".toByteArray()))
 
-                val walletRollbackReplyFuture = walletRollbackTemplate.sendAndReceive(walletRollbackRecord)
+            val didWalletFail = walletReplyFuture.isCompletedExceptionally
+            val didWarehouseFail = warehouseReplyFuture.isCompletedExceptionally
 
-                println("Sending wallet rollback request")
-                val walletRollbackResponse =  walletRollbackReplyFuture.get().value()
-                println(walletRollbackResponse)
+            if (didWalletFail && !didWarehouseFail) {
+                println("Wallet service failed")
+
+                val warehouseResponse = warehouseReplyFuture.get().value()
+
+                if(warehouseResponse.status !== InventoryStatus.AVAILABLE){
+                    println("Warehouse did not respond successfully -> nothing to roll back")
+                } else {
+                    println("Rolling back warehouse")
+                    val warehouseRollbackRecord = ProducerRecord<String, WarehouseRequestDTO>(
+                        "order-create-rollback-orchestrator-to-warehouse",
+                        warehouseRequestDTO
+                    )
+
+                    println("Sending warehouse rollback request")
+                    warehouseRollbackTemplate.send(warehouseRollbackRecord)
+                }
+            } else if (didWarehouseFail && !didWalletFail) {
+                println("Warehouse service failed")
+
+                val walletResponse = walletReplyFuture.get().value()
+
+                if(walletResponse.status !== PaymentStatus.PAYMENT_APPROVED){
+                    println("Wallet did not respond successfully -> nothing to roll back")
+                } else {
+                    println("Rolling back wallet")
+                    val walletRollbackRecord = ProducerRecord<String, WalletRequestDTO>(
+                        "order-create-rollback-orchestrator-to-wallet",
+                        walletRequestDTO
+                    )
+
+                    println("Sending wallet rollback request")
+                    walletRollbackTemplate.send(walletRollbackRecord)
+                }
             }
+            println("End of catch block")
         }
 
-        return OrchestratorResponseDTO(requestDTO.userId, requestDTO.productId, requestDTO.orderId, requestDTO.amount, OrderStatus.ORDER_CANCELLED);
+        return OrchestratorResponseDTO(
+            requestDTO.userId,
+            requestDTO.productId,
+            requestDTO.orderId,
+            requestDTO.amount,
+            OrderStatus.ORDER_CANCELLED
+        );
     }
 }
