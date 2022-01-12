@@ -1,6 +1,7 @@
 package com.group1.dto
 
 import com.group1.enums.InventoryStatus
+import java.io.Serializable
 import java.util.UUID
 
 data class WarehouseResponseDTO (
@@ -8,4 +9,4 @@ data class WarehouseResponseDTO (
     val userId: Int,
     val productId: Int,
     val status: InventoryStatus
-)
+) : Serializable

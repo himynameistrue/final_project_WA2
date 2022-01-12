@@ -3,11 +3,14 @@ package com.group1.warehouse.services
 import com.group1.dto.WarehouseRequestDTO
 import com.group1.dto.WarehouseResponseDTO
 import com.group1.enums.InventoryStatus
+import com.group1.warehouse.entities.WarehouseOutbox
+import com.group1.warehouse.repositories.WarehouseOutboxRepository
 import org.springframework.stereotype.Service
+import org.springframework.util.SerializationUtils
 import javax.annotation.PostConstruct
 
 @Service
-class InventoryService {
+class InventoryService(val warehouseOutboxRepository: WarehouseOutboxRepository) {
     private var productInventoryMap: MutableMap<Int, Int>? = null
 
     @PostConstruct
@@ -20,7 +23,7 @@ class InventoryService {
         )
     }
 
-    fun deductInventory(requestDTO: WarehouseRequestDTO): WarehouseResponseDTO {
+    fun deductInventory(requestDTO: WarehouseRequestDTO, correlationId: ByteArray, replyTopic: String) {
         val quantity = productInventoryMap!!.getOrDefault(requestDTO.productId, 0)
 
         var status = InventoryStatus.UNAVAILABLE
@@ -36,7 +39,14 @@ class InventoryService {
             requestDTO.productId,
             status
         )
-        return responseDTO
+
+
+        val outbox = WarehouseOutbox(correlationId, replyTopic, SerializationUtils.serialize(responseDTO)!!)
+
+        warehouseOutboxRepository.save(outbox)
+        //warehouseOutboxRepository.delete(outbox)
+
+        return
     }
 
     fun addInventory(requestDTO: WarehouseRequestDTO) {

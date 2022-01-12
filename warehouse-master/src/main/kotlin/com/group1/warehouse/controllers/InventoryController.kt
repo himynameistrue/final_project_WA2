@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("inventory")
 class InventoryController(val service: InventoryService) {
-    @PostMapping("/deduct")
+    /*@PostMapping("/deduct")
     fun deduct(@RequestBody requestDTO: WarehouseRequestDTO): WarehouseResponseDTO {
         return service.deductInventory(requestDTO)
-    }
+    }*/
 
     @PostMapping("/add")
     fun add(@RequestBody requestDTO: WarehouseRequestDTO) {
