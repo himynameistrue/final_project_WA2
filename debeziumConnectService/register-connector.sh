@@ -23,6 +23,7 @@ curl -X POST \
       "errors.log.enable": "true",
       "errors.log.include.messages": "true",
       "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+      "value.converter.schemas.enable": "false"
    }
 }'
 
