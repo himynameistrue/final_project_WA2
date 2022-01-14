@@ -1,5 +1,6 @@
 package com.group1.warehouse.services
 
+import com.google.gson.Gson
 import com.group1.dto.WarehouseRequestDTO
 import com.group1.dto.WarehouseResponseDTO
 import com.group1.enums.InventoryStatus
@@ -40,8 +41,9 @@ class InventoryService(val warehouseOutboxRepository: WarehouseOutboxRepository)
             status
         )
 
+        val responseJson = Gson().toJson(responseDTO)
 
-        val outbox = WarehouseOutbox(correlationId, replyTopic, SerializationUtils.serialize(responseDTO)!!)
+        val outbox = WarehouseOutbox(correlationId, replyTopic, responseDTO.javaClass.name, responseJson)
 
         warehouseOutboxRepository.save(outbox)
         //warehouseOutboxRepository.delete(outbox)

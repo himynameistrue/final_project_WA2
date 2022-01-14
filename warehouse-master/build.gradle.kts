@@ -27,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.google.code.gson:gson")
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")

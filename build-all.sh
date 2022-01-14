@@ -11,6 +11,6 @@ echo -e "\n\nbuilding warehouse-service"
 cd ../warehouse-master && ./gradlew clean build
 
 echo -e "\n\nbuilding debezium"
-cd ../outboxTransformer && mvn package
+cd ../debeziumConnectService && mvn package
 
 docker-compose build

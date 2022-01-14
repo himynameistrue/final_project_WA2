@@ -38,9 +38,9 @@ services:
       - zookeeper
 
   debezium-connect:
-    container_name: debezium
-    image: debezium-image
-    build: ./outboxTransformer
+    container_name: debezium_connect
+    image: debezium-connect-image
+    build: ./debeziumConnectService
     hostname: debezium-connect
     ports:
       - '8083:8083'
