@@ -1,11 +1,13 @@
 package com.group1.outbox;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.header.ConnectHeaders;
 import org.apache.kafka.connect.transforms.Transformation;
 
+import java.io.IOException;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
 
@@ -47,20 +49,26 @@ public class CustomTransformation<R extends ConnectRecord<R>> implements Transfo
             System.out.println("payload:");
             System.out.println(payload);
 
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Map payloadObject = mapper.readValue(payload, Map.class);
 
-            ConnectHeaders headers = new ConnectHeaders();
-            headers.addString("__TypeId__", payloadType);
-            headers.addString("kafka_correlationId", stringCorrelationId);
+                ConnectHeaders headers = new ConnectHeaders();
+                headers.addString("__TypeId__", payloadType);
+                headers.addString("kafka_correlationId", stringCorrelationId);
 
-            // Build the event to be published.
-            sourceRecord = sourceRecord.newRecord(replyTopic, // topic
-                    null, // partition
-                    null, // key schema
-                    null, // key
-                    null, // value schema
-                    payload, // value
-                    sourceRecord.timestamp(), // timestamp
-                    headers); //header
+                // Build the event to be published.
+                sourceRecord = sourceRecord.newRecord(replyTopic, // topic
+                        null, // partition
+                        null, // key schema
+                        null, // key
+                        null, // value schema
+                        payloadObject, // value
+                        sourceRecord.timestamp(), // timestamp
+                        headers); //header
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return sourceRecord;
