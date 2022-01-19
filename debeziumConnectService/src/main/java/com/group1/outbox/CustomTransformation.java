@@ -8,6 +8,7 @@ import org.apache.kafka.connect.header.ConnectHeaders;
 import org.apache.kafka.connect.transforms.Transformation;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
 
@@ -37,14 +38,15 @@ public class CustomTransformation<R extends ConnectRecord<R>> implements Transfo
             // Get the details.
             Struct after = (Struct) kStruct.get("after");
 
-            byte[] correlationId = after.getBytes("correlation_id");
+            String correlationId = after.getString("correlation_id");
             String payloadType = after.getString("payload_type");
             String payload = after.getString("payload");
             String replyTopic = after.getString("reply_topic");
-            String stringCorrelationId = new String(correlationId, StandardCharsets.UTF_8);
 
             System.out.println("correlationId:");
-            System.out.println(stringCorrelationId);
+            System.out.println(correlationId);
+            System.out.println(Arrays.toString(correlationId.getBytes(StandardCharsets.UTF_8)));
+
 
             System.out.println("payload:");
             System.out.println(payload);
@@ -55,7 +57,10 @@ public class CustomTransformation<R extends ConnectRecord<R>> implements Transfo
 
                 ConnectHeaders headers = new ConnectHeaders();
                 headers.addString("__TypeId__", payloadType);
-                headers.addString("kafka_correlationId", stringCorrelationId);
+                headers.addString("kafka_correlationId", correlationId);
+
+                System.out.println("headers:");
+                System.out.println(headers.toString());
 
                 // Build the event to be published.
                 sourceRecord = sourceRecord.newRecord(replyTopic, // topic

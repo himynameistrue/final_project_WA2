@@ -5,7 +5,7 @@ import javax.persistence.Entity
 
 @Entity
 class WarehouseOutbox(
-    val correlationId: ByteArray,
+    val correlationId: String,
     val replyTopic: String,
     val payloadType: String,
     @Column(columnDefinition="text")

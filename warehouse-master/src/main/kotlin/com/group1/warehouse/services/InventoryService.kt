@@ -7,7 +7,6 @@ import com.group1.enums.InventoryStatus
 import com.group1.warehouse.entities.WarehouseOutbox
 import com.group1.warehouse.repositories.WarehouseOutboxRepository
 import org.springframework.stereotype.Service
-import org.springframework.util.SerializationUtils
 import javax.annotation.PostConstruct
 
 @Service
@@ -24,7 +23,7 @@ class InventoryService(val warehouseOutboxRepository: WarehouseOutboxRepository)
         )
     }
 
-    fun deductInventory(requestDTO: WarehouseRequestDTO, correlationId: ByteArray, replyTopic: String) {
+    fun deductInventory(requestDTO: WarehouseRequestDTO, correlationId: String, replyTopic: String) {
         val quantity = productInventoryMap!!.getOrDefault(requestDTO.productId, 0)
 
         var status = InventoryStatus.UNAVAILABLE

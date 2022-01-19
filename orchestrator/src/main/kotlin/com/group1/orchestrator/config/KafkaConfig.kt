@@ -8,7 +8,10 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.listener.KafkaMessageListenerContainer
+import org.springframework.kafka.requestreply.CorrelationKey
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate
+import java.nio.charset.StandardCharsets
+import java.util.*
 
 @Configuration
 class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
@@ -37,7 +40,13 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
         pf: ProducerFactory<String?, Any?>?,
         container: KafkaMessageListenerContainer<String?, Any?>?
     ): ReplyingKafkaTemplate<*, *, *> {
-        return ReplyingKafkaTemplate(pf, container);
+        val replyingTemplate =  ReplyingKafkaTemplate(pf, container)
+
+        replyingTemplate.setCorrelationIdStrategy {
+            val bytes = UUID.randomUUID().toString().toByteArray(StandardCharsets.UTF_8)
+            CorrelationKey(bytes)
+        }
+        return replyingTemplate;
     }
 
     @Bean
