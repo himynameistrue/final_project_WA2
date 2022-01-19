@@ -12,13 +12,16 @@ services:
       - SYS_NICE
     volumes:
       - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
-      - /data/mysql
+      - ./docker/mysql/data:/data/mysql
 
   zookeeper:
     container_name: zookeeper
     image: zookeeper
     ports:
       - "2181:2181"
+    volumes:
+      - ./docker/volumes/zookeeper/data:/var/lib/zookeeper/data
+      - ./docker/volumes/zookeeper/log:/var/lib/zookeeper/log
 
   kafka:
     container_name: kafka
@@ -36,6 +39,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+    volumes:
+      - ./docker/volumes/kafka/data:/var/lib/kafka/data
 
   debezium-connect:
     container_name: debezium_connect
