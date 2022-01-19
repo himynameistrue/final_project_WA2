@@ -4,15 +4,29 @@ services:
   mysql:
     container_name: mysql
     image: mysql:latest
+    restart: always
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_ROOT_PASSWORD=wa2
     cap_add:
       - SYS_NICE
     volumes:
       - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
       - ./docker/mysql/data:/data/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - '1025:1025' # smtp server
+      - '8025:8025' # web ui
 
   zookeeper:
     container_name: zookeeper
@@ -70,6 +84,16 @@ services:
     depends_on:
       - kafka
 
+  catalog:
+    container_name: catalog_service
+    image: catalog-image
+    restart: on-failure
+    build: ./catalogService
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+
   order:
     container_name: order_service
     image: order-image
@@ -80,26 +104,26 @@ services:
     ports:
       - "8081:8081"
 
-  orchestrator:
-    container_name: orchestrator_service
-    image: orchestrator-image
-    build: ./orchestrator
-    depends_on:
-      - kafka
-      - mysql
+#  orchestrator:
+#    container_name: orchestrator_service
+#    image: orchestrator-image
+#    build: ./orchestrator
+#    depends_on:
+#      - kafka
+#      - mysql
 
-  wallet:
-    container_name: wallet_service
-    image: wallet-image
-    build: ./walletService
-    depends_on:
-      - kafka
-      - mysql
+#  wallet:
+#    container_name: wallet_service
+#    image: wallet-image
+#    build: ./walletService
+#    depends_on:
+#      - kafka
+#      - mysql
 
-  warehouse:
-    container_name: warehouse_service
-    image: warehouse-image
-    build: ./warehouse-master
-    depends_on:
-      - kafka
-      - mysql
+#  warehouse:
+#    container_name: warehouse_service
+#    image: warehouse-image
+#    build: ./warehouse-master
+#    depends_on:
+#      - kafka
+#      - mysql

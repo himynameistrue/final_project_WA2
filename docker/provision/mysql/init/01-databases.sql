@@ -1,4 +1,5 @@
 # create databases
+CREATE DATABASE IF NOT EXISTS `catalog_service_db`;
 CREATE DATABASE IF NOT EXISTS `order_service_db`;
 CREATE DATABASE IF NOT EXISTS `wallet_service_db`;
 CREATE DATABASE IF NOT EXISTS `warehouse_service_db`;
