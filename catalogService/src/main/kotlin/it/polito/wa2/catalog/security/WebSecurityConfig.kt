@@ -25,7 +25,7 @@ class WebSecurityConfig(
     override fun configure(http: HttpSecurity) {
         http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
             .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .authorizeRequests().antMatchers("/auth/**").permitAll()
+            .authorizeRequests().antMatchers("/auth/**", "/orders/**").permitAll()
             .and()
             .authorizeRequests().anyRequest().authenticated()
             .and()

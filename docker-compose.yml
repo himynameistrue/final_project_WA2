@@ -96,6 +96,7 @@ services:
 
   order:
     container_name: order_service
+    hostname: order
     image: order-image
     build: ./orderService
     depends_on:

@@ -8,7 +8,7 @@ import kotlin.collections.List;
 import java.util.UUID
 
 @RestController
-@RequestMapping("order")
+@RequestMapping("orders")
 class OrderController(val service: OrderService) {
 
     @PostMapping("/create")
