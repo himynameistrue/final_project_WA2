@@ -105,26 +105,31 @@ services:
     ports:
       - "8081:8081"
 
-#  orchestrator:
-#    container_name: orchestrator_service
-#    image: orchestrator-image
-#    build: ./orchestrator
-#    depends_on:
-#      - kafka
-#      - mysql
+  orchestrator:
+    hostname: orchestrator
+    container_name: orchestrator_service
+    image: orchestrator-image
+    build: ./orchestratorService
+    depends_on:
+      - kafka
+      - mysql
+    ports:
+      - "8082:8082"
 
-#  wallet:
-#    container_name: wallet_service
-#    image: wallet-image
-#    build: ./walletService
-#    depends_on:
-#      - kafka
-#      - mysql
+  wallet:
+    hostname: wallet
+    container_name: wallet_service
+    image: wallet-image
+    build: ./walletService
+    depends_on:
+      - kafka
+      - mysql
 
-#  warehouse:
-#    container_name: warehouse_service
-#    image: warehouse-image
-#    build: ./warehouse-master
-#    depends_on:
-#      - kafka
-#      - mysql
+  warehouse:
+    hostname: warehouse
+    container_name: warehouse_service
+    image: warehouse-image
+    build: ./warehouseService
+    depends_on:
+      - kafka
+      - mysql

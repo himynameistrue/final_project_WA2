@@ -1,9 +1,12 @@
 package it.polito.wa2.catalog.controllers
 
-import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.startsWith
+import it.polito.wa2.catalog.exceptions.InvalidRestTemplateHostException
+import it.polito.wa2.dto.OrderCreateRequestDTO
+import it.polito.wa2.dto.OrderCreateResponseDTO
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -39,61 +42,81 @@ import javax.servlet.http.HttpServletRequest
 
 @RestController
 class GatewayController {
-    @RequestMapping("/orders/**")
-    fun proxy(request: HttpServletRequest, method: HttpMethod, @RequestBody(required = false) body: String): String? {
 
-        val responseEntity: ResponseEntity<String>? = restTemplate(request, String::class.java)
+    @PostMapping("/orders/create")
+    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateResponseDTO? {
+        lateinit var host: String
+        var port = 8080;
 
-        return responseEntity?.body
-    }
-
-    fun restTemplate(
-        request: HttpServletRequest,
-        responseType: Class<String>,
-    ): ResponseEntity<String>? {
-        // TODO change ResponseEntity type based on responseType
-        var host: String = ""
-        var port: Int = 8081
-
-        val isValidRequest = with(request.requestURI) {
+        with(request.requestURI) {
             when {
                 startsWith("/orders/") -> {
                     host = "order"
                     port = 8081
-                    true
                 }
 
-                else -> false
+                else -> throw InvalidRestTemplateHostException()
             }
         }
 
-        if(!isValidRequest){
-            return null;
+        val uri = URI("http", null, host, port, request.requestURI, request.queryString, null)
+
+        val httpMethod = HttpMethod.POST
+
+
+        val responseEntity = RestTemplate().exchange(
+            uri, httpMethod, HttpEntity<OrderCreateRequestDTO>(newOrderDTO), OrderCreateResponseDTO::class.java
+        )
+
+        print(responseEntity)
+
+        return responseEntity.body
+    }
+
+    @RequestMapping("/orders/**")
+    fun proxy(request: HttpServletRequest): String? {
+
+        val responseEntity: ResponseEntity<String> = restTemplate(request, String::class.java)
+
+        return responseEntity.body
+    }
+
+    fun <T> restTemplate(
+        request: HttpServletRequest,
+        responseType: Class<T>,
+    ): ResponseEntity<T> {
+        lateinit var host: String
+        var port = 8080;
+
+        with(request.requestURI) {
+            when {
+                startsWith("/orders/") -> {
+                    host = "order"
+                    port = 8081
+                }
+
+                else -> throw InvalidRestTemplateHostException()
+            }
         }
 
         val uri = URI("http", null, host, port, request.requestURI, request.queryString, null)
 
         val httpMethod = HttpMethod.valueOf(request.method);
 
-        var restTemplate = RestTemplate().exchange(
-            uri, httpMethod, null,
-            responseType
-        );
+        var body = "";
 
         val hasBody = listOf(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH).any { it ===  httpMethod }
 
         if (hasBody) {
-               val body = request.inputStream.readAllBytes().toString()
-
-            restTemplate= RestTemplate().exchange(
-                uri,
-                httpMethod,
-                HttpEntity<String>(body),
-                responseType
-            )
+            body = request.inputStream.readAllBytes().toString()
         }
 
-        return restTemplate;
+        return RestTemplate().exchange(
+            uri,
+            httpMethod,
+            if(!hasBody) null else HttpEntity<String>(body),
+            responseType
+        );
     }
 
 }
