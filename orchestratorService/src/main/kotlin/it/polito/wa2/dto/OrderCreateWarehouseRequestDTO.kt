@@ -4,6 +4,6 @@ import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
 data class OrderCreateWarehouseRequestDTO(
-    @NotNull val amount: Float,
+    @NotNull val totalPrice: Float,
     @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
 )

@@ -28,8 +28,8 @@ class OrderCreatedEventHandler(
         println("Received request")
         println(requestDTO)
 
-        val walletRequestDTO = OrderCreateWalletRequestDTO(requestDTO.orderId, requestDTO.buyerId, requestDTO.amount)
-        val warehouseRequestDTO = OrderCreateWarehouseRequestDTO(requestDTO.amount, requestDTO.items)
+        val walletRequestDTO = OrderCreateWalletRequestDTO(requestDTO.orderId, requestDTO.buyerId, requestDTO.totalPrice)
+        val warehouseRequestDTO = OrderCreateWarehouseRequestDTO(requestDTO.totalPrice, requestDTO.items)
 
         val walletRecord =
             ProducerRecord<String, OrderCreateWalletRequestDTO>("order-create-orchestrator-to-wallet", walletRequestDTO)

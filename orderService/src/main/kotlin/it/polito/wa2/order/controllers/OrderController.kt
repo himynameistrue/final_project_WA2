@@ -55,7 +55,7 @@ class OrderController(var orderService: OrderServiceImpl) {
         val body = OrderCreateOrchestratorRequestDTO(
             pendingOrder.getId()!!,
             newOrderDTO.buyerId,
-            newOrderDTO.amount,
+            newOrderDTO.totalPrice,
             newOrderDTO.items
         )
 
