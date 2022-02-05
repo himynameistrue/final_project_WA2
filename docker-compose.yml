@@ -34,8 +34,8 @@ services:
     ports:
       - "2181:2181"
     volumes:
-      - ./docker/volumes/zookeeper/data:/var/lib/zookeeper/data
-      - ./docker/volumes/zookeeper/log:/var/lib/zookeeper/log
+      - ./docker/volumes/zookeeper/data:/data
+      - ./docker/volumes/zookeeper/log:/datalog
 
   kafka:
     container_name: kafka
