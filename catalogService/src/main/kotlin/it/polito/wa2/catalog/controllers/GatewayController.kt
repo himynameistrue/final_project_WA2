@@ -1,17 +1,13 @@
 package it.polito.wa2.catalog.controllers
 
 import it.polito.wa2.catalog.exceptions.InvalidRestTemplateHostException
-import it.polito.wa2.dto.OrderCreateRequestDTO
-import it.polito.wa2.dto.OrderCreateResponseDTO
-import it.polito.wa2.dto.ProductCreateRequestDTO
-import it.polito.wa2.dto.ProductDTO
+import it.polito.wa2.dto.*
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -54,8 +50,8 @@ class GatewayController {
         return responseEntity.body
     }
 
-    @RequestMapping("/orders/**")
-    fun proxy(request: HttpServletRequest): String? {
+    @RequestMapping("/orders/all")
+    fun createOrder(request: HttpServletRequest): String? {
 
         val responseEntity: ResponseEntity<String> = restTemplate(request, null, String::class.java)
 
@@ -64,6 +60,34 @@ class GatewayController {
 
     // -------------------------------------------
     // WAREHOUSE SERVICE
+
+    // Retrieves the list of all products. Specifying the category, retrieves all products by a given category
+    @GetMapping("/products")
+    fun getProducts(request: HttpServletRequest): String?{
+        val responseEntity = restTemplate(request, null, String::class.java)
+        // TODO error with the JSON if I use List<ProductDTO>
+        return responseEntity.body
+    }
+
+    // Retrieves the product identified by productID
+    @GetMapping("/products/{productID}")
+    fun getProductByID(request: HttpServletRequest): ProductDTO? {
+        val responseEntity = restTemplate(request, null, ProductDTO::class.java)
+
+        // TODO propagare l'eccezione quando non trovato
+        return responseEntity.body
+    }
+
+    // Gets the list of the warehouses that contain the product
+    @GetMapping("/products/{productID}/warehouses")
+    fun getWarehousesByProductID(request: HttpServletRequest): List<WarehouseDTO>? {
+        val responseEntity = restTemplate(request, null, listOf<WarehouseDTO>()::class.java)
+
+        // TODO if it's empty works, but if it has elements?
+        return responseEntity.body
+    }
+
+    /* ---------- Only for ADMIN ---------- */
 
     // Add new Product
     // TODO Only for admin
@@ -74,20 +98,44 @@ class GatewayController {
         return responseEntity.body
     }
 
-    // Retrieves the list of all products. Specifying the category, retrieves all products by a given category
-    @GetMapping("/products")
-    fun getProducts(request: HttpServletRequest, category: String?): List<ProductDTO>?{
-        val productEmpty = ProductDTO(0, "", "", "", "", 0.0f, 0.0f, Date(),mutableMapOf<Long, Int>())
-        // TODO better way for take the class??
-        val responseEntity = restTemplate(request, null, List<ProductDTO>(0, { productEmpty }).javaClass)
-        // TODO category
-        println(request.requestURI)
+    // Updates an existing product (full representation), or adds a new one if not exists
+    // TODO Only for admin
+    @PutMapping("/products/{productID}")
+    fun updateFullProduct(request: HttpServletRequest, @RequestBody productFullUpdateRequestDTO: ProductFullUpdateRequestDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, productFullUpdateRequestDTO, ProductDTO::class.java)
+
         return responseEntity.body
     }
 
-    // Retrieves the product identified by productID
-    @GetMapping("/products/{productID}")
-    fun getProductByID(request: HttpServletRequest, @PathVariable productID: Long): ProductDTO? {
+    // Updates an existing product (partial representation)
+    // TODO Only for admin
+    @PatchMapping("/products/{productID}")
+    fun updatePartialProduct(request: HttpServletRequest, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, productPartialUpdateRequestDTO, ProductDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Deletes a product
+    // TODO Only for admin ??
+    @DeleteMapping("/products/{productID}")
+    fun deleteProduct(request: HttpServletRequest) {
+        restTemplate(request, null, Void::class.java)
+    }
+
+    // Retrieves the picture of the product identified by productID
+    // TODO Only for admin ??
+    @GetMapping("/products/{productID}/picture")
+    fun getPictureByID(request: HttpServletRequest): String? {
+        val responseEntity = restTemplate(request, null, String::class.java)
+
+        return responseEntity.body
+    }
+
+    // Updates the picture of the product identified by productID
+    // TODO Only for admin
+    @PostMapping("/products/{productID}/picture")
+    fun updatePictureByID(request: HttpServletRequest): ProductDTO? {
         val responseEntity = restTemplate(request, null, ProductDTO::class.java)
 
         return responseEntity.body
@@ -99,10 +147,10 @@ class GatewayController {
     fun <T, V> restTemplate(
         request: HttpServletRequest,
         requestBody: V,
-        responseType: Class<T>,
+        responseType: Class<T>
     ): ResponseEntity<T> {
         lateinit var host: String
-        var port = 8080;
+        var port = 8080
 
         with(request.requestURI) {
             when {
@@ -120,13 +168,13 @@ class GatewayController {
 
         val uri = URI("http", null, host, port, request.requestURI, request.queryString, null)
 
-        val httpMethod = HttpMethod.valueOf(request.method);
+        val httpMethod = HttpMethod.valueOf(request.method)
 
         return RestTemplate().exchange(
             uri,
             httpMethod,
             if(requestBody == null) null else HttpEntity<V>(requestBody),
             responseType
-        );
+        )
     }
 }

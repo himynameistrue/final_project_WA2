@@ -2,6 +2,8 @@ package it.polito.wa2.warehouse.controllers
 
 
 import it.polito.wa2.dto.ProductCreateRequestDTO
+import it.polito.wa2.dto.ProductFullUpdateRequestDTO
+import it.polito.wa2.dto.ProductPartialUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
 import it.polito.wa2.warehouse.services.ProductService
@@ -36,14 +38,20 @@ class ProductController(val productService: ProductService) {
 
     /*Updates an existing product (full representation), or adds a new one if not exists*/
     @PutMapping("/{productID}") // OK
-    fun updateFullProduct(@PathVariable productID: Long, name: String, description: String, picture_url: String, category: String, price: Float, average_rating: Float): ProductDTO {
-        return productService.updateFull(productID, name, description, picture_url, category, price, average_rating)
+    fun updateFullProduct(@PathVariable productID: Long, @RequestBody productFullUpdateRequestDTO: ProductFullUpdateRequestDTO): ProductDTO {
+        return productService.updateFull(productID, productFullUpdateRequestDTO.name,
+            productFullUpdateRequestDTO.description, productFullUpdateRequestDTO.picture_url, productFullUpdateRequestDTO.category,
+            productFullUpdateRequestDTO.price, productFullUpdateRequestDTO.average_rating
+        )
     }
 
     /*Updates an existing product (partial representation)*/
-    @PatchMapping("/{productID}") // OK
-    fun updatePartialProduct(@PathVariable productID: Long, name: String?, description: String?, picture_url: String?, category: String?, price: Float?, average_rating: Float?, creation_date: Date?): ProductDTO {
-        return productService.updatePartial(productID, name, description, picture_url, category, price, average_rating, creation_date)
+    @PatchMapping("/{productID}")
+    fun updatePartialProduct(@PathVariable productID: Long, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO {
+        return productService.updatePartial(productID, productPartialUpdateRequestDTO.name, productPartialUpdateRequestDTO.description,
+            productPartialUpdateRequestDTO.picture_url, productPartialUpdateRequestDTO.category,
+            productPartialUpdateRequestDTO.price, productPartialUpdateRequestDTO.average_rating,
+            productPartialUpdateRequestDTO.creation_date)
     }
 
     /*Deletes a product*/
