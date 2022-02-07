@@ -1,9 +1,9 @@
 package it.polito.wa2.warehouse.controllers
 
 
+import it.polito.wa2.dto.ProductCreateRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
-import it.polito.wa2.warehouse.services.ProductAvailabilityService
 import it.polito.wa2.warehouse.services.ProductService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -29,8 +29,9 @@ class ProductController(val productService: ProductService) {
     /*Adds a new product*/
     @PostMapping // OK
     @ResponseStatus(HttpStatus.CREATED)
-    fun createProduct(name: String, description: String, picture_url: String, category: String, price: Float): ProductDTO {
-        return productService.create(name, description, picture_url, category, price)
+    fun createProduct(@RequestBody newProductDTO: ProductCreateRequestDTO): ProductDTO {
+        return productService.create(newProductDTO.name, newProductDTO.description,
+            newProductDTO.picture_url, newProductDTO.category, newProductDTO.price)
     }
 
     /*Updates an existing product (full representation), or adds a new one if not exists*/
