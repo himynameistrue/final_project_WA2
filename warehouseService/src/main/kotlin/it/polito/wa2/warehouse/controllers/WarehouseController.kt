@@ -1,5 +1,6 @@
 package it.polito.wa2.warehouse.controllers
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import it.polito.wa2.dto.WarehouseCreateRequestDTO
 import it.polito.wa2.dto.WarehousePartialUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
@@ -25,7 +26,7 @@ class WarehouseController(val warehouseService: WarehouseService) {
     }
 
     /*Adds a new warehouse*/
-    @PostMapping("/") // OK
+    @PostMapping() // OK
     @ResponseStatus(HttpStatus.CREATED)
     fun createWarehouse(@RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO {
         return warehouseService.create(warehouseCreateRequestDTO.name, warehouseCreateRequestDTO.location)
@@ -39,7 +40,7 @@ class WarehouseController(val warehouseService: WarehouseService) {
 
     /*Updates an existing warehouse (partial representation)*/
     @PatchMapping("/{warehouseID}") // OK
-    fun updatePartialWarehouse(@PathVariable warehouseID: Long, warehousePartialUpdateRequestDTO: WarehousePartialUpdateRequestDTO): WarehouseDTO {
+    fun updatePartialWarehouse(@PathVariable warehouseID: Long, @RequestBody warehousePartialUpdateRequestDTO: WarehousePartialUpdateRequestDTO): WarehouseDTO {
         return warehouseService.updatePartial(warehouseID, warehousePartialUpdateRequestDTO.name, warehousePartialUpdateRequestDTO.location)
     }
 

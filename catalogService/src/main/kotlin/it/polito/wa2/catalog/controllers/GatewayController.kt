@@ -41,29 +41,65 @@ import javax.servlet.http.HttpServletRequest
  * add positive transaction (recharges)
  */
 
+// TODO ?? users can also place an evaluation of the
+// purchased product, assigning stars and leaving a comment
+
 @RestController
 class GatewayController {
+    // -------------------------------------------
+    // ORDER SERVICE
 
-    @PostMapping("/orders/create")
+    /*
+    // Retrieves the list of all orders
+    @GetMapping("/orders")
+    fun getOrders (request: HttpServletRequest): List<OrderDTO>? {
+        val responseEntity = restTemplate(request, null, listOf<OrderDTO>()::class.java)
+
+        return responseEntity.body
+    }
+
+    // Retrieves the order identified by orderID
+    // - Authenticated user
+    @GetMapping("/orders/{orderID}")
+    fun getOrderByID (request: HttpServletRequest): OrderDTO? {
+        val responseEntity = restTemplate(request, null, OrderDTO::class.java)
+
+        return responseEntity.body
+    }
+    */
+
+    // Adds a new order
+    // - Authenticated user
+    @PostMapping("/orders")
     fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateResponseDTO? {
         val responseEntity = restTemplate(request, newOrderDTO, OrderCreateResponseDTO::class.java)
 
         return responseEntity.body
     }
 
-    @RequestMapping("/orders/all")
-    fun createOrder(request: HttpServletRequest): String? {
-
-        val responseEntity: ResponseEntity<String> = restTemplate(request, null, String::class.java)
+    /*
+    // updates the order identified by orderID
+    // TODO Only for Admin ??
+    @PatchMapping("/orders/{orderID}")
+    fun updateOrder (request: HttpServletRequest, @RequestBody orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderDTO? {
+        val responseEntity = restTemplate(request, orderUpdateRequestDTO, OrderDTO::class.java)
 
         return responseEntity.body
     }
+
+    // Cancels an existing order, if possible
+    // - Authenticated user
+    @DeleteMapping("/orders/{orderID}")
+    fun deleteOrderByID (request: HttpServletRequest) {
+        restTemplate(request, null, Void::class.java)
+    } */
 
     // -------------------------------------------
     // WAREHOUSE SERVICE
     // PRODUCT
 
     // Retrieves the list of all products. Specifying the category, retrieves all products by a given category
+    // - NO authentication
     @GetMapping("/products")
     fun getProducts(request: HttpServletRequest): String?{
         val responseEntity = restTemplate(request, null, String::class.java)
@@ -72,20 +108,21 @@ class GatewayController {
     }
 
     // Retrieves the product identified by productID
+    // - NO authentication
     @GetMapping("/products/{productID}")
     fun getProductByID(request: HttpServletRequest): ProductDTO? {
         val responseEntity = restTemplate(request, null, ProductDTO::class.java)
 
-        // TODO propagare l'eccezione quando non trovato
         return responseEntity.body
     }
 
     // Gets the list of the warehouses that contain the product
+    // - NO authentication
     @GetMapping("/products/{productID}/warehouses")
     fun getWarehousesByProductID(request: HttpServletRequest): List<WarehouseDTO>? {
         val responseEntity = restTemplate(request, null, listOf<WarehouseDTO>()::class.java)
 
-        // TODO if it's empty works, but if it has elements?
+        // TODO error with the JSON
         return responseEntity.body
     }
 
@@ -114,7 +151,7 @@ class GatewayController {
     @PatchMapping("/products/{productID}")
     fun updatePartialProduct(request: HttpServletRequest, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productPartialUpdateRequestDTO, ProductDTO::class.java)
-
+        // TODO method PATCH not allowed??
         return responseEntity.body
     }
 
@@ -150,8 +187,9 @@ class GatewayController {
     // TODO Only for admin ??
     @GetMapping("/warehouses")
     fun getWarehouses(request: HttpServletRequest): List<WarehouseDTO>? {
-        val responseEntity = restTemplate(request, null, listOf<WarehouseDTO>()::class.java)
+        val responseEntity = restTemplate(request, null, mutableListOf<WarehouseDTO>()::class.java)
 
+        // TODO error with the JSON
         return responseEntity.body
     }
 
@@ -186,9 +224,9 @@ class GatewayController {
     // Updates an existing warehouse (partial representation)
     // TODO Only for admin
     @PatchMapping("/warehouses/{warehouseID}")
-    fun updatePartialWarehouse(request: HttpServletRequest, @RequestBody warehousePartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): WarehouseDTO? {
+    fun updatePartialWarehouse(request: HttpServletRequest, @RequestBody warehousePartialUpdateRequestDTO: WarehousePartialUpdateRequestDTO): WarehouseDTO? {
         val responseEntity = restTemplate(request, warehousePartialUpdateRequestDTO, WarehouseDTO::class.java)
-
+        // TODO method PATCH not allowed??
         return responseEntity.body
     }
 
@@ -266,6 +304,14 @@ class GatewayController {
                     host = "warehouse"
                     port = 8084
                 }
+                startsWith("/warehouses") -> {
+                    host = "warehouse"
+                    port = 8084
+                }
+                startsWith("/wallets") -> {
+                    host = "wallet"
+                    port = 8085
+                }
                 else -> throw InvalidRestTemplateHostException()
             }
         }
@@ -286,6 +332,6 @@ class GatewayController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     fun handleCustomException(ce: Exception): Message {
-        return Message(ce.message.toString())
+        return Message(ce.message!!.substringBefore("\",\"path").substringAfter("error\":\""))
     }
 }

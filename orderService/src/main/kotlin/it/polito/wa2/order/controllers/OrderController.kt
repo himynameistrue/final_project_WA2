@@ -25,7 +25,7 @@ class OrderController(var orderService: OrderServiceImpl) {
     /**
      * Retrieves the list of all orders
      */
-    @GetMapping("/all")
+    @GetMapping()
     fun list(
         @RequestParam("buyer_id") userID: Long?,
     ): List<OrderDTO> {
@@ -39,7 +39,7 @@ class OrderController(var orderService: OrderServiceImpl) {
     /**
      * Adds a new order
      */
-    @PostMapping("/create")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody newOrderDTO: OrderCreateRequestDTO) {
 
