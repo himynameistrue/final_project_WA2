@@ -6,10 +6,14 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
+import javax.annotation.security.RolesAllowed
 import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
 
 /**
  * ALL (without authentication)
@@ -41,8 +45,10 @@ import javax.servlet.http.HttpServletRequest
  * add positive transaction (recharges)
  */
 
-// TODO ?? users can also place an evaluation of the
-// purchased product, assigning stars and leaving a comment
+// TODO ?? users can also place an evaluation of the purchased product, assigning stars and leaving a comment
+// TODO ?? Comments with title, body, stars and creation date can be associated to purchased products
+
+// TODO ?? updating alarms
 
 @RestController
 class GatewayController {
@@ -51,6 +57,7 @@ class GatewayController {
 
     /*
     // Retrieves the list of all orders
+    // TODO ?? Retrieve his/her orders
     @GetMapping("/orders")
     fun getOrders (request: HttpServletRequest): List<OrderDTO>? {
         val responseEntity = restTemplate(request, null, listOf<OrderDTO>()::class.java)
@@ -129,16 +136,16 @@ class GatewayController {
     /* ---------- Only for ADMIN ---------- */
 
     // Add new Product
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PostMapping("/products")
-    fun addProduct(request: HttpServletRequest, @RequestBody newProductDTO: ProductCreateRequestDTO): ProductDTO? {
-        val responseEntity = restTemplate(request, newProductDTO, ProductDTO::class.java)
+    fun addProduct(request: HttpServletRequest, @RequestBody productCreateRequestDTO: ProductCreateRequestDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, productCreateRequestDTO, ProductDTO::class.java)
 
         return responseEntity.body
     }
 
     // Updates an existing product (full representation), or adds a new one if not exists
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PutMapping("/products/{productID}")
     fun updateFullProduct(request: HttpServletRequest, @RequestBody productFullUpdateRequestDTO: ProductFullUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productFullUpdateRequestDTO, ProductDTO::class.java)
@@ -156,14 +163,14 @@ class GatewayController {
     }
 
     // Deletes a product
-    // TODO Only for admin ??
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/products/{productID}")
     fun deleteProduct(request: HttpServletRequest) {
         restTemplate(request, null, Void::class.java)
     }
 
     // Retrieves the picture of the product identified by productID
-    // TODO Only for admin ??
+    // - NO authentication
     @GetMapping("/products/{productID}/picture")
     fun getPictureByID(request: HttpServletRequest): String? {
         val responseEntity = restTemplate(request, null, String::class.java)
@@ -172,7 +179,7 @@ class GatewayController {
     }
 
     // Updates the picture of the product identified by productID
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PostMapping("/products/{productID}/picture")
     fun updatePictureByID(request: HttpServletRequest): ProductDTO? {
         val responseEntity = restTemplate(request, null, ProductDTO::class.java)
@@ -203,7 +210,7 @@ class GatewayController {
     }
 
     // Adds a new warehouse
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PostMapping("/warehouses")
     @ResponseStatus(HttpStatus.CREATED)
     fun createWarehouse(request: HttpServletRequest, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO? {
@@ -213,7 +220,7 @@ class GatewayController {
     }
 
     // Updates an existing warehouse (full representation), or adds a new one if not exists
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PutMapping("/warehouses/{warehouseID}")
     fun updateFullWarehouse(request: HttpServletRequest, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO? {
         val responseEntity = restTemplate(request, warehouseCreateRequestDTO, WarehouseDTO::class.java)
@@ -231,7 +238,7 @@ class GatewayController {
     }
 
     // Deletes a warehouse
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/warehouses/{warehouseID}")
     fun deleteWarehouse(request: HttpServletRequest) {
         restTemplate(request, null, Void::class.java)
@@ -243,6 +250,8 @@ class GatewayController {
     /*
 
     // Retrieves the wallet identified by walletID
+    // TODO ?? Retrieve his/her wallets
+    @PreAuthorize("#username == authentication.principal.username")
     @GetMapping("/wallets/{walletID}")
     fun getWattelByID (request: HttpServletRequest): WalletDTO? {
         val responseEntity = restTemplate(request, null, WalletDTO::class.java)
@@ -251,6 +260,7 @@ class GatewayController {
     }
 
     // Creates a new wallet for a given customer
+    // TODO Only for admin ??
     @PostMapping("/wallets")
     fun createWallet (request: HttpServletRequest): WalletDTO? {
         // TODO take the user and send it to the walletService
@@ -267,6 +277,7 @@ class GatewayController {
     }
 
     // Retrieves a list of transactions regarding a given wallet in a given time frame
+    - Authenticated user ??
     @GetMapping("/wallets/{walletID}/transactions")
     fun getListTransactions (request: HttpServletRequest): List<TransactionDTO> {
         val responseEntity = restTemplate(request, null, listOf<TransactionDTO>()::class.java)
@@ -275,6 +286,7 @@ class GatewayController {
     }
 
     // Retrieves the details of a single transaction
+    - Authenticated user ??
     @GetMapping("/wallets/{walletID}/transactions/{transactionID}")
     fun getTransactionByID (request: HttpServletRequest): TransactionDTO {
         val responseEntity = restTemplate(request, null, TransactionDTO::class.java)
