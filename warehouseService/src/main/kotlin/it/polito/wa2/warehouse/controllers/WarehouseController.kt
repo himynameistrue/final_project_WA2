@@ -1,5 +1,7 @@
 package it.polito.wa2.warehouse.controllers
 
+import it.polito.wa2.dto.WarehouseCreateRequestDTO
+import it.polito.wa2.dto.WarehousePartialUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
 import it.polito.wa2.warehouse.services.WarehouseService
 import org.springframework.http.HttpStatus
@@ -25,20 +27,20 @@ class WarehouseController(val warehouseService: WarehouseService) {
     /*Adds a new warehouse*/
     @PostMapping("/") // OK
     @ResponseStatus(HttpStatus.CREATED)
-    fun createWarehouse(name: String, location: String): WarehouseDTO {
-        return warehouseService.create(name, location)
+    fun createWarehouse(@RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO {
+        return warehouseService.create(warehouseCreateRequestDTO.name, warehouseCreateRequestDTO.location)
     }
 
     /*Updates an existing warehouse (full representation), or adds a new one if not exists*/
     @PutMapping("/{warehouseID}") // OK
-    fun updateFullWarehouse(@PathVariable warehouseID: Long, name: String, location: String): WarehouseDTO {
-        return warehouseService.updateFull(warehouseID, name, location)
+    fun updateFullWarehouse(@PathVariable warehouseID: Long, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO {
+        return warehouseService.updateFull(warehouseID, warehouseCreateRequestDTO.name, warehouseCreateRequestDTO.location)
     }
 
     /*Updates an existing warehouse (partial representation)*/
     @PatchMapping("/{warehouseID}") // OK
-    fun updatePartialWarehouse(@PathVariable warehouseID: Long, name: String?, location: String?): WarehouseDTO {
-        return warehouseService.updatePartial(warehouseID, name, location)
+    fun updatePartialWarehouse(@PathVariable warehouseID: Long, warehousePartialUpdateRequestDTO: WarehousePartialUpdateRequestDTO): WarehouseDTO {
+        return warehouseService.updatePartial(warehouseID, warehousePartialUpdateRequestDTO.name, warehousePartialUpdateRequestDTO.location)
     }
 
     /*Deletes a warehouse*/

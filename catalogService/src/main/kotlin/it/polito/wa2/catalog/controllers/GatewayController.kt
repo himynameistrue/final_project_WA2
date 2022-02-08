@@ -4,6 +4,7 @@ import it.polito.wa2.catalog.exceptions.InvalidRestTemplateHostException
 import it.polito.wa2.dto.*
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
@@ -60,6 +61,7 @@ class GatewayController {
 
     // -------------------------------------------
     // WAREHOUSE SERVICE
+    // PRODUCT
 
     // Retrieves the list of all products. Specifying the category, retrieves all products by a given category
     @GetMapping("/products")
@@ -142,6 +144,108 @@ class GatewayController {
     }
 
 
+    // WAREHOUSE
+
+    // Retrieves the list of all warehouses
+    // TODO Only for admin ??
+    @GetMapping("/warehouses")
+    fun getWarehouses(request: HttpServletRequest): List<WarehouseDTO>? {
+        val responseEntity = restTemplate(request, null, listOf<WarehouseDTO>()::class.java)
+
+        return responseEntity.body
+    }
+
+    // Retrieves the warehouse identified by warehouseID
+    // TODO Only for admin ??
+    @GetMapping("/warehouses/{warehouseID}")
+    fun getWarehouseByID(request: HttpServletRequest): WarehouseDTO? {
+        val responseEntity = restTemplate(request, null, WarehouseDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Adds a new warehouse
+    // TODO Only for admin
+    @PostMapping("/warehouses")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createWarehouse(request: HttpServletRequest, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO? {
+        val responseEntity = restTemplate(request, warehouseCreateRequestDTO, WarehouseDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Updates an existing warehouse (full representation), or adds a new one if not exists
+    // TODO Only for admin
+    @PutMapping("/warehouses/{warehouseID}")
+    fun updateFullWarehouse(request: HttpServletRequest, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO? {
+        val responseEntity = restTemplate(request, warehouseCreateRequestDTO, WarehouseDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Updates an existing warehouse (partial representation)
+    // TODO Only for admin
+    @PatchMapping("/warehouses/{warehouseID}")
+    fun updatePartialWarehouse(request: HttpServletRequest, @RequestBody warehousePartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): WarehouseDTO? {
+        val responseEntity = restTemplate(request, warehousePartialUpdateRequestDTO, WarehouseDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Deletes a warehouse
+    // TODO Only for admin
+    @DeleteMapping("/warehouses/{warehouseID}")
+    fun deleteWarehouse(request: HttpServletRequest) {
+        restTemplate(request, null, Void::class.java)
+    }
+
+    // -------------------------------------------
+    // WALLET SERVICE
+
+    /*
+
+    // Retrieves the wallet identified by walletID
+    @GetMapping("/wallets/{walletID}")
+    fun getWattelByID (request: HttpServletRequest): WalletDTO? {
+        val responseEntity = restTemplate(request, null, WalletDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Creates a new wallet for a given customer
+    @PostMapping("/wallets")
+    fun createWallet (request: HttpServletRequest): WalletDTO? {
+        // TODO take the user and send it to the walletService
+        val responseEntity = restTemplate(request, null, WalletDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Adds a new transaction to the wallet identified by walletID
+    // TODO Only for admin ??
+    @PostMapping("/wallets/{walletID}/transactions")
+    fun addTransaction (request: HttpServletRequest, @RequestBody transactionDTO: TransactionDTO): TransactionDTO? {
+        val responseEntity = restTemplate(request, null, TransactionDTO::class.java)
+    }
+
+    // Retrieves a list of transactions regarding a given wallet in a given time frame
+    @GetMapping("/wallets/{walletID}/transactions")
+    fun getListTransactions (request: HttpServletRequest): List<TransactionDTO> {
+        val responseEntity = restTemplate(request, null, listOf<TransactionDTO>()::class.java)
+
+        return responseEntity.body
+    }
+
+    // Retrieves the details of a single transaction
+    @GetMapping("/wallets/{walletID}/transactions/{transactionID}")
+    fun getTransactionByID (request: HttpServletRequest): TransactionDTO {
+        val responseEntity = restTemplate(request, null, TransactionDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    */
+
     // --------------------------------------------
 
     fun <T, V> restTemplate(
@@ -176,5 +280,12 @@ class GatewayController {
             if(requestBody == null) null else HttpEntity<V>(requestBody),
             responseType
         )
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    fun handleCustomException(ce: Exception): Message {
+        return Message(ce.message.toString())
     }
 }
