@@ -7,7 +7,7 @@ import it.polito.wa2.warehouse.dto.WarehouseDTO
 import java.util.*
 
 interface ProductAvailabilityService {
-    fun processNewOrder(orderCreateWarehouseRequestDTO: OrderCreateWarehouseRequestDTO): OrderCreateWarehouseResponseDTO
+    fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO): OrderCreateWarehouseResponseDTO
     fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO
     fun updateQuantity(productId: Long, warehouseId: Long, quantity: Int): ProductDTO
 }

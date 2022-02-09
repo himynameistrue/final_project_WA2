@@ -15,9 +15,8 @@ class OrderProduct(
     var productId: Long,
     var amount: Long,
     @Column(name="unit_price")
-    var unitPrice: Float
+    var unitPrice: Float?
 ): Serializable {
-
     fun toDTO(): OrderProductDTO {
         return OrderProductDTO(productId, amount, unitPrice)
     }

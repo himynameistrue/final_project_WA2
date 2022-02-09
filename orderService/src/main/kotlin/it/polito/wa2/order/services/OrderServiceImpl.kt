@@ -1,5 +1,6 @@
 package it.polito.wa2.order.services
 
+import it.polito.wa2.dto.OrderCreateOrchestratorResponseDTO
 import it.polito.wa2.enums.OrderStatus
 import it.polito.wa2.order.domain.Order
 import it.polito.wa2.order.domain.OrderProduct
@@ -8,14 +9,14 @@ import it.polito.wa2.order.exceptions.OrderNotFoundException
 import it.polito.wa2.order.repositories.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import polito.wa2.team1.orderservice.exceptions.OrderAlreadyCanceledException
-import polito.wa2.team1.orderservice.exceptions.OrderStatusChangeFailedException
+import it.polito.wa2.order.exceptions.OrderAlreadyCanceledException
+import it.polito.wa2.order.exceptions.OrderStatusChangeFailedException
 import java.util.*
 
 @Service
 @Transactional
 class OrderServiceImpl(
-    val orderRepository: OrderRepository
+    val orderRepository: OrderRepository,
 ): OrderService {
 
     override fun findAll(): List<Order> = orderRepository.findAll()
@@ -33,12 +34,31 @@ class OrderServiceImpl(
 
     override fun create(newOrderDTO: OrderCreateRequestDTO): Order {
         val order = Order(newOrderDTO.buyerId, listOf(), OrderStatus.PENDING)
-/*
-        val orderItems = newOrderDTO.items.map{ OrderProduct(order, it.product_id, it.amount, it.unit_price) }
-        order.items = orderItems*/
+
+        order.items = newOrderDTO.items.map {
+            OrderProduct(order, it.productId, it.amount, null)
+        }
 
         return orderRepository.save(order)
     }
+
+    override fun confirm(order: Order, confirmedOrderDTO: OrderCreateOrchestratorResponseDTO): Order {
+        order.status = OrderStatus.ISSUED
+
+        val unitPriceByProductId = mutableMapOf<Long, Float>()
+        confirmedOrderDTO.items.forEach {
+            unitPriceByProductId[it.productId] = it.unitPrice;
+        }
+
+        order.items = order.items.map {
+            it.unitPrice = unitPriceByProductId[it.productId]
+            it
+        }
+
+        return orderRepository.save(order)
+    }
+
+
 
     override fun updateStatus(orderId: Long, newStatus: OrderStatus): Order {
 
@@ -58,7 +78,8 @@ class OrderServiceImpl(
             OrderStatus.DELIVERED,OrderStatus.FAILED -> throw OrderStatusChangeFailedException()
         }
 
-        order.status = newStatus;
+        order.status = newStatus
+
         return orderRepository.save(order)
     }
 

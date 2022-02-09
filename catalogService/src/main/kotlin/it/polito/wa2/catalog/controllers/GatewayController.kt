@@ -78,9 +78,13 @@ class GatewayController {
     // Adds a new order
     // - Authenticated user
     @PostMapping("/orders")
-    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateResponseDTO? {
-        val responseEntity = restTemplate(request, newOrderDTO, OrderCreateResponseDTO::class.java)
+    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateOrderResponseDTO? {
+        val responseEntity = restTemplate(request, newOrderDTO, OrderCreateOrderResponseDTO::class.java)
 
+        // TODO SEND EMAIL if productsUnderThresholdByWarehouseId is not empty
+        // Probably the warehouse name would be more useful in an email, it should be added in warehouseService
+
+        // TODO define end user response
         return responseEntity.body
     }
 

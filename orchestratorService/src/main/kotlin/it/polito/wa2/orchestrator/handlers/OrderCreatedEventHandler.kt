@@ -80,9 +80,7 @@ class OrderCreatedEventHandler(
             val didWarehouseFail = warehouseReplyFuture.isCompletedExceptionally
 
             if(didWarehouseFail){
-                responseItems = requestDTO.items.map {
-                    OrderCreateWarehouseResponseProductDTO(it.productId, it.amount, 0.0f, false, 42)
-                }
+                responseItems = listOf()
             }
 
             if (didWalletFail && !didWarehouseFail) {

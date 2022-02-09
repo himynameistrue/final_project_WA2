@@ -1,9 +1,7 @@
 package it.polito.wa2.order.controllers
 
-import it.polito.wa2.dto.OrderCreateOrchestratorRequestDTO
-import it.polito.wa2.dto.OrderCreateOrchestratorResponseDTO
-import it.polito.wa2.dto.OrderDTO
-import it.polito.wa2.dto.OrderCreateRequestDTO
+import it.polito.wa2.dto.*
+import it.polito.wa2.enums.OrderStatus
 import it.polito.wa2.order.services.OrderServiceImpl
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -11,7 +9,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
-import polito.wa2.team1.orderservice.exceptions.OrderAlreadyCanceledException
+import it.polito.wa2.order.exceptions.OrderAlreadyCanceledException
+import it.polito.wa2.order.exceptions.OrderCreationFailedException
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
@@ -20,7 +19,6 @@ import kotlin.collections.List;
 @RestController
 @RequestMapping("/orders")
 class OrderController(var orderService: OrderServiceImpl) {
-
 
     /**
      * Retrieves the list of all orders
@@ -41,16 +39,11 @@ class OrderController(var orderService: OrderServiceImpl) {
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody newOrderDTO: OrderCreateRequestDTO) {
+    fun create(@Valid @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateOrderResponseDTO {
 
         val pendingOrder = orderService.create(newOrderDTO)
 
-        val host = "orchestrator"
-        val port = 8082;
-
-        val uri = URI("http", null, host, port, "/orchestrator", null, null)
-
-        val httpMethod = HttpMethod.POST;
+        val uri = getOrchestratorUri("/orders")
 
         val body = OrderCreateOrchestratorRequestDTO(
             pendingOrder.getId()!!,
@@ -61,19 +54,25 @@ class OrderController(var orderService: OrderServiceImpl) {
 
         val responseEntity = RestTemplate().exchange(
             uri,
-            httpMethod,
+            HttpMethod.POST,
             HttpEntity<OrderCreateOrchestratorRequestDTO>(body),
             OrderCreateOrchestratorResponseDTO::class.java
-        );
+        )
 
-        val orchestratorResponse = responseEntity.body
+        if(!responseEntity.statusCode.is2xxSuccessful || responseEntity.body === null || !responseEntity.body!!.isSuccessful){
+            orderService.updateStatus(pendingOrder.getId()!!, OrderStatus.FAILED)
+            throw OrderCreationFailedException()
+        }
 
-        println(orchestratorResponse)
-        /*// TODO CHECK wallet money and product availability
+        val orchestratorResponse = responseEntity.body!!
 
-        // TODO NOTIFY USER ?
-        // TODO NOTIFY ADMIN ?
-        return pendingOrder.toDTO()*/
+        orderService.confirm(pendingOrder, orchestratorResponse)
+
+        val orderResponse = orchestratorResponse.mapToOrderResponse()
+
+        println(orderResponse)
+
+        return orderResponse
     }
 
 
@@ -144,5 +143,12 @@ class OrderController(var orderService: OrderServiceImpl) {
             if (!hasBody) null else HttpEntity<String>(body),
             responseType
         );
+    }
+
+    fun getOrchestratorUri(path: String): URI {
+        val host = "orchestrator"
+        val port = 8082;
+
+        return URI("http", null, host, port, path, null, null)
     }
 }

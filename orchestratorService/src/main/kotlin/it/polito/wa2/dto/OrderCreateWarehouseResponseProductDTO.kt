@@ -5,6 +5,7 @@ package it.polito.wa2.dto
  */
 data class OrderCreateWarehouseResponseProductDTO(
     val productId: Long,
+    val warehouseId: Long,
     val amount: Long,
     val unitPrice: Float,
     val isUnderThreshold: Boolean,
