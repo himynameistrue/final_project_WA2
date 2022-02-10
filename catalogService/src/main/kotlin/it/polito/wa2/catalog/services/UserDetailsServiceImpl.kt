@@ -159,4 +159,18 @@ class UserDetailsServiceImpl(
 
         return repository.save(user).toDTO()
     }
+
+    override fun isAdmin(email: String): Boolean {
+        val user = repository.findByEmail(email) ?: throw RuntimeException("User not found")
+
+        if (user.getRoleList().contains(User.RoleName.ADMIN))
+            return true
+        return false
+    }
+
+    override fun correctID(email: String, userID: Long): Boolean {
+        val user = repository.findByEmail(email) ?: throw RuntimeException("User not found")
+
+        return user.getId()==userID
+    }
 }

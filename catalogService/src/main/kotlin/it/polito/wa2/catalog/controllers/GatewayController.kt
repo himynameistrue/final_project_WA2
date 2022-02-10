@@ -1,6 +1,9 @@
 package it.polito.wa2.catalog.controllers
 
+import it.polito.wa2.catalog.dto.UserDetailsDTO
 import it.polito.wa2.catalog.exceptions.InvalidRestTemplateHostException
+import it.polito.wa2.catalog.services.MailService
+import it.polito.wa2.catalog.services.UserDetailsService
 import it.polito.wa2.dto.*
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -8,6 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
@@ -51,41 +55,74 @@ import javax.validation.Valid
 // TODO ?? updating alarms
 
 @RestController
-class GatewayController {
+class GatewayController (
+        val mailService: MailService,
+        val userDetailsService: UserDetailsService
+    ){
     // -------------------------------------------
     // ORDER SERVICE
+    // All the endpoints are only for authenticated users
 
-    /*
     // Retrieves the list of all orders
-    // TODO ?? Retrieve his/her orders
+    // If the customer is authenticated retrieve his/her list, if he's an ADMIN retrieve the list of all orders
     @GetMapping("/orders")
-    fun getOrders (request: HttpServletRequest): List<OrderDTO>? {
-        val responseEntity = restTemplate(request, null, listOf<OrderDTO>()::class.java)
+    fun getOrders (request: HttpServletRequest, @RequestParam("buyer_id") userID: Long?): List<OrderDTO>? {
+        val principal = (SecurityContextHolder.getContext().authentication)
 
+        val responseEntity = if (userID != null && userDetailsService.correctID(principal.name, userID)) {
+            // It's customer and can retrieve his/her order list
+            restTemplate(request, null, listOf<OrderDTO>()::class.java)
+        } else if (userDetailsService.isAdmin(principal.name)){
+            // It's ADMIN retrieve all the orders
+            restTemplate(request, null, listOf<OrderDTO>()::class.java)
+        } else
+            throw RuntimeException("Only the Admin can retrieve all the orders, a customer can retrieve only his/her orders")
+
+        // TODO problem with the JSON
         return responseEntity.body
     }
 
     // Retrieves the order identified by orderID
-    // - Authenticated user
     @GetMapping("/orders/{orderID}")
     fun getOrderByID (request: HttpServletRequest): OrderDTO? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
         val responseEntity = restTemplate(request, null, OrderDTO::class.java)
 
+        if (responseEntity.hasBody()) {
+            // The admin can retrieve all the orders, but a customer can retrieve only his/her orders
+            if (!userDetailsService.correctID(principal.name, responseEntity.body!!.buyer_id) &&
+                !userDetailsService.isAdmin(principal.name)
+            )
+                throw RuntimeException("Normal customers can't retrieve other users orders")
+        }
         return responseEntity.body
     }
-    */
 
     // Adds a new order
-    // - Authenticated user
     @PostMapping("/orders")
-    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateOrderResponseDTO? {
+    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO) {
+        val principal = (SecurityContextHolder.getContext().authentication)
+        // The userID must be the same of the authenticated user!
+        if (!userDetailsService.correctID(principal.name, newOrderDTO.buyerId))
+            throw RuntimeException("The buyer_id must the same of the authenticated user!")
+
         val responseEntity = restTemplate(request, newOrderDTO, OrderCreateOrderResponseDTO::class.java)
 
-        // TODO SEND EMAIL if productsUnderThresholdByWarehouseId is not empty
-        // Probably the warehouse name would be more useful in an email, it should be added in warehouseService
+        // Probably the warehouse name and product name would be more useful in an email,
+        // it should be added in warehouseService
+        val responseBody = responseEntity.body
 
-        // TODO define end user response
-        return responseEntity.body
+        if (responseBody!!.productsUnderThresholdByWarehouseId.isNotEmpty()) {
+            responseBody.productsUnderThresholdByWarehouseId.forEach{ (id, list) ->
+                list.forEach { prodDTO ->
+                    val message =
+                        "Attention! The quantity of the product " + prodDTO.productId + " in the warehouse " + id + " is under the threshold. " +
+                                "Remaining quantity: " + prodDTO.remainingProducts
+                    mailService.sendMessage("wa2team01@gmail.com", "Product " + prodDTO.productId + " under threshold!", message)
+                }
+            }
+        }
     }
 
     /*
@@ -158,7 +195,7 @@ class GatewayController {
     }
 
     // Updates an existing product (partial representation)
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/products/{productID}")
     fun updatePartialProduct(request: HttpServletRequest, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productPartialUpdateRequestDTO, ProductDTO::class.java)

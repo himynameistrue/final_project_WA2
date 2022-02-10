@@ -41,4 +41,8 @@ interface UserDetailsService: UserDetailsService {
     ): UserDetailsDTO
 
     fun updatePassword(oldPassword: String, newPassword: String, email: String): UserDetailsDTO
+
+    fun isAdmin(email: String): Boolean
+
+    fun correctID(email: String, userID: Long): Boolean
 }
