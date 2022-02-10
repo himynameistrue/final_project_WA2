@@ -41,6 +41,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 	testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 	testImplementation("com.h2database:h2")
+	implementation("org.apache.httpcomponents:httpclient")
 }
 
 tasks.withType<KotlinCompile> {

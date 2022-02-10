@@ -1,6 +1,5 @@
 package it.polito.wa2.catalog.controllers
 
-import it.polito.wa2.catalog.dto.UserDetailsDTO
 import it.polito.wa2.catalog.exceptions.InvalidRestTemplateHostException
 import it.polito.wa2.catalog.services.MailService
 import it.polito.wa2.catalog.services.UserDetailsService
@@ -9,15 +8,13 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.security.access.annotation.Secured
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
-import javax.annotation.security.RolesAllowed
 import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
 
 /**
  * ALL (without authentication)
@@ -197,7 +194,6 @@ class GatewayController (
     @PatchMapping("/products/{productID}")
     fun updatePartialProduct(request: HttpServletRequest, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productPartialUpdateRequestDTO, ProductDTO::class.java)
-        // TODO method PATCH not allowed??
         return responseEntity.body
     }
 
@@ -370,7 +366,10 @@ class GatewayController (
 
         val httpMethod = HttpMethod.valueOf(request.method)
 
-        return RestTemplate().exchange(
+        val restTemplate = RestTemplate()
+        restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory()
+
+        return restTemplate.exchange(
             uri,
             httpMethod,
             if(requestBody == null) null else HttpEntity<V>(requestBody),
