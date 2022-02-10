@@ -66,19 +66,18 @@ class GatewayController (
     // Retrieves the list of all orders
     // If the customer is authenticated retrieve his/her list, if he's an ADMIN retrieve the list of all orders
     @GetMapping("/orders")
-    fun getOrders (request: HttpServletRequest, @RequestParam("buyer_id") userID: Long?): List<OrderDTO>? {
+    fun getOrders (request: HttpServletRequest, @RequestParam("buyer_id") userID: Long?): Array<OrderDTO>? {
         val principal = (SecurityContextHolder.getContext().authentication)
 
         val responseEntity = if (userID != null && userDetailsService.correctID(principal.name, userID)) {
             // It's customer and can retrieve his/her order list
-            restTemplate(request, null, listOf<OrderDTO>()::class.java)
+            restTemplate(request, null, arrayOf<OrderDTO>()::class.java)
         } else if (userDetailsService.isAdmin(principal.name)){
             // It's ADMIN retrieve all the orders
-            restTemplate(request, null, listOf<OrderDTO>()::class.java)
+            restTemplate(request, null, arrayOf<OrderDTO>()::class.java)
         } else
             throw RuntimeException("Only the Admin can retrieve all the orders, a customer can retrieve only his/her orders")
 
-        // TODO problem with the JSON
         return responseEntity.body
     }
 
@@ -149,9 +148,9 @@ class GatewayController (
     // Retrieves the list of all products. Specifying the category, retrieves all products by a given category
     // - NO authentication
     @GetMapping("/products")
-    fun getProducts(request: HttpServletRequest): String?{
-        val responseEntity = restTemplate(request, null, String::class.java)
-        // TODO error with the JSON if I use List<ProductDTO>
+    fun getProducts(request: HttpServletRequest): Array<ProductDTO>? {
+        val responseEntity = restTemplate(request, null, arrayOf<ProductDTO>()::class.java)
+
         return responseEntity.body
     }
 
@@ -167,10 +166,9 @@ class GatewayController (
     // Gets the list of the warehouses that contain the product
     // - NO authentication
     @GetMapping("/products/{productID}/warehouses")
-    fun getWarehousesByProductID(request: HttpServletRequest): List<WarehouseDTO>? {
-        val responseEntity = restTemplate(request, null, listOf<WarehouseDTO>()::class.java)
+    fun getWarehousesByProductID(request: HttpServletRequest): Array<WarehouseDTO>? {
+        val responseEntity = restTemplate(request, null, arrayOf<WarehouseDTO>()::class.java)
 
-        // TODO error with the JSON
         return responseEntity.body
     }
 
@@ -234,10 +232,9 @@ class GatewayController (
     // Retrieves the list of all warehouses
     // TODO Only for admin ??
     @GetMapping("/warehouses")
-    fun getWarehouses(request: HttpServletRequest): List<WarehouseDTO>? {
-        val responseEntity = restTemplate(request, null, mutableListOf<WarehouseDTO>()::class.java)
+    fun getWarehouses(request: HttpServletRequest): Array<WarehouseDTO>? {
+        val responseEntity = restTemplate(request, null, arrayOf<WarehouseDTO>()::class.java)
 
-        // TODO error with the JSON
         return responseEntity.body
     }
 
