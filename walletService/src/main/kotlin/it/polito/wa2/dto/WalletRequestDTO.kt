@@ -3,7 +3,8 @@ package it.polito.wa2.dto
 import java.util.UUID
 
 data class WalletRequestDTO (
-    val userId: Int,
+    val userId: Long,
     val orderId: UUID,
-    val amount: Double,
+    val amount: Float,
+    val transationId : Long? = null
 )
