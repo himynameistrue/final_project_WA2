@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.wa2.dto.OrderCreateWarehouseRequestDTO
 import it.polito.wa2.dto.OrderCreateWarehouseResponseDTO
 import it.polito.wa2.dto.OrderCreateWarehouseResponseProductDTO
+import it.polito.wa2.dto.OrderRollbackWarehouseResponseDTO
 import it.polito.wa2.warehouse.entities.ProductAvailability
 import it.polito.wa2.warehouse.entities.ProductAvailabilityKey
 import it.polito.wa2.warehouse.dto.ProductDTO
@@ -30,23 +31,22 @@ class ProductAvailabilityServiceImpl(
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
-            val quantitiesByProductId = HashMap<Long, Long>()
-            val orderQuantitiesByProductId = HashMap<Long, Long>()
+            val quantitiesByProductId = HashMap<Long, Long>()  // mappa id, valore dei prodotti in magazzino
+            val orderQuantitiesByProductId = HashMap<Long, Long>() // mappa id, quantità dei prodotti da acquistare
 
             requestDTO.items.forEach {
-
                 orderQuantitiesByProductId.merge(it.productId, it.amount) { _, oldValue ->
                     oldValue + it.amount
                 }
             }
 
-            val productIds = orderQuantitiesByProductId.keys.toList()
+            val productIds = orderQuantitiesByProductId.keys.toList() // id dei prodotti che si vogliono ordinare
 
             availabilityRepository.sumProductAvailabilityByProductId(productIds).forEach {
                 quantitiesByProductId[it.product_id] = it.quantity
-            }
+            }  // per ogni prodotto controlla restituisce la quantità totale nei vari magazzini
 
-            val orderProducts = HashMap<Long, Product>()
+            val orderProducts = HashMap<Long, Product>() // mappa id, prodotto di tutti i prodootti da ordinare
 
             productRepository.allByIds(productIds).forEach {
                 orderProducts[it.id!!] = it
@@ -108,7 +108,9 @@ class ProductAvailabilityServiceImpl(
                             decreasedAvailability,
                             orderProducts[it.key]!!.price!!,
                             productAvailability.quantity <= productAvailability.alarm,
-                            productAvailability.quantity
+                            productAvailability.quantity,
+                            productAvailability.warehouse.name!!,
+                            productAvailability.product.name!!
                         )
                     )
                 }
@@ -125,6 +127,30 @@ class ProductAvailabilityServiceImpl(
             return OrderCreateWarehouseResponseDTO(false, listOf())
         }
     }
+
+    override fun cancelOrder(requestDTO: OrderCreateWarehouseResponseDTO): Boolean {
+
+        try {
+            // Tirarci fuori la lista dei prodotti con disponibilità
+            requestDTO.items.foreach{
+                updateQuantity(it.productId, it.warehouseId, it.amount)
+            }
+
+            // TODO write on outbox
+            return true
+
+        }
+
+        catch (e: Exception) {
+            // TODO write on outbox
+            println(e.message)
+            e.printStackTrace()
+            return OrderCreateWarehouseResponseDTO(false, listOf())
+        }
+    }
+
+
+
 
     override fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO {
         val product = productRepository.findById(productId).get()

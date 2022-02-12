@@ -1,6 +1,7 @@
 package it.polito.wa2.warehouse.entities
 
 import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.warehouse.entities.Comment
 import java.util.*
 import javax.persistence.*
 
@@ -20,11 +21,12 @@ class Product(
     val price: Float?,
     val average_rating: Float = 0F,
     val creation_date: Date?,
+    val comments: MutableList<Comment> = mutableListOf(),
 
     @OneToMany(mappedBy = "product")
     val availabilities: MutableList<ProductAvailability> = mutableListOf()
 
-){
+) {
     //: EntityBase<Long>(){
 
 
@@ -33,7 +35,7 @@ class Product(
         for(a in availabilities){
             map.put(a.warehouse.id!!, a.quantity)
         }
-        return ProductDTO(id!!, name!!, description!!, picture_url, category, price!!, average_rating!!, creation_date!!, map!!)
+        return ProductDTO(id!!, name!!, description!!, picture_url, category, price!!, average_rating!!, creation_date!!, comments, map!!)
     }
 
 }

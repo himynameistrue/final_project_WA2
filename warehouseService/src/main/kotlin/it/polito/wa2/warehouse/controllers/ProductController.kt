@@ -2,6 +2,7 @@ package it.polito.wa2.warehouse.controllers
 
 
 import it.polito.wa2.dto.ProductCreateRequestDTO
+import it.polito.wa2.dto.CommentRequestDTO
 import it.polito.wa2.dto.ProductFullUpdateRequestDTO
 import it.polito.wa2.dto.ProductPartialUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
@@ -76,5 +77,12 @@ class ProductController(val productService: ProductService) {
     @GetMapping("/{productID}/warehouses") // OK
     fun getWarehousesByProductID(@PathVariable productID: Long): List<WarehouseDTO> {
         return productService.getWarehousesForProduct(productID)
+    }
+
+    /*Updates an existing product (full representation), or adds a new one if not exists*/
+    @PutMapping("/{productID}") // OK
+    fun addComment(@PathVariable productID: Long, @RequestBody commentRequestDTO:CommentRequestDTO): ProductDTO {
+        return productService.addComment(productID, commentRequestDTO
+        )
     }
 }

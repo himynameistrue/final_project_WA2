@@ -3,6 +3,7 @@ package it.polito.wa2.warehouse.services
 import it.polito.wa2.warehouse.entities.Product
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
+import it.polito.wa2.warehouse.entities.Comment
 import it.polito.wa2.warehouse.repositories.ProductAvailabilityRepository
 import it.polito.wa2.warehouse.repositories.ProductRepository
 import org.springframework.http.HttpStatus
@@ -132,6 +133,13 @@ class ProductServiceImpl(
         return warehouses
     }
 
+    override fun addComment(productId: Long, commentRequestDTO : CommentRequestDTO): ProductDTO{
+        val product = productRepository.findById(productId)
+        val newComment = Commment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
 
+        product.average_rating = ((average_rating * product.comments.size) + commentRequestDTO.stars ) / (product.comments.size +1)
+        product.comments.add(newComment)
+        return product.toDTO()
+    }
 
 }

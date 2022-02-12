@@ -31,4 +31,23 @@ class OrderCreateEventHandler(val inventoryService: InventoryService, val produc
 
         //inventoryService.deductInventory(requestDTO, correlationId, replyTopic);
     }
+
+
+
+    @KafkaListener(topics = ["order-create-rollback-orchestrator-to-warehouse"], groupId = "orchestrator-group")
+    @SendTo
+    fun rollback(
+            requestDTO: OrderCreateWarehouseRequestDTO,
+            @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
+            @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String,
+    ): OrderCreateWarehouseResponseDTO {
+        println("Received request")
+        println(requestDTO)
+        println(correlationId)
+        println(replyTopic)
+
+        return productAvailabilityService.cancelOrder(requestDTO);
+
+        //inventoryService.deductInventory(requestDTO, correlationId, replyTopic);
+    }
 }

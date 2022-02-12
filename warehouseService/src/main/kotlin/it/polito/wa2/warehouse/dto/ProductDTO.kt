@@ -13,6 +13,7 @@ class ProductDTO(
     val price: Float,
     val average_rating: Float,
     val creation_date: Date,
+    val comments: MutableList<Comment> = mutableListOf(),
     val availabilities: Map<Long, Int>
 ) {
     override fun toString(): String {

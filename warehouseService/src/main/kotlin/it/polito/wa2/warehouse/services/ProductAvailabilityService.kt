@@ -8,6 +8,8 @@ import java.util.*
 
 interface ProductAvailabilityService {
     fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO): OrderCreateWarehouseResponseDTO
+    fun cancelOrder(requestDTO: OrderCreateWarehouseRequestDTO): OrderCreateWarehouseResponseDTO
+
     fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO
     fun updateQuantity(productId: Long, warehouseId: Long, quantity: Int): ProductDTO
 }
