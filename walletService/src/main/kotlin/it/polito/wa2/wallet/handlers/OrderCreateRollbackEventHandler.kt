@@ -15,7 +15,7 @@ class OrderCreateRollbackEventHandler(val walletService: WalletService)  {
         println("Received rollback request")
         println(requestDTO)
 
-        walletService.credit(requestDTO);
+        walletService.deleteTransactionByWalletIdAndTransactionId(walletService.getWalletByUserId(requestDTO.userId).id, requestDTO.transationId!!);
 
         return true;
     }

@@ -1,11 +1,34 @@
 package it.polito.wa2.wallet.service
 
-import it.polito.wa2.dto.WalletRequestDTO
-import it.polito.wa2.dto.WalletResponseDTO
-import it.polito.wa2.enums.PaymentStatus
-import org.springframework.stereotype.Service
-import javax.annotation.PostConstruct
 
+import it.polito.wa2.dto.OrderCreateWalletResponseDTO
+import it.polito.wa2.dto.WalletDTO
+import it.polito.wa2.dto.TransactionDTO
+import java.util.*
+
+interface WalletService {
+    fun createWalletForCustomer(customerId: Long): WalletDTO
+
+    fun getWalletById(walletId: Long): WalletDTO
+
+    fun getWalletByUserId(userId: Long): WalletDTO
+
+    fun createTransaction(customerId: Long, amount: Float): TransactionDTO
+
+    fun createTransactionForOutbox(customerId: Long, amount: Float, correlationId: String, replyTopic: String) : OrderCreateWalletResponseDTO
+
+    fun getTransactionsByWalletIdHavingTimestampBetween(
+        walletId: Long,
+        fromDate: Date,
+        toDate: Date
+    ): Iterable<TransactionDTO>
+
+    fun getTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
+
+    fun deleteTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
+}
+
+/*
 @Service
 class WalletService {
     private var userBalanceMap: MutableMap<Int, Double>? = null
@@ -39,4 +62,6 @@ class WalletService {
     fun credit(requestDTO: WalletRequestDTO) {
         userBalanceMap!!.computeIfPresent(requestDTO.userId) { _: Int?, v: Double -> v + requestDTO.amount }
     }
+
 }
+*/
