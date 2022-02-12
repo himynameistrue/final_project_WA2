@@ -31,6 +31,7 @@ class ProductAvailabilityServiceImpl(
 
     override fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO, correlationId:  String, replyTopic: String): OrderCreateWarehouseResponseDTO {
 
+        lateinit var orderCreateResponse: OrderCreateWarehouseResponseDTO
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
             val quantitiesByProductId = HashMap<Long, Long>()  // mappa id, valore dei prodotti in magazzino
@@ -115,22 +116,22 @@ class ProductAvailabilityServiceImpl(
                     )
 
                     responseProductDTOs.add(responseCreateOrderWarehouse)
-
-                    // TODO write on outbox
-                    val responseJson = Gson().toJson(responseCreateOrderWarehouse)
-                    val outbox = WarehouseOutbox(correlationId, replyTopic, responseCreateOrderWarehouse.javaClass.name, responseJson)
-                    warehouseOutboxRepository.save(outbox)
                 }
 
             }
-        return OrderCreateWarehouseResponseDTO(true, responseProductDTOs)
+        orderCreateResponse = OrderCreateWarehouseResponseDTO(true, responseProductDTOs)
 
         } catch (e: Exception) {
-            // TODO write on outbox
             println(e.message)
             e.printStackTrace()
-            return OrderCreateWarehouseResponseDTO(false, listOf())
+            orderCreateResponse = OrderCreateWarehouseResponseDTO(false, listOf())
         }
+
+        val responseJson = Gson().toJson(orderCreateResponse)
+        val outbox = WarehouseOutbox(correlationId, replyTopic, orderCreateResponse.javaClass.name, responseJson)
+        warehouseOutboxRepository.save(outbox)
+
+        return orderCreateResponse
     }
 
     override fun cancelOrder(requestDTO: OrderCreateWarehouseResponseDTO): OrderCancelWarehouseResponseDTO {

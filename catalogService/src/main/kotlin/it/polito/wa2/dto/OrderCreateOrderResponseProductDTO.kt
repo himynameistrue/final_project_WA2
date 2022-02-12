@@ -1,9 +1,11 @@
 package it.polito.wa2.dto
 
+
 /**
- * Represents an OrderProduct as returned to the user
+ * Represents a Product contained in an Order after being created by orderService
  */
 data class OrderCreateOrderResponseProductDTO(
-    val productId: Long,
-    val remainingProducts: Long,
+    val id: Long,
+    val name: String,
+    var quantity: Long
 )

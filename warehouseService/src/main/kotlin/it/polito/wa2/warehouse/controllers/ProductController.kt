@@ -80,7 +80,7 @@ class ProductController(val productService: ProductService) {
     }
 
     /*Updates an existing product (full representation), or adds a new one if not exists*/
-    @PutMapping("/{productID}") // OK
+    @PutMapping("/{productID}/comments") // OK
     fun addComment(@PathVariable productID: Long, @RequestBody commentDTO : CommentDTO): ProductDTO {
         return productService.addComment(productID, commentDTO
         )

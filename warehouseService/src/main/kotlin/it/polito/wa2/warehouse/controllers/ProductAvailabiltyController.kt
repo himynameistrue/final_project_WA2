@@ -25,7 +25,7 @@ class ProductAvailabiltyController(val productAvailabilityService: ProductAvaila
     fun updateQuantity(
         @PathVariable productID: Long,
         @PathVariable warehouseID: Long,
-        quantity: Int
+        quantity: Long
     ): ProductDTO {
         return productAvailabilityService.updateQuantity(productID, warehouseID, quantity)
     }

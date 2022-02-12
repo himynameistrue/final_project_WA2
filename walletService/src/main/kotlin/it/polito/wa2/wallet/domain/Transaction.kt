@@ -8,12 +8,13 @@ import javax.persistence.*
 class Transaction(
     var timestamp: Date,
     var amount: Float,
+    val orderId: Long,
 
     @ManyToOne
      @JoinColumn(name="customer_wallet_id", referencedColumnName="id")
      var customer: Wallet,
 ) : EntityBase<Long>(){
      fun toDTO(): TransactionDTO {
-          return TransactionDTO(getId()!!, customer.getId()!!, amount, timestamp)
+          return TransactionDTO(getId()!!, orderId, customer.getId()!!, amount, timestamp)
      }
 }

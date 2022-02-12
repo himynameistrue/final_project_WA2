@@ -109,15 +109,15 @@ class GatewayController (
         // it should be added in warehouseService
         val responseBody = responseEntity.body
 
-        if (responseBody!!.productsUnderThresholdByWarehouseId.isNotEmpty()) {
-            responseBody.productsUnderThresholdByWarehouseId.forEach{ (id, list) ->
+        if (responseBody!!.warehousesUnderThresholdById.isNotEmpty()) {
+            /*responseBody.warehousesUnderThresholdById.forEach{ (id, list) ->
                 list.forEach { prodDTO ->
                     val message =
                         "Attention! The quantity of the product " + prodDTO.productId + " in the warehouse " + id + " is under the threshold. " +
                                 "Remaining quantity: " + prodDTO.remainingProducts
                     mailService.sendMessage("wa2team01@gmail.com", "Product " + prodDTO.productId + " under threshold!", message)
                 }
-            }
+            }*/
         }
     }
 

@@ -1,5 +1,6 @@
 package it.polito.wa2.warehouse.services
 
+import it.polito.wa2.warehouse.dto.CommentDTO
 import it.polito.wa2.warehouse.entities.Product
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
@@ -59,7 +60,7 @@ class ProductServiceImpl(
             newProduct = Product(null, name, description, picture_url, category, price, 0F, creation_date, mutableListOf())
         }
         else{
-            newProduct = Product(productId, name, description, picture_url, category, price, average_rating, creation_date , product.get().availabilities)
+            newProduct = Product(productId, name, description, picture_url, category, price, average_rating, creation_date , product.get().comments, product.get().availabilities)
         }
         return productRepository.save(newProduct).toDTO()
     }
@@ -133,11 +134,11 @@ class ProductServiceImpl(
         return warehouses
     }
 
-    override fun addComment(productId: Long, commentRequestDTO : CommentRequestDTO): ProductDTO{
-        val product = productRepository.findById(productId)
-        val newComment = Commment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
+    override fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO{
+        val product = productRepository.findById(productId).get()
+        val newComment = Comment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
 
-        product.average_rating = ((average_rating * product.comments.size) + commentRequestDTO.stars ) / (product.comments.size +1)
+        product.average_rating = ((product.average_rating * product.comments.size) + commentRequestDTO.stars ) / (product.comments.size +1)
         product.comments.add(newComment)
         return product.toDTO()
     }

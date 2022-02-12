@@ -21,6 +21,6 @@ class OrderCreateEventHandler(val walletService: WalletService) {
         println("Received request")
         println(requestDTO)
 
-        walletService.createTransactionForOutbox(requestDTO.buyerId, requestDTO.amount, correlationId, replyTopic);
+        walletService.createTransactionForOutbox(requestDTO.orderId, requestDTO.buyerId, requestDTO.amount, correlationId, replyTopic);
     }
 }

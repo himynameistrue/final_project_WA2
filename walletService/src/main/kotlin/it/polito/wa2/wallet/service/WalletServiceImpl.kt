@@ -44,7 +44,7 @@ class WalletServiceImpl(
         return walletRepository.findByCustomerId(userId).toDTO()
     }
 
-    override fun createTransaction(customerId: Long, amount: Float): TransactionDTO {
+    override fun createTransaction(orderId: Long, customerId: Long, amount: Float): TransactionDTO {
         val optionalCustomer = walletRepository.findById(customerId)
         if (!optionalCustomer.isPresent) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
@@ -56,7 +56,7 @@ class WalletServiceImpl(
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid transaction amount")
         }
 
-        val transaction = Transaction(Date(), amount, customer)
+        val transaction = Transaction(Date(), amount, orderId, customer)
         transactionRepository.save(transaction)
 
         customer.amount += amount
@@ -65,18 +65,25 @@ class WalletServiceImpl(
         return transaction.toDTO()
     }
 
-    override fun createTransactionForOutbox(customerId: Long, amount: Float, correlationId : String, replyTopic : String): OrderCreateWalletResponseDTO {
+    override fun createTransactionForOutbox(
+        orderId: Long,
+        customerId: Long,
+        amount: Float,
+        correlationId: String,
+        replyTopic: String
+    ): OrderCreateWalletResponseDTO {
         return try {
-            val transactionDto = createTransaction(customerId, amount)
+            val transactionDto = createTransaction(orderId, customerId, amount)
             val ret = OrderCreateWalletResponseDTO(true, transactionDto.id)
 
-            val outbox = WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
+            val outbox =
+                WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
 
             walletOutboxRepository.save(outbox)
             //warehouseOutboxRepository.delete(outbox)
 
             ret
-        } catch (e: Exception){
+        } catch (e: Exception) {
             val ret = OrderCreateWalletResponseDTO(false, null)
             ret
         }

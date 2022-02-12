@@ -13,9 +13,9 @@ interface WalletService {
 
     fun getWalletByUserId(userId: Long): WalletDTO
 
-    fun createTransaction(customerId: Long, amount: Float): TransactionDTO
+    fun createTransaction(orderId: Long, customerId: Long, amount: Float): TransactionDTO
 
-    fun createTransactionForOutbox(customerId: Long, amount: Float, correlationId: String, replyTopic: String) : OrderCreateWalletResponseDTO
+    fun createTransactionForOutbox(orderId: Long, customerId: Long, amount: Float, correlationId: String, replyTopic: String) : OrderCreateWalletResponseDTO
 
     fun getTransactionsByWalletIdHavingTimestampBetween(
         walletId: Long,

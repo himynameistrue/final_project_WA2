@@ -2,7 +2,7 @@ package it.polito.wa2.warehouse.services
 
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
-import it.polito.wa2.dto.CommentRequestDTO
+import it.polito.wa2.warehouse.dto.CommentDTO
 import java.util.*
 
 interface ProductService {
@@ -16,7 +16,7 @@ interface ProductService {
     fun getPictureByID(productId: Long): String
     fun updatePicture(productId: Long, picture_url: String): ProductDTO
     fun getWarehousesForProduct(productId: Long): List<WarehouseDTO>
-    fun addComment(productId: Long, commentRequestDTO : CommentRequestDTO): ProductDTO
+    fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO
 }
 
 

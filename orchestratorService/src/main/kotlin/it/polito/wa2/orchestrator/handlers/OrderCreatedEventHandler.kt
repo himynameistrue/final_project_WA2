@@ -28,7 +28,7 @@ class OrderCreatedEventHandler(
         println("Received request")
         println(requestDTO)
 
-        val walletRequestDTO = OrderCreateWalletRequestDTO(requestDTO.orderId, requestDTO.buyerId, requestDTO.totalPrice)
+        val walletRequestDTO = OrderCreateWalletRequestDTO(requestDTO.orderId, requestDTO.buyerId, -requestDTO.totalPrice)
         val warehouseRequestDTO = OrderCreateWarehouseRequestDTO(requestDTO.totalPrice, requestDTO.items)
 
         val walletRecord =
@@ -81,6 +81,8 @@ class OrderCreatedEventHandler(
 
             if(didWarehouseFail){
                 responseItems = listOf()
+            } else {
+                responseItems = warehouseReplyFuture.get().value().items
             }
 
             if (didWalletFail && !didWarehouseFail) {

@@ -10,4 +10,6 @@ data class OrderCreateWarehouseResponseProductDTO(
     val unitPrice: Float,
     val isUnderThreshold: Boolean,
     val remainingProducts: Long,
+    val productName: String,
+    val warehouseName: String
 )

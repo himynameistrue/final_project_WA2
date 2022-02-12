@@ -18,7 +18,7 @@ class WalletController(val service: WalletService) {
     fun debit(@RequestBody requestDTO: WalletRequestDTO): WalletResponseDTO? {
         return try {
             //TODO: valuta di eliminare TransactionDTO e invece innescare direttamente il WalletResponseDTO
-            val transaction = service.createTransaction(requestDTO.userId, requestDTO.amount)
+            val transaction = service.createTransaction(requestDTO.orderId, requestDTO.userId, requestDTO.amount)
             WalletResponseDTO(transaction.customerId, requestDTO.orderId, transaction.amount, PaymentStatus.PAYMENT_APPROVED)
         } catch (e: Exception){
             WalletResponseDTO(requestDTO.userId, requestDTO.orderId, requestDTO.amount, PaymentStatus.PAYMENT_REJECTED)
