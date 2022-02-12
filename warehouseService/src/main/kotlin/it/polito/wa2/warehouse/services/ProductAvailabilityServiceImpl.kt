@@ -199,6 +199,7 @@ class ProductAvailabilityServiceImpl(
                 )
                 availabilityRepository.save(newProductAvailability)
             }
+
         }
 
 
