@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface WarehouseOutboxRepository: JpaRepository<WarehouseOutbox, UUID>{
+interface WarehouseOutboxRepository: JpaRepository<WarehouseOutbox, Long>{
 
 }

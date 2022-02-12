@@ -16,7 +16,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 class OrderCreateEventHandler(val inventoryService: InventoryService, val productAvailabilityService: ProductAvailabilityService) {
 
     @KafkaListener(topics = ["order-create-orchestrator-to-warehouse"], groupId = "orchestrator-group")
-    @SendTo
     fun consumer(
         requestDTO: OrderCreateWarehouseRequestDTO,
         @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
@@ -27,7 +26,7 @@ class OrderCreateEventHandler(val inventoryService: InventoryService, val produc
         println(correlationId)
         println(replyTopic)
 
-        return productAvailabilityService.processNewOrder(requestDTO);
+        return productAvailabilityService.processNewOrder(requestDTO, correlationId, replyTopic);
 
         //inventoryService.deductInventory(requestDTO, correlationId, replyTopic);
     }
@@ -35,19 +34,14 @@ class OrderCreateEventHandler(val inventoryService: InventoryService, val produc
 
 
     @KafkaListener(topics = ["order-create-rollback-orchestrator-to-warehouse"], groupId = "orchestrator-group")
-    @SendTo
     fun rollback(
-            requestDTO: OrderCreateWarehouseRequestDTO,
+            requestDTO: OrderCreateWarehouseResponseDTO,
             @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
             @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String,
-    ): OrderCreateWarehouseResponseDTO {
+    ) {
         println("Received request")
         println(requestDTO)
         println(correlationId)
         println(replyTopic)
-
-        return productAvailabilityService.cancelOrder(requestDTO);
-
-        //inventoryService.deductInventory(requestDTO, correlationId, replyTopic);
     }
 }

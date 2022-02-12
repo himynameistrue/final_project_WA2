@@ -1,16 +1,17 @@
 package it.polito.wa2.warehouse.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import it.polito.wa2.dto.OrderCreateWarehouseRequestDTO
-import it.polito.wa2.dto.OrderCreateWarehouseResponseDTO
-import it.polito.wa2.dto.OrderCreateWarehouseResponseProductDTO
-import it.polito.wa2.dto.OrderRollbackWarehouseResponseDTO
+import com.fasterxml.jackson.module.kotlin.asUInt
+import com.google.gson.Gson
+import it.polito.wa2.dto.*
 import it.polito.wa2.warehouse.entities.ProductAvailability
 import it.polito.wa2.warehouse.entities.ProductAvailabilityKey
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.entities.Product
+import it.polito.wa2.warehouse.entities.WarehouseOutbox
 import it.polito.wa2.warehouse.repositories.ProductAvailabilityRepository
 import it.polito.wa2.warehouse.repositories.ProductRepository
+import it.polito.wa2.warehouse.repositories.WarehouseOutboxRepository
 import it.polito.wa2.warehouse.repositories.WarehouseRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -24,10 +25,11 @@ class ProductAvailabilityServiceImpl(
     val productRepository: ProductRepository,
     val warehouseRepository: WarehouseRepository,
     val availabilityRepository: ProductAvailabilityRepository,
+    val warehouseOutboxRepository: WarehouseOutboxRepository
 
     ) : ProductAvailabilityService {
 
-    override fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO): OrderCreateWarehouseResponseDTO {
+    override fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO, correlationId:  String, replyTopic: String): OrderCreateWarehouseResponseDTO {
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
@@ -101,8 +103,7 @@ class ProductAvailabilityServiceImpl(
 
                     availabilityRepository.save(productAvailability)
 
-                    responseProductDTOs.add(
-                        OrderCreateWarehouseResponseProductDTO(
+                    val responseCreateOrderWarehouse = OrderCreateWarehouseResponseProductDTO(
                             it.key,
                             productAvailability.warehouse.id!!,
                             decreasedAvailability,
@@ -111,14 +112,18 @@ class ProductAvailabilityServiceImpl(
                             productAvailability.quantity,
                             productAvailability.warehouse.name!!,
                             productAvailability.product.name!!
-                        )
                     )
+
+                    responseProductDTOs.add(responseCreateOrderWarehouse)
+
+                    // TODO write on outbox
+                    val responseJson = Gson().toJson(responseCreateOrderWarehouse)
+                    val outbox = WarehouseOutbox(correlationId, replyTopic, responseCreateOrderWarehouse.javaClass.name, responseJson)
+                    warehouseOutboxRepository.save(outbox)
                 }
 
             }
-
-            // TODO write on outbox
-            return OrderCreateWarehouseResponseDTO(true, responseProductDTOs)
+        return OrderCreateWarehouseResponseDTO(true, responseProductDTOs)
 
         } catch (e: Exception) {
             // TODO write on outbox
@@ -128,16 +133,14 @@ class ProductAvailabilityServiceImpl(
         }
     }
 
-    override fun cancelOrder(requestDTO: OrderCreateWarehouseResponseDTO): Boolean {
+    override fun cancelOrder(requestDTO: OrderCreateWarehouseResponseDTO): OrderCancelWarehouseResponseDTO {
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
-            requestDTO.items.foreach{
-                updateQuantity(it.productId, it.warehouseId, it.amount)
+            requestDTO.items.forEach{
+                updateQuantity(it.productId, it.warehouseId, (it.amount + it.remainingProducts))
             }
-
-            // TODO write on outbox
-            return true
+            return OrderCancelWarehouseResponseDTO(true)
 
         }
 
@@ -145,12 +148,9 @@ class ProductAvailabilityServiceImpl(
             // TODO write on outbox
             println(e.message)
             e.printStackTrace()
-            return OrderCreateWarehouseResponseDTO(false, listOf())
+            return OrderCancelWarehouseResponseDTO(false)
         }
     }
-
-
-
 
     override fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO {
         val product = productRepository.findById(productId).get()
@@ -176,7 +176,7 @@ class ProductAvailabilityServiceImpl(
         return product.toDTO()
     }
 
-    override fun updateQuantity(productId: Long, warehouseId: Long, quantity: Int): ProductDTO {
+    override fun updateQuantity(productId: Long, warehouseId: Long, quantity: Long): ProductDTO {
         val productInWarehouse = availabilityRepository.findAll()
         val availability =
             productInWarehouse.filter { it.product.id == productId && it.warehouse.id == warehouseId } as MutableList<ProductAvailability>
@@ -194,7 +194,7 @@ class ProductAvailabilityServiceImpl(
                     availability.first().id,
                     availability.first().product,
                     availability.first().warehouse,
-                    quantity,
+                    quantity.toInt(),
                     availability.first().alarm
                 )
                 availabilityRepository.save(newProductAvailability)

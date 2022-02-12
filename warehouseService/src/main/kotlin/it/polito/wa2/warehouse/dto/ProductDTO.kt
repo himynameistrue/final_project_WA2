@@ -1,20 +1,21 @@
 package it.polito.wa2.warehouse.dto
 
+import it.polito.wa2.warehouse.domain.Comment
 import it.polito.wa2.warehouse.entities.Warehouse
 import org.springframework.data.util.ProxyUtils
 import java.util.*
 
 class ProductDTO(
-    val id: Long,
-    val name: String,
-    val description: String,
-    val picture_url: String?,
-    val category: String?,
-    val price: Float,
-    val average_rating: Float,
-    val creation_date: Date,
-    val comments: MutableList<Comment> = mutableListOf(),
-    val availabilities: Map<Long, Int>
+        val id: Long,
+        val name: String,
+        val description: String,
+        val picture_url: String?,
+        val category: String?,
+        val price: Float,
+        val average_rating: Float,
+        val creation_date: Date,
+        val comments: MutableList<Comment> = mutableListOf(),
+        val availabilities: Map<Long, Int>
 ) {
     override fun toString(): String {
         return "$id ,$name ,$description, $picture_url, ${availabilities.map { print(it) }}"

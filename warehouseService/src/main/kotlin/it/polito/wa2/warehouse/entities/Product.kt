@@ -1,29 +1,31 @@
 package it.polito.wa2.warehouse.entities
 
+import it.polito.wa2.warehouse.domain.Comment
 import it.polito.wa2.warehouse.dto.ProductDTO
-import it.polito.wa2.warehouse.entities.Comment
 import java.util.*
 import javax.persistence.*
 
 @Entity
 class Product(
-    @Id
+        @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_generator")
     @SequenceGenerator(name="product_generator",
         sequenceName = "sequence_1", initialValue = 1, allocationSize = 1)
     @Column(updatable = false, nullable = false)
     val id: Long? = null,
 
-    val name: String?,
-    val description: String?,
-    val picture_url: String?,
-    val category: String?,
-    val price: Float?,
-    val average_rating: Float = 0F,
-    val creation_date: Date?,
-    val comments: MutableList<Comment> = mutableListOf(),
+        val name: String?,
+        val description: String?,
+        val picture_url: String?,
+        val category: String?,
+        val price: Float?,
+        val average_rating: Float = 0F,
+        val creation_date: Date?,
 
-    @OneToMany(mappedBy = "product")
+        @OneToMany(mappedBy = "commments")
+        val comments: MutableList<Comment> = mutableListOf(),
+
+        @OneToMany(mappedBy = "product")
     val availabilities: MutableList<ProductAvailability> = mutableListOf()
 
 ) {
