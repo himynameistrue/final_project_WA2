@@ -70,6 +70,11 @@ class UserController(
     @PostMapping("{username}/removeRole")
     fun adminRemoveRole(@PathVariable("username") username: String, @RequestParam("role") role: String) {
         userDetailsService.removeRole(username, User.RoleName.valueOf(role))
+
+        if (role.compareTo("CUSTOMER") == 0){
+            // TODO remove the corresponding wallet
+            // method in the gatewayController
+        }
     }
 
     @GetMapping("/list")

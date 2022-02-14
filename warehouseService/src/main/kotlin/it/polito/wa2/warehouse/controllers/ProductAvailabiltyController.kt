@@ -1,5 +1,6 @@
 package it.polito.wa2.warehouse.controllers
 
+import it.polito.wa2.dto.ProductAvailabilityRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.services.ProductAvailabilityService
 import org.springframework.web.bind.annotation.*
@@ -14,10 +15,10 @@ class ProductAvailabiltyController(val productAvailabilityService: ProductAvaila
         fun newRelationship(
             @PathVariable productID: Long,
             @PathVariable warehouseID: Long,
-            quantity: Int,
-            alarm: Int
+            @RequestBody productAvailabilityRequestDTO: ProductAvailabilityRequestDTO
         ): ProductDTO {
-            return productAvailabilityService.productInWarehouse(productID, warehouseID, quantity, alarm)
+            return productAvailabilityService.productInWarehouse(productID, warehouseID,
+                productAvailabilityRequestDTO.quantity, productAvailabilityRequestDTO.alarm)
         }
 
     /*Update product-warehouse relationship*/

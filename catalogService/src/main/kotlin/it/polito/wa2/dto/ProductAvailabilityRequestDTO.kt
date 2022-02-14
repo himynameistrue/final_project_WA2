@@ -1,4 +1,6 @@
 package it.polito.wa2.dto
 
-class TestCLass {
-}
+data class ProductAvailabilityRequestDTO (
+    val quantity: Int,
+    val alarm: Int
+)

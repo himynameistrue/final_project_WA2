@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
+import javax.annotation.security.RolesAllowed
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -45,11 +47,6 @@ import javax.servlet.http.HttpServletRequest
  * OK assign admin role to a customer
  * add positive transaction (recharges)
  */
-
-// TODO ?? users can also place an evaluation of the purchased product, assigning stars and leaving a comment
-// TODO ?? Comments with title, body, stars and creation date can be associated to purchased products
-
-// TODO ?? updating alarms
 
 @RestController
 class GatewayController (
@@ -96,29 +93,35 @@ class GatewayController (
     }
 
     // Adds a new order
+    @Secured("ROLE_CUSTOMER")
     @PostMapping("/orders")
-    fun createOrder(request: HttpServletRequest, @RequestBody newOrderDTO: OrderCreateRequestDTO) {
+    fun createOrder(request: HttpServletRequest, @RequestBody orderRequestDTO: IncompOrderCreateRequestDTO): List<OrderCreateOrderResponseProductDTO> {
         val principal = (SecurityContextHolder.getContext().authentication)
-        // The userID must be the same of the authenticated user!
-        if (!userDetailsService.correctID(principal.name, newOrderDTO.buyerId))
-            throw RuntimeException("The buyer_id must the same of the authenticated user!")
+        val userID = userDetailsService.getIdFromEmail(principal.name)
+        val newOrderDTO = userID?.let { OrderCreateRequestDTO(it, orderRequestDTO.totalPrice, orderRequestDTO.items) }
 
         val responseEntity = restTemplate(request, newOrderDTO, OrderCreateOrderResponseDTO::class.java)
 
-        // Probably the warehouse name and product name would be more useful in an email,
-        // it should be added in warehouseService
         val responseBody = responseEntity.body
 
         if (responseBody!!.warehousesUnderThresholdById.isNotEmpty()) {
-            /*responseBody.warehousesUnderThresholdById.forEach{ (id, list) ->
-                list.forEach { prodDTO ->
-                    val message =
-                        "Attention! The quantity of the product " + prodDTO.productId + " in the warehouse " + id + " is under the threshold. " +
-                                "Remaining quantity: " + prodDTO.remainingProducts
-                    mailService.sendMessage("wa2team01@gmail.com", "Product " + prodDTO.productId + " under threshold!", message)
+            responseBody.warehousesUnderThresholdById.forEach{ (idW, nameW, listProduct) ->
+                var message = "Attention! These products are under threshold:\n"
+                listProduct.forEach { prodDTO ->
+                    message += "Product " + prodDTO.productId + ": " + prodDTO.productName + " in the warehouse " + idW + ": " + nameW +
+                            " - remaining quantity: " + prodDTO.remainingProducts + "\n"
                 }
-            }*/
+                userDetailsService.getAdminsEmail().forEach { email ->
+                    mailService.sendMessage(email, "Products under threshold", message)
+                }
+            }
         }
+        if (responseBody.isSuccessful) {
+            mailService.sendMessage(principal.name, "Order confirmed", "Your order is confirmed!\nOrder ID: " +
+            "You will receive and email every time your order is updated\nThank you for your purchase")
+        }
+
+        return responseBody.products
     }
 
     /*
@@ -133,8 +136,10 @@ class GatewayController (
 
     // Cancels an existing order, if possible
     // - Authenticated user
+    // TODO Can admin cancel an order or only the user?
     @DeleteMapping("/orders/{orderID}")
     fun deleteOrderByID (request: HttpServletRequest) {
+        // TODO control that the user is the owner of the order
         restTemplate(request, null, Void::class.java)
     } */
 
@@ -169,6 +174,25 @@ class GatewayController (
         return responseEntity.body
     }
 
+    // Retrieves the picture of the product identified by productID
+    // - NO authentication
+    @GetMapping("/products/{productID}/picture")
+    fun getPictureByID(request: HttpServletRequest): String? {
+        val responseEntity = restTemplate(request, null, String::class.java)
+
+        return responseEntity.body
+    }
+
+    // Add a comment about a product
+    // TODO ?? must check that the product was bought from this user?
+    @Secured("ROLE_CUSTOMER")
+    @PutMapping("/products/{productID}/comments")
+    fun addComment(request: HttpServletRequest, @RequestBody commentDTO : CommentDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, commentDTO, ProductDTO::class.java)
+        // TODO error in the warehouse, probably in the entities
+        return responseEntity.body
+    }
+
     /* ---------- Only for ADMIN ---------- */
 
     // Add new Product
@@ -194,6 +218,7 @@ class GatewayController (
     @PatchMapping("/products/{productID}")
     fun updatePartialProduct(request: HttpServletRequest, @RequestBody productPartialUpdateRequestDTO: ProductPartialUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productPartialUpdateRequestDTO, ProductDTO::class.java)
+
         return responseEntity.body
     }
 
@@ -202,15 +227,6 @@ class GatewayController (
     @DeleteMapping("/products/{productID}")
     fun deleteProduct(request: HttpServletRequest) {
         restTemplate(request, null, Void::class.java)
-    }
-
-    // Retrieves the picture of the product identified by productID
-    // - NO authentication
-    @GetMapping("/products/{productID}/picture")
-    fun getPictureByID(request: HttpServletRequest): String? {
-        val responseEntity = restTemplate(request, null, String::class.java)
-
-        return responseEntity.body
     }
 
     // Updates the picture of the product identified by productID
@@ -226,7 +242,7 @@ class GatewayController (
     // WAREHOUSE
 
     // Retrieves the list of all warehouses
-    // TODO Only for admin ??
+    @Secured("ROLE_ADMIN")
     @GetMapping("/warehouses")
     fun getWarehouses(request: HttpServletRequest): Array<WarehouseDTO>? {
         val responseEntity = restTemplate(request, null, arrayOf<WarehouseDTO>()::class.java)
@@ -235,7 +251,7 @@ class GatewayController (
     }
 
     // Retrieves the warehouse identified by warehouseID
-    // TODO Only for admin ??
+    @Secured("ROLE_ADMIN")
     @GetMapping("/warehouses/{warehouseID}")
     fun getWarehouseByID(request: HttpServletRequest): WarehouseDTO? {
         val responseEntity = restTemplate(request, null, WarehouseDTO::class.java)
@@ -246,7 +262,6 @@ class GatewayController (
     // Adds a new warehouse
     @Secured("ROLE_ADMIN")
     @PostMapping("/warehouses")
-    @ResponseStatus(HttpStatus.CREATED)
     fun createWarehouse(request: HttpServletRequest, @RequestBody warehouseCreateRequestDTO: WarehouseCreateRequestDTO): WarehouseDTO? {
         val responseEntity = restTemplate(request, warehouseCreateRequestDTO, WarehouseDTO::class.java)
 
@@ -263,11 +278,11 @@ class GatewayController (
     }
 
     // Updates an existing warehouse (partial representation)
-    // TODO Only for admin
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/warehouses/{warehouseID}")
     fun updatePartialWarehouse(request: HttpServletRequest, @RequestBody warehousePartialUpdateRequestDTO: WarehousePartialUpdateRequestDTO): WarehouseDTO? {
         val responseEntity = restTemplate(request, warehousePartialUpdateRequestDTO, WarehouseDTO::class.java)
-        // TODO method PATCH not allowed??
+
         return responseEntity.body
     }
 
@@ -277,6 +292,26 @@ class GatewayController (
     fun deleteWarehouse(request: HttpServletRequest) {
         restTemplate(request, null, Void::class.java)
     }
+
+
+    // Update the availability of a product and the alarm threshold
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/availability/{productID}/warehouse/{warehouseID}")
+    fun newRelationship(request: HttpServletRequest, @RequestBody productAvailabilityRequestDTO: ProductAvailabilityRequestDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, productAvailabilityRequestDTO, ProductDTO::class.java)
+        // TODO some problem with the null??
+        return responseEntity.body
+    }
+
+    // Update the quantity of a product
+    @Secured("ROLE_ADMIN")
+    @PutMapping("/availability/{productID}/warehouse/{warehouseID}")
+    fun updateQuantity(request: HttpServletRequest, quantity: Long): ProductDTO? {
+        val responseEntity = restTemplate(request, quantity, ProductDTO::class.java)
+        // TODO some problem with the null??
+        return responseEntity.body
+    }
+
 
     // -------------------------------------------
     // WALLET SERVICE
@@ -298,7 +333,15 @@ class GatewayController (
     @PostMapping("/wallets")
     fun createWallet (request: HttpServletRequest): WalletDTO? {
         // TODO take the user and send it to the walletService
+        // TODO Only the customers have a wallet
         val responseEntity = restTemplate(request, null, WalletDTO::class.java)
+
+        return responseEntity.body
+    }
+
+    // Delete a wallet of the user
+    fun deleteWallet(request: HttpServletRequest, userID: Long): String? {
+        val responseEntity = restTemplate(request, userID, String::class.java)
 
         return responseEntity.body
     }

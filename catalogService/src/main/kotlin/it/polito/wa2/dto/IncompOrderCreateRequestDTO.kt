@@ -4,10 +4,9 @@ import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
 /**
- * Represents an Order as received from an HTTPRequest
+ * Represents an Order without the buyerId
  */
-data class OrderCreateRequestDTO(
-    @NotNull val buyerId: Long,
+data class IncompOrderCreateRequestDTO(
     @NotNull val totalPrice: Float,
     @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
 )
