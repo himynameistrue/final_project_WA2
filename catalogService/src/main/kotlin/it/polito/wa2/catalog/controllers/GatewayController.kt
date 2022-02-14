@@ -10,12 +10,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.security.access.annotation.Secured
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 import java.net.URI
-import javax.annotation.security.RolesAllowed
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -297,8 +295,8 @@ class GatewayController (
     // Update the availability of a product and the alarm threshold
     @Secured("ROLE_ADMIN")
     @PostMapping("/availability/{productID}/warehouse/{warehouseID}")
-    fun newRelationship(request: HttpServletRequest, @RequestBody productAvailabilityRequestDTO: ProductAvailabilityRequestDTO): ProductDTO? {
-        val responseEntity = restTemplate(request, productAvailabilityRequestDTO, ProductDTO::class.java)
+    fun newRelationship(request: HttpServletRequest, @RequestBody productAvailabilityUpdateRequestDTO: ProductAvailabilityUpdateRequestDTO): ProductDTO? {
+        val responseEntity = restTemplate(request, productAvailabilityUpdateRequestDTO, ProductDTO::class.java)
         // TODO some problem with the null??
         return responseEntity.body
     }

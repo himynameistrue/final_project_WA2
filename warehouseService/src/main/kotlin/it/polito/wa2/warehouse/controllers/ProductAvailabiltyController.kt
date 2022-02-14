@@ -1,10 +1,9 @@
 package it.polito.wa2.warehouse.controllers
 
-import it.polito.wa2.dto.ProductAvailabilityRequestDTO
+import it.polito.wa2.dto.ProductAvailabilityUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
 import it.polito.wa2.warehouse.services.ProductAvailabilityService
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 @RequestMapping("/availability")
@@ -15,10 +14,10 @@ class ProductAvailabiltyController(val productAvailabilityService: ProductAvaila
         fun newRelationship(
             @PathVariable productID: Long,
             @PathVariable warehouseID: Long,
-            @RequestBody productAvailabilityRequestDTO: ProductAvailabilityRequestDTO
+            @RequestBody productAvailabilityUpdateRequestDTO: ProductAvailabilityUpdateRequestDTO
         ): ProductDTO {
             return productAvailabilityService.productInWarehouse(productID, warehouseID,
-                productAvailabilityRequestDTO.quantity, productAvailabilityRequestDTO.alarm)
+                productAvailabilityUpdateRequestDTO.quantity, productAvailabilityUpdateRequestDTO.alarm)
         }
 
     /*Update product-warehouse relationship*/
