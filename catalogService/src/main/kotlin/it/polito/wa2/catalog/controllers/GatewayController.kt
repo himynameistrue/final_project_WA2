@@ -93,7 +93,7 @@ class GatewayController (
     // Adds a new order
     @Secured("ROLE_CUSTOMER")
     @PostMapping("/orders")
-    fun createOrder(request: HttpServletRequest, @RequestBody orderRequestDTO: IncompleteOrderCreateRequestDTO): List<OrderCreateOrderResponseProductDTO> {
+    fun createOrder(request: HttpServletRequest, @RequestBody orderRequestDTO: IncompleteOrderCreateRequestDTO): OrderCreateOrderResponseDTO? {
         val principal = (SecurityContextHolder.getContext().authentication)
         val userID = userDetailsService.getIdFromEmail(principal.name)
         val newOrderDTO = userID?.let { OrderCreateRequestDTO(it, orderRequestDTO.totalPrice, orderRequestDTO.items) }
@@ -115,12 +115,11 @@ class GatewayController (
             }
         }
         if (responseBody.isSuccessful) {
-            // TODO orderID ?
-            mailService.sendMessage(principal.name, "Order confirmed", "Your order is confirmed!\nOrder ID: " +
+            mailService.sendMessage(principal.name, "Order confirmed", "Your order is confirmed!\nOrder ID: " + responseBody.id +
             "You will receive and email every time your order is updated\nThank you for your purchase")
         }
 
-        return responseBody.products
+        return responseBody
     }
 
     /*

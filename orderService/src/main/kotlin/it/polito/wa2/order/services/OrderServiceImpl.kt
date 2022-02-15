@@ -52,7 +52,7 @@ class OrderServiceImpl(
 
         confirm(order, orchestratorResponse)
 
-        return orchestratorResponse.mapToOrderResponse()
+        return orchestratorResponse.mapToOrderResponse(order.getId()!!)
     }
 
     private fun runCreationSaga(order: Order, totalPrice: Float, items: List<OrderCreateRequestProductDTO>) : OrderCreateOrchestratorResponseDTO {

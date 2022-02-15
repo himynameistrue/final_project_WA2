@@ -11,10 +11,11 @@ data class OrderCreateOrchestratorResponseDTO(
     @Valid @NotNull val items: List<OrderCreateWarehouseResponseProductDTO>,
     @NotNull val isSuccessful: Boolean
 ) {
-    fun mapToOrderResponse(): OrderCreateOrderResponseDTO {
+    fun mapToOrderResponse(orderId: Long): OrderCreateOrderResponseDTO {
         val warehousesUnderThresholdById = mutableMapOf<Long, OrderCreateOrderResponseUnderThresholdDTO>()
         val productsById = mutableMapOf<Long, OrderCreateOrderResponseProductDTO>()
         items.forEach {
+
             if(it.isUnderThreshold){
                 println("Evaluating for key ${it.warehouseId}")
                 val warehouseDTO = warehousesUnderThresholdById.getOrPut(it.warehouseId) {
@@ -24,14 +25,14 @@ data class OrderCreateOrchestratorResponseDTO(
                 warehouseDTO.items.add(OrderCreateOrderResponseUnderThresholdProductDTO(it.productId, it.productName, it.remainingProducts))
 
                 warehousesUnderThresholdById[it.warehouseId] = warehouseDTO
-
-                val productDTO = productsById.getOrDefault(it.productId, OrderCreateOrderResponseProductDTO(it.productId, it.productName, 0))
-                productDTO.quantity += it.amount
-
-                productsById[it.productId] = productDTO
             }
+
+            val productDTO = productsById.getOrDefault(it.productId, OrderCreateOrderResponseProductDTO(it.productId, it.productName, 0))
+            productDTO.quantity += it.amount
+
+            productsById[it.productId] = productDTO
         }
 
-        return OrderCreateOrderResponseDTO(isSuccessful, warehousesUnderThresholdById.values.toList(), productsById.values.toList())
+        return OrderCreateOrderResponseDTO(orderId, isSuccessful, warehousesUnderThresholdById.values.toList(), productsById.values.toList())
     }
 }
