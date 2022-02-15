@@ -11,9 +11,10 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
-						"type": "text"
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
 					}
 				],
 				"url": {
@@ -44,12 +45,12 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoicGlwcG9AZW1haWwuY29tIn0.2AhYl91ypS_mSdLVYkNivNkzXt1x60xc2Fw_CjpJ9Q8",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/orders?buyer_id=3",
+					"raw": "http://localhost:8080/orders?buyer_id=5",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -66,7 +67,7 @@
 						},
 						{
 							"key": "buyer_id",
-							"value": "3"
+							"value": "5"
 						}
 					]
 				}
@@ -106,13 +107,13 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoicGFwZXJpbm9AZW1haWwuY29tIn0.SB16O2p3lK9g43bruBvDk_T_v9SzLjpsrYX-cI6njXE",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buyerId\": \"3\",\r\n    \"totalPrice\": 2,\r\n    \"items\": [\r\n        {\r\n            \"productId\": 1,\r\n            \"amount\": 2\r\n        }\r\n    ]\r\n}",
+					"raw": "{\r\n    \"totalPrice\": 2,\r\n    \"items\": [\r\n        {\r\n            \"productId\": 1,\r\n            \"amount\": 2\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -200,6 +201,93 @@
 			"response": []
 		},
 		{
+			"name": "RetrievePicturesByProductID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/products/3/picture",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"products",
+						"3",
+						"picture"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RetrievePicturesByProductID Copy",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Bel prodotto\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/products/1/comments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"products",
+						"1",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddCommentToProduct",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoicGlwcG9AZW1haWwuY29tIn0.2AhYl91ypS_mSdLVYkNivNkzXt1x60xc2Fw_CjpJ9Q8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"Bel prodotto\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/products/1/comments",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"products",
+						"1",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "AddProduct1",
 			"request": {
 				"method": "POST",
@@ -241,7 +329,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
 						"type": "text"
 					}
 				],
@@ -273,7 +361,13 @@
 			"name": "UpdateFullProductByProductID",
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"name\": \"BicNera\",\r\n    \"description\": \"penna a sfera nera che non scrive comunque\",\r\n    \"picture_url\": \"no url\",\r\n    \"category\": \"penne\",\r\n    \"price\": 1,\r\n    \"average_rating\": 2\r\n}",
@@ -284,7 +378,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/products/2",
+					"raw": "http://localhost:8080/products/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -292,7 +386,7 @@
 					"port": "8080",
 					"path": [
 						"products",
-						"2"
+						"1"
 					]
 				}
 			},
@@ -302,7 +396,13 @@
 			"name": "UpdatePartialProductByProductID",
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"name\": \"BicNera\",\r\n    \"description\": \"penna a sfera nera che non scrive comunque\",\r\n    \"picture_url\": \"no url\",\r\n    \"category\": \"penne\",\r\n    \"price\": 1,\r\n    \"average_rating\": 2\r\n}",
@@ -313,7 +413,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/products/2",
+					"raw": "http://localhost:8080/products/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -321,7 +421,7 @@
 					"port": "8080",
 					"path": [
 						"products",
-						"2"
+						"1"
 					]
 				}
 			},
@@ -348,39 +448,18 @@
 			"response": []
 		},
 		{
-			"name": "RetrievePicturesByProductID",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/products/3/picture",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"products",
-						"3",
-						"picture"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "UpdatePicturesByProductID",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/products/3/picture?picture_url=new_url",
+					"raw": "http://localhost:8080/products/2/picture?picture_url=new_url",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -388,7 +467,7 @@
 					"port": "8080",
 					"path": [
 						"products",
-						"3",
+						"2",
 						"picture"
 					],
 					"query": [
@@ -405,7 +484,13 @@
 			"name": "RetrieveListWarehouse",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoicGlwcG9AZW1haWwuY29tIn0.HS92b_f2dciX1ZK_JsdkTVTBeJv6a9uhBoUa39Ei9SI",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8080/warehouses",
 					"protocol": "http",
@@ -424,7 +509,13 @@
 			"name": "RetrieveWarehouseByID",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoicGlwcG9AZW1haWwuY29tIn0.HS92b_f2dciX1ZK_JsdkTVTBeJv6a9uhBoUa39Ei9SI",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8080/warehouses/1",
 					"protocol": "http",
@@ -447,7 +538,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoicGlwcG9AZW1haWwuY29tIn0.HS92b_f2dciX1ZK_JsdkTVTBeJv6a9uhBoUa39Ei9SI",
 						"type": "text"
 					}
 				],
@@ -541,10 +632,16 @@
 			"name": "UdpadePartialWarehouseByID",
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"ware1_new\"\r\n}",
+					"raw": "{\r\n    \"name\": \"ware1_new\",\r\n    \"location\": \"bo\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -552,12 +649,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/warehouses/1",
+					"raw": "http://localhost:8084/warehouses/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8084",
 					"path": [
 						"warehouses",
 						"1"
@@ -590,6 +687,86 @@
 					"path": [
 						"warehouses",
 						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateProductAvailabilityAndAlarm",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"quantity\": 25,\r\n    \"alarm\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/availability/1/warehouse/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"availability",
+						"1",
+						"warehouse",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateProductAvailabilityAndAlarm Copy",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.1o5xrQvutEAuubvP1VkmREyz3NzqbU7-erd-RGZCAE8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/availability/1/warehouse/1?quantity=20",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"availability",
+						"1",
+						"warehouse",
+						"1"
+					],
+					"query": [
+						{
+							"key": "quantity",
+							"value": "20"
+						}
 					]
 				}
 			},
