@@ -174,7 +174,7 @@ class ProductAvailabilityServiceImpl(
         }
 
         availabilityRepository.save(newProductAvailability)
-        return product.toDTO()
+        return productRepository.findById(productId).get().toDTO()
     }
 
     override fun updateQuantity(productId: Long, warehouseId: Long, quantity: Long): ProductDTO {

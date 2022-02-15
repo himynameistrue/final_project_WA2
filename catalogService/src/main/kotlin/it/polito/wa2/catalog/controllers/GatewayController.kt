@@ -93,7 +93,7 @@ class GatewayController (
     // Adds a new order
     @Secured("ROLE_CUSTOMER")
     @PostMapping("/orders")
-    fun createOrder(request: HttpServletRequest, @RequestBody orderRequestDTO: IncompOrderCreateRequestDTO): List<OrderCreateOrderResponseProductDTO> {
+    fun createOrder(request: HttpServletRequest, @RequestBody orderRequestDTO: IncompleteOrderCreateRequestDTO): List<OrderCreateOrderResponseProductDTO> {
         val principal = (SecurityContextHolder.getContext().authentication)
         val userID = userDetailsService.getIdFromEmail(principal.name)
         val newOrderDTO = userID?.let { OrderCreateRequestDTO(it, orderRequestDTO.totalPrice, orderRequestDTO.items) }
@@ -115,6 +115,7 @@ class GatewayController (
             }
         }
         if (responseBody.isSuccessful) {
+            // TODO orderID ?
             mailService.sendMessage(principal.name, "Order confirmed", "Your order is confirmed!\nOrder ID: " +
             "You will receive and email every time your order is updated\nThank you for your purchase")
         }
@@ -297,16 +298,16 @@ class GatewayController (
     @PostMapping("/availability/{productID}/warehouse/{warehouseID}")
     fun newRelationship(request: HttpServletRequest, @RequestBody productAvailabilityUpdateRequestDTO: ProductAvailabilityUpdateRequestDTO): ProductDTO? {
         val responseEntity = restTemplate(request, productAvailabilityUpdateRequestDTO, ProductDTO::class.java)
-        // TODO some problem with the null??
+
         return responseEntity.body
     }
 
     // Update the quantity of a product
     @Secured("ROLE_ADMIN")
     @PutMapping("/availability/{productID}/warehouse/{warehouseID}")
-    fun updateQuantity(request: HttpServletRequest, quantity: Long): ProductDTO? {
-        val responseEntity = restTemplate(request, quantity, ProductDTO::class.java)
-        // TODO some problem with the null??
+    fun updateQuantity(request: HttpServletRequest): ProductDTO? {
+        val responseEntity = restTemplate(request, null, ProductDTO::class.java)
+
         return responseEntity.body
     }
 
@@ -318,7 +319,6 @@ class GatewayController (
 
     // Retrieves the wallet identified by walletID
     // TODO ?? Retrieve his/her wallets
-    @PreAuthorize("#username == authentication.principal.username")
     @GetMapping("/wallets/{walletID}")
     fun getWattelByID (request: HttpServletRequest): WalletDTO? {
         val responseEntity = restTemplate(request, null, WalletDTO::class.java)
@@ -392,6 +392,10 @@ class GatewayController (
                     port = 8084
                 }
                 startsWith("/warehouses") -> {
+                    host = "warehouse"
+                    port = 8084
+                }
+                startsWith("/availability") -> {
                     host = "warehouse"
                     port = 8084
                 }

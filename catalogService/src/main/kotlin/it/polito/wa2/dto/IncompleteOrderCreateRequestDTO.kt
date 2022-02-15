@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull
 /**
  * Represents an Order without the buyerId
  */
-data class IncompOrderCreateRequestDTO(
+data class IncompleteOrderCreateRequestDTO(
     @NotNull val totalPrice: Float,
     @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
 )
