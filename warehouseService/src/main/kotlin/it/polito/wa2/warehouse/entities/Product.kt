@@ -23,7 +23,7 @@ class Product(
     var average_rating: Float = 0F,
     val creation_date: Date?,
 
-    @OneToMany
+    @OneToMany(cascade = [CascadeType.ALL])
     val comments: MutableList<Comment> = mutableListOf(),
 
     @OneToMany(mappedBy = "product")

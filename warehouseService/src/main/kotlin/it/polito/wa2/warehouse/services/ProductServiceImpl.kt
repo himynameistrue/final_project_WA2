@@ -135,11 +135,14 @@ class ProductServiceImpl(
     }
 
     override fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO{
-        val product = productRepository.findById(productId).get()
+        var product = productRepository.findById(productId).get()
         val newComment = Comment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
 
         product.average_rating = ((product.average_rating * product.comments.size) + commentRequestDTO.stars ) / (product.comments.size +1)
         product.comments.add(newComment)
+
+        product = productRepository.save(product)
+
         return product.toDTO()
     }
 
