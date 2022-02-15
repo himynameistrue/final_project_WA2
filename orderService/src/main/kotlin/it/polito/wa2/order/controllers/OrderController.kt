@@ -1,8 +1,6 @@
 package it.polito.wa2.order.controllers
 
 import it.polito.wa2.dto.*
-import it.polito.wa2.enums.OrderStatus
-import it.polito.wa2.order.domain.OrderProduct
 import it.polito.wa2.order.services.OrderServiceImpl
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -10,8 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
-import it.polito.wa2.order.exceptions.OrderAlreadyCanceledException
-import it.polito.wa2.order.exceptions.OrderCreationFailedException
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
@@ -41,8 +37,7 @@ class OrderController(var orderService: OrderServiceImpl) {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateOrderResponseDTO {
-
-        return orderService.create(newOrderDTO.buyerId, newOrderDTO.totalPrice, newOrderDTO.items)
+            return orderService.create(newOrderDTO.buyerId, newOrderDTO.totalPrice, newOrderDTO.items)
     }
 
 
