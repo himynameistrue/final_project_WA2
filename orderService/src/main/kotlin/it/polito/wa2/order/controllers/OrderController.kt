@@ -2,6 +2,7 @@ package it.polito.wa2.order.controllers
 
 import it.polito.wa2.dto.*
 import it.polito.wa2.enums.OrderStatus
+import it.polito.wa2.order.domain.OrderProduct
 import it.polito.wa2.order.services.OrderServiceImpl
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -41,38 +42,7 @@ class OrderController(var orderService: OrderServiceImpl) {
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody newOrderDTO: OrderCreateRequestDTO): OrderCreateOrderResponseDTO {
 
-        val pendingOrder = orderService.create(newOrderDTO)
-
-        val uri = getOrchestratorUri("/orders")
-
-        val body = OrderCreateOrchestratorRequestDTO(
-            pendingOrder.getId()!!,
-            newOrderDTO.buyerId,
-            newOrderDTO.totalPrice,
-            newOrderDTO.items
-        )
-
-        val responseEntity = RestTemplate().exchange(
-            uri,
-            HttpMethod.POST,
-            HttpEntity<OrderCreateOrchestratorRequestDTO>(body),
-            OrderCreateOrchestratorResponseDTO::class.java
-        )
-
-        if(!responseEntity.statusCode.is2xxSuccessful || responseEntity.body === null || !responseEntity.body!!.isSuccessful){
-            orderService.updateStatus(pendingOrder.getId()!!, OrderStatus.FAILED)
-            throw OrderCreationFailedException()
-        }
-
-        val orchestratorResponse = responseEntity.body!!
-
-        orderService.confirm(pendingOrder, orchestratorResponse)
-
-        val orderResponse = orchestratorResponse.mapToOrderResponse()
-
-        println(orderResponse)
-
-        return orderResponse
+        return orderService.create(newOrderDTO.buyerId, newOrderDTO.totalPrice, newOrderDTO.items)
     }
 
 
@@ -87,35 +57,18 @@ class OrderController(var orderService: OrderServiceImpl) {
     /**
      * Updates the order identified by orderID
      */
-/*
-    @PatchMapping("{orderID}")
-    fun update(@PathVariable("orderID") orderID: Long, request): OrderDTO {
+    @PatchMapping("/{orderID}")
+    fun updateStatus(@PathVariable("orderID") orderID: Long, request: OrderUpdateRequestDTO): OrderDTO {
 
-        // TODO NOTIFY USER OF CHANGES
-        // TODO NOTIFY ADMIN OF CHANGES
-        return orderService.updateStatus(orderID, status).toDTO()
+        return orderService.updateStatus(orderID, request.status).toDTO()
     }
-*/
 
     /**
      * Cancels an existing order, if possible
      */
     @DeleteMapping("/{orderID}")
-    fun delete(@PathVariable("orderID") orderID: Long): OrderDTO? {
-        try {
-            val order = orderService.cancel(orderID)
-
-            // TODO REFUND CUSTOMER
-            // TODO RETURN ITEMS TO WAREHOUSE
-
-            // TODO NOTIFY USER
-            // TODO NOTIFY ADMIN ?
-
-            return order.toDTO();
-        } catch (e: OrderAlreadyCanceledException) {
-            // TODO DEFINE HOW TO HANDLE
-        }
-        return null;
+    fun delete(@PathVariable("orderID") orderID: Long) {
+        orderService.cancel(orderID)
     }
 
     fun <T> restToOrchestrator(
@@ -145,10 +98,5 @@ class OrderController(var orderService: OrderServiceImpl) {
         );
     }
 
-    fun getOrchestratorUri(path: String): URI {
-        val host = "orchestrator"
-        val port = 8082;
 
-        return URI("http", null, host, port, path, null, null)
-    }
 }
