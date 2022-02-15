@@ -41,11 +41,24 @@ class WalletServiceImpl(
     }
 
     override fun getWalletByUserId(userId: Long): WalletDTO {
-        return walletRepository.findByCustomerId(userId).toDTO()
+        return walletRepository.findByCustomerId(userId).get().toDTO()
+    }
+
+    override fun getWalletsByUserId(userId: Long): List<WalletDTO>{
+        return walletRepository.findAllByCustomerId(userId).map(Wallet::toDTO)
     }
 
     override fun createTransaction(orderId: Long, customerId: Long, amount: Float): TransactionDTO {
-        val optionalCustomer = walletRepository.findById(customerId)
+        val optionalWallet = walletRepository.findByCustomerId(customerId);
+        if (!optionalWallet.isPresent) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
+        }
+
+        return createTransactionByWalletId(orderId, optionalWallet.get().getId()!!, amount)
+    }
+
+    override fun createTransactionByWalletId(orderId: Long, walletId: Long, amount: Float): TransactionDTO {
+        val optionalCustomer = walletRepository.findById(walletId)
         if (!optionalCustomer.isPresent) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
         }
@@ -93,7 +106,7 @@ class WalletServiceImpl(
         walletId: Long,
         fromDate: Date,
         toDate: Date
-    ): Iterable<TransactionDTO> {
+    ): List<TransactionDTO> {
         return transactionRepository.getTransactionsByWalletIdHavingTimestampBetween(walletId, fromDate, toDate)
             .map { t -> t.toDTO() }
     }

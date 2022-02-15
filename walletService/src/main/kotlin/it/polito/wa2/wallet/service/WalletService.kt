@@ -13,7 +13,11 @@ interface WalletService {
 
     fun getWalletByUserId(userId: Long): WalletDTO
 
+    fun getWalletsByUserId(userId: Long): List<WalletDTO>
+
     fun createTransaction(orderId: Long, customerId: Long, amount: Float): TransactionDTO
+
+    fun createTransactionByWalletId(orderId: Long, walletId: Long, amount: Float): TransactionDTO
 
     fun createTransactionForOutbox(orderId: Long, customerId: Long, amount: Float, correlationId: String, replyTopic: String) : OrderCreateWalletResponseDTO
 
@@ -21,24 +25,24 @@ interface WalletService {
         walletId: Long,
         fromDate: Date,
         toDate: Date
-    ): Iterable<TransactionDTO>
+        ): List<TransactionDTO>
 
-    fun getTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
+        fun getTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
 
-    fun deleteTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
-}
+        fun deleteTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
+    }
 
-/*
-@Service
-class WalletService {
-    private var userBalanceMap: MutableMap<Int, Double>? = null
+    /*
+    @Service
+    class WalletService {
+        private var userBalanceMap: MutableMap<Int, Double>? = null
 
-    @PostConstruct
-    private fun init() {
-        userBalanceMap = mutableMapOf(
-            1 to 15000.0,
-            2 to 1000.0,
-            3 to 1000.0
+        @PostConstruct
+        private fun init() {
+            userBalanceMap = mutableMapOf(
+                1 to 15000.0,
+                2 to 1000.0,
+                3 to 1000.0
         )
     }
 
