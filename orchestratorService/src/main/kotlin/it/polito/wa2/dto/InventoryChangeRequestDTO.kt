@@ -3,7 +3,7 @@ package it.polito.wa2.dto
 import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
-data class OrderCreateWarehouseRequestDTO(
+data class InventoryChangeRequestDTO(
     @NotNull val totalPrice: Float,
-    @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
+    @Valid @NotNull val items: List<RequestOrderProductDTO>
 )

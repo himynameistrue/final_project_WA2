@@ -1,7 +1,6 @@
 package it.polito.wa2.warehouse.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.asUInt
 import com.google.gson.Gson
 import it.polito.wa2.dto.*
 import it.polito.wa2.warehouse.entities.ProductAvailability
@@ -29,9 +28,9 @@ class ProductAvailabilityServiceImpl(
 
     ) : ProductAvailabilityService {
 
-    override fun processNewOrder(requestDTO: OrderCreateWarehouseRequestDTO, correlationId:  String, replyTopic: String): OrderCreateWarehouseResponseDTO {
+    override fun processNewOrder(requestDTO: InventoryChangeRequestDTO, correlationId:  String, replyTopic: String): InventoryChangeResponseDTO {
 
-        lateinit var orderCreateResponse: OrderCreateWarehouseResponseDTO
+        lateinit var orderCreateResponse: InventoryChangeResponseDTO
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
             val quantitiesByProductId = HashMap<Long, Long>()  // mappa id, valore dei prodotti in magazzino
@@ -87,7 +86,7 @@ class ProductAvailabilityServiceImpl(
             }
 
             // Decrementare le quantità, verificando le soglie
-            val responseProductDTOs: MutableList<OrderCreateWarehouseResponseProductDTO> = mutableListOf()
+            val responseProductDTOs: MutableList<InventoryChangeResponseProductDTO> = mutableListOf()
 
             orderQuantitiesByProductId.forEach {
                 val productAvailabilitiesIterator =
@@ -104,7 +103,7 @@ class ProductAvailabilityServiceImpl(
 
                     availabilityRepository.save(productAvailability)
 
-                    val responseCreateOrderWarehouse = OrderCreateWarehouseResponseProductDTO(
+                    val responseCreateOrderWarehouse = InventoryChangeResponseProductDTO(
                             it.key,
                             productAvailability.warehouse.id!!,
                             decreasedAvailability,
@@ -119,12 +118,12 @@ class ProductAvailabilityServiceImpl(
                 }
 
             }
-        orderCreateResponse = OrderCreateWarehouseResponseDTO(true, responseProductDTOs)
+        orderCreateResponse = InventoryChangeResponseDTO(true, responseProductDTOs)
 
         } catch (e: Exception) {
             println(e.message)
             e.printStackTrace()
-            orderCreateResponse = OrderCreateWarehouseResponseDTO(false, listOf())
+            orderCreateResponse = InventoryChangeResponseDTO(false, listOf())
         }
 
         val responseJson = Gson().toJson(orderCreateResponse)
@@ -134,7 +133,7 @@ class ProductAvailabilityServiceImpl(
         return orderCreateResponse
     }
 
-    override fun cancelOrder(requestDTO: OrderCreateWarehouseResponseDTO): OrderCancelWarehouseResponseDTO {
+    override fun cancelOrder(requestDTO: InventoryChangeResponseDTO): OrderCancelWarehouseResponseDTO {
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità

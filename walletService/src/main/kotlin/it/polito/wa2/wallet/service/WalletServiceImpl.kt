@@ -1,7 +1,7 @@
 package it.polito.wa2.wallet.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import it.polito.wa2.dto.OrderCreateWalletResponseDTO
+import it.polito.wa2.dto.TransactionResponseDTO
 import it.polito.wa2.dto.WalletDTO
 import it.polito.wa2.wallet.repositories.TransactionRepository
 import it.polito.wa2.wallet.repositories.WalletRepository
@@ -84,10 +84,10 @@ class WalletServiceImpl(
         amount: Float,
         correlationId: String,
         replyTopic: String
-    ): OrderCreateWalletResponseDTO {
+    ): TransactionResponseDTO {
         return try {
             val transactionDto = createTransaction(orderId, customerId, amount)
-            val ret = OrderCreateWalletResponseDTO(true, transactionDto.id)
+            val ret = TransactionResponseDTO(true, transactionDto.id)
 
             val outbox =
                 WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
@@ -97,7 +97,7 @@ class WalletServiceImpl(
 
             ret
         } catch (e: Exception) {
-            val ret = OrderCreateWalletResponseDTO(false, null)
+            val ret = TransactionResponseDTO(false, null)
             ret
         }
     }

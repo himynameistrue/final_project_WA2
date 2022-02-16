@@ -1,8 +1,7 @@
 package it.polito.wa2.orchestrator.controllers
 
-import it.polito.wa2.dto.OrderCreateOrchestratorRequestDTO
-import it.polito.wa2.dto.OrderCreateOrchestratorResponseDTO
-import it.polito.wa2.orchestrator.handlers.OrderCreatedEventHandler
+import it.polito.wa2.dto.*
+import it.polito.wa2.orchestrator.services.OrchestratorService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -11,16 +10,44 @@ import javax.validation.Valid
 
 @RestController
 class OrchestratorController(
-    val orderCreatedEventHandler: OrderCreatedEventHandler
+    val orchestratorService: OrchestratorService
 ) {
 
     @PostMapping("/orders")
-    fun createOrder(@Valid @RequestBody newOrderDTO: OrderCreateOrchestratorRequestDTO): OrderCreateOrchestratorResponseDTO {
-        return orderCreatedEventHandler.consumer(newOrderDTO)
+    fun createOrder(@Valid @RequestBody requestDTO: OrderCreateOrchestratorRequestDTO): OrderCreateOrchestratorResponseDTO {
+        println("Received request")
+        println(requestDTO)
+
+        val walletRequestDTO = TransactionRequestDTO(
+            requestDTO.orderId,
+            requestDTO.buyerId,
+            -requestDTO.totalPrice
+        )
+
+        val warehouseRequestDTO = InventoryChangeRequestDTO(
+            requestDTO.totalPrice,
+            requestDTO.items
+        )
+
+        return orchestratorService.runCreationSaga(requestDTO.buyerId, walletRequestDTO, warehouseRequestDTO)
     }
 
     @DeleteMapping("/orders/{orderID}")
-    fun deleteOrder(){
+    fun cancelOrder(@Valid @RequestBody requestDTO: OrderDeleteOrchestratorRequestDTO) {
+        println("Received request")
+        println(requestDTO)
 
+        val walletRequestDTO = TransactionRequestDTO(
+            requestDTO.orderId,
+            requestDTO.buyerId,
+            requestDTO.totalPrice
+        )
+
+        val warehouseRequestDTO = InventoryChangeRequestDTO(
+            requestDTO.totalPrice,
+            requestDTO.items
+        )
+
+        return orchestratorService.runDeletionSaga(requestDTO.buyerId, walletRequestDTO, warehouseRequestDTO)
     }
 }

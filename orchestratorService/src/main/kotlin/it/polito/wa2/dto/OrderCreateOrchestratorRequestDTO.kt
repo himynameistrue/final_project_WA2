@@ -10,5 +10,5 @@ data class OrderCreateOrchestratorRequestDTO(
     @NotNull val orderId: Long,
     @NotNull val buyerId: Long,
     @NotNull val totalPrice: Float,
-    @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
+    @Valid @NotNull val items: List<RequestOrderProductDTO>
 )

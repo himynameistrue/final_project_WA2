@@ -4,9 +4,10 @@ import javax.validation.Valid
 import javax.validation.constraints.NotNull
 
 /**
- * Represents an Order as received from an HTTPRequest
+ * Represents an Order as received from the OrderService
  */
-data class OrderCreateRequestDTO(
+data class OrderDeleteOrchestratorRequestDTO(
+    @NotNull val orderId: Long,
     @NotNull val buyerId: Long,
     @NotNull val totalPrice: Float,
     @Valid @NotNull val items: List<RequestOrderProductDTO>

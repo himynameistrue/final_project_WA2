@@ -1,7 +1,7 @@
 package it.polito.wa2.wallet.service
 
 
-import it.polito.wa2.dto.OrderCreateWalletResponseDTO
+import it.polito.wa2.dto.TransactionResponseDTO
 import it.polito.wa2.dto.WalletDTO
 import it.polito.wa2.dto.TransactionDTO
 import java.util.*
@@ -19,7 +19,7 @@ interface WalletService {
 
     fun createTransactionByWalletId(orderId: Long, walletId: Long, amount: Float): TransactionDTO
 
-    fun createTransactionForOutbox(orderId: Long, customerId: Long, amount: Float, correlationId: String, replyTopic: String) : OrderCreateWalletResponseDTO
+    fun createTransactionForOutbox(orderId: Long, customerId: Long, amount: Float, correlationId: String, replyTopic: String) : TransactionResponseDTO
 
     fun getTransactionsByWalletIdHavingTimestampBetween(
         walletId: Long,

@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
  */
 data class OrderCreateOrchestratorResponseDTO(
     @NotNull val buyerId: Long,
-    @Valid @NotNull val items: List<OrderCreateWarehouseResponseProductDTO>,
+    @Valid @NotNull val items: List<InventoryChangeResponseProductDTO>,
     @NotNull val isSuccessful: Boolean
 ) {
     fun mapToOrderResponse(orderId: Long): OrderCreateOrderResponseDTO {

@@ -6,7 +6,7 @@ import it.polito.wa2.dto.OrderCreateOrderResponseDTO
 import it.polito.wa2.enums.OrderStatus
 import it.polito.wa2.order.domain.Order
 import it.polito.wa2.order.domain.OrderProduct
-import it.polito.wa2.dto.OrderCreateRequestProductDTO
+import it.polito.wa2.dto.RequestOrderProductDTO
 import it.polito.wa2.order.repositories.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -40,7 +40,7 @@ class OrderServiceImpl(
     override fun create(
         buyerId: Long,
         totalPrice: Float,
-        items: List<OrderCreateRequestProductDTO>
+        items: List<RequestOrderProductDTO>
     ): OrderCreateOrderResponseDTO {
         var order = Order(buyerId, listOf(), OrderStatus.PENDING)
 
@@ -61,7 +61,7 @@ class OrderServiceImpl(
     private fun runCreationSaga(
         order: Order,
         totalPrice: Float,
-        items: List<OrderCreateRequestProductDTO>
+        items: List<RequestOrderProductDTO>
     ): OrderCreateOrchestratorResponseDTO {
         val uri = getOrchestratorUri("/orders")
 
@@ -117,30 +117,15 @@ class OrderServiceImpl(
     override fun cancel(orderId: Long): Order = updateStatus(orderId, OrderStatus.CANCELED)
 
     private fun throwIfInvalidStatusChange(currentStatus: OrderStatus, nextStatus: OrderStatus) {
-        when (currentStatus) {
-            OrderStatus.PENDING -> {
-                if (nextStatus === OrderStatus.PENDING
-                    || nextStatus === OrderStatus.DELIVERING
-                    || nextStatus === OrderStatus.DELIVERED) {
-                    throwBadStatus()
-                }
-            }
+        val shouldThrow = when (nextStatus) {
+            OrderStatus.DELIVERING, OrderStatus.DELIVERED -> currentStatus === OrderStatus.ISSUED
+            OrderStatus.CANCELED -> currentStatus === OrderStatus.ISSUED
+            OrderStatus.FAILED -> false
+            else -> true
+        }
 
-            OrderStatus.ISSUED -> {
-                if (nextStatus === OrderStatus.ISSUED
-                    || nextStatus === OrderStatus.PENDING) {
-                    throwBadStatus()
-                }
-            }
-
-            OrderStatus.DELIVERING -> {
-                if (nextStatus === OrderStatus.DELIVERING
-                    || nextStatus === OrderStatus.PENDING
-                    || nextStatus === OrderStatus.ISSUED) {
-                    throwBadStatus()
-                }
-            }
-            else -> throwBadStatus()
+        if (shouldThrow) {
+            throwBadStatus()
         }
     }
 

@@ -8,5 +8,5 @@ import javax.validation.constraints.NotNull
  */
 data class IncompleteOrderCreateRequestDTO(
     @NotNull val totalPrice: Float,
-    @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
+    @Valid @NotNull val items: List<RequestOrderProductDTO>
 )

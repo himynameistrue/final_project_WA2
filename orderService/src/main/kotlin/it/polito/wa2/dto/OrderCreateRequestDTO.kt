@@ -9,5 +9,5 @@ import javax.validation.constraints.NotNull
 data class OrderCreateRequestDTO(
     @NotNull val buyerId: Long,
     @NotNull val totalPrice: Float,
-    @Valid @NotNull val items: List<OrderCreateRequestProductDTO>
+    @Valid @NotNull val items: List<RequestOrderProductDTO>
 )

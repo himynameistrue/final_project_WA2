@@ -13,7 +13,7 @@ services:
       - SYS_NICE
     volumes:
       - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
-      - ./docker/mysql/data:/data/mysql
+      #- ./docker/mysql/data:/data/mysql
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 20s
@@ -33,9 +33,9 @@ services:
     image: zookeeper
     ports:
       - "2181:2181"
-    volumes:
-      - ./docker/volumes/zookeeper/data:/data
-      - ./docker/volumes/zookeeper/log:/datalog
+    #volumes:
+      #- ./docker/volumes/zookeeper/data:/data
+      #- ./docker/volumes/zookeeper/log:/datalog
 
   kafka:
     container_name: kafka
@@ -53,8 +53,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
-    volumes:
-      - ./docker/volumes/kafka/data:/var/lib/kafka/data
+    #volumes:
+    #  - ./docker/volumes/kafka/data:/var/lib/kafka/data
 
   debezium-connect:
     container_name: debezium_connect
