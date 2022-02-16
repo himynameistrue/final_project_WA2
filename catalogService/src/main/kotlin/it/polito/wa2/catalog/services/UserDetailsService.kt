@@ -26,7 +26,7 @@ interface UserDetailsService: UserDetailsService {
 
     fun disableUser(email: String): UserDetailsDTO
 
-    fun validateVerificationToken(token: String): Boolean
+    fun validateVerificationToken(token: String): String?
 
     fun emailAlreadyExist(email: String): Boolean
 
@@ -43,6 +43,8 @@ interface UserDetailsService: UserDetailsService {
     fun updatePassword(oldPassword: String, newPassword: String, email: String): UserDetailsDTO
 
     fun isAdmin(email: String): Boolean
+
+    fun isCustomer(email: String): Boolean
 
     fun correctID(email: String, userID: Long): Boolean
 

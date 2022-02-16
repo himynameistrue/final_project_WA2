@@ -4,6 +4,10 @@ import it.polito.wa2.catalog.domain.User
 import it.polito.wa2.catalog.dto.*
 import it.polito.wa2.catalog.security.JwtUtils
 import it.polito.wa2.catalog.services.UserDetailsService
+import it.polito.wa2.dto.ProductDTO
+import it.polito.wa2.dto.WalletDTO
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -12,6 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
+import java.net.URI
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 
@@ -20,7 +27,7 @@ import javax.validation.Valid
 @RequestMapping("/auth")
 class AuthController(val userDetailsService: UserDetailsService,
                      val authenticationManager: AuthenticationManager,
-                     val jwtUtils: JwtUtils
+                     val jwtUtils: JwtUtils,
 ) {
     @PostMapping("/login")
     fun login(
@@ -69,8 +76,22 @@ class AuthController(val userDetailsService: UserDetailsService,
 
     @GetMapping("/registrationConfirm")
     fun confirmRegistration(@RequestParam("token") token: String): ResponseEntity<Any> {
-        return if (userDetailsService.validateVerificationToken(token)) {
-            ResponseEntity.status(HttpStatus.ACCEPTED).body(Message("Account enabled"))
+        val userEmail = userDetailsService.validateVerificationToken(token)
+        return if (userEmail!=null) {
+            val customerId = userDetailsService.getIdFromEmail(userEmail)
+            val uri = URI("http", null, "wallet", 8085, "/wallets", null, null)
+
+            val responseEntity = RestTemplate().exchange(
+                uri,
+                HttpMethod.POST,
+                HttpEntity<Long>(customerId!!),
+                WalletDTO::class.java
+            )
+
+            // TODO posso essere certa che è stato creato o devo controllare?
+            responseEntity.body
+
+            ResponseEntity.status(HttpStatus.ACCEPTED).body(Message("Account enabled and created a Wallet"))
         } else {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Message("Token expired, please select sendAgain"))
         }

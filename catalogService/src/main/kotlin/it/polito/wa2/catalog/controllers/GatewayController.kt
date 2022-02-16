@@ -122,9 +122,9 @@ class GatewayController (
         return responseBody
     }
 
-    /*
+
     // updates the order identified by orderID
-    // TODO Only for Admin ??
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/orders/{orderID}")
     fun updateOrder (request: HttpServletRequest, @RequestBody orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderDTO? {
         val responseEntity = restTemplate(request, orderUpdateRequestDTO, OrderDTO::class.java)
@@ -139,7 +139,7 @@ class GatewayController (
     fun deleteOrderByID (request: HttpServletRequest) {
         // TODO control that the user is the owner of the order
         restTemplate(request, null, Void::class.java)
-    } */
+    }
 
     // -------------------------------------------
     // WAREHOUSE SERVICE
@@ -187,7 +187,7 @@ class GatewayController (
     @PutMapping("/products/{productID}/comments")
     fun addComment(request: HttpServletRequest, @RequestBody commentDTO : CommentDTO): ProductDTO? {
         val responseEntity = restTemplate(request, commentDTO, ProductDTO::class.java)
-        // TODO error in the warehouse, probably in the entities
+
         return responseEntity.body
     }
 
@@ -314,61 +314,96 @@ class GatewayController (
     // -------------------------------------------
     // WALLET SERVICE
 
-    /*
+    // Retrieve the list of the wallets of a buyer ID
+    @GetMapping("/wallets")
+    fun getListOfWalletByUserId(request: HttpServletRequest, @RequestParam userId: Long): Array<WalletDTO>? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
+        val responseEntity = if (userDetailsService.correctID(principal.name, userId)) {
+            // It's customer and can retrieve his/her order list
+            restTemplate(request, null, arrayOf<WalletDTO>()::class.java)
+        } else if (userDetailsService.isAdmin(principal.name)){
+            // It's ADMIN retrieve all the orders
+            restTemplate(request, null, arrayOf<WalletDTO>()::class.java)
+        } else
+            throw RuntimeException("Only the Admin can retrieve all the wallets, a customer can retrieve only his/her wallets")
+
+        return responseEntity.body
+    }
 
     // Retrieves the wallet identified by walletID
-    // TODO ?? Retrieve his/her wallets
     @GetMapping("/wallets/{walletID}")
-    fun getWattelByID (request: HttpServletRequest): WalletDTO? {
+    fun getWalletByID (request: HttpServletRequest): WalletDTO? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
         val responseEntity = restTemplate(request, null, WalletDTO::class.java)
 
+        if (responseEntity.hasBody()) {
+            // The admin can retrieve all the wallets, but a customer can retrieve only his/her wallet
+            if (!userDetailsService.correctID(principal.name, responseEntity.body!!.customerId) &&
+                !userDetailsService.isAdmin(principal.name))
+                throw RuntimeException("Normal customers can't retrieve other users wallets")
+        }
         return responseEntity.body
     }
 
     // Creates a new wallet for a given customer
-    // TODO Only for admin ??
+    @Secured("ROLE_ADMIN")
     @PostMapping("/wallets")
-    fun createWallet (request: HttpServletRequest): WalletDTO? {
-        // TODO take the user and send it to the walletService
-        // TODO Only the customers have a wallet
-        val responseEntity = restTemplate(request, null, WalletDTO::class.java)
+    fun createWallet (request: HttpServletRequest, @RequestBody customerId: Long): WalletDTO? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
+        if (!userDetailsService.isCustomer(principal.name)) {
+            throw RuntimeException("Only a CUSTOMER can have a wallet!")
+        }
+        val responseEntity = restTemplate(request, customerId, WalletDTO::class.java)
 
         return responseEntity.body
     }
 
+    /*
     // Delete a wallet of the user
     fun deleteWallet(request: HttpServletRequest, userID: Long): String? {
         val responseEntity = restTemplate(request, userID, String::class.java)
 
         return responseEntity.body
     }
+    */
 
+    /*
     // Adds a new transaction to the wallet identified by walletID
     // TODO Only for admin ??
     @PostMapping("/wallets/{walletID}/transactions")
-    fun addTransaction (request: HttpServletRequest, @RequestBody transactionDTO: TransactionDTO): TransactionDTO? {
-        val responseEntity = restTemplate(request, null, TransactionDTO::class.java)
+    fun addTransaction (request: HttpServletRequest, @RequestBody requestDTO: TransationDTO): TransationDTO? {
+        val responseEntity = restTemplate(request, null, TransationDTO::class.java)
     }
+    */
 
     // Retrieves a list of transactions regarding a given wallet in a given time frame
-    - Authenticated user ??
+    @Secured("ROLE_ADMIN")
     @GetMapping("/wallets/{walletID}/transactions")
-    fun getListTransactions (request: HttpServletRequest): List<TransactionDTO> {
+    fun getListTransactions (request: HttpServletRequest): List<TransactionDTO>? {
         val responseEntity = restTemplate(request, null, listOf<TransactionDTO>()::class.java)
 
         return responseEntity.body
     }
 
     // Retrieves the details of a single transaction
-    - Authenticated user ??
     @GetMapping("/wallets/{walletID}/transactions/{transactionID}")
-    fun getTransactionByID (request: HttpServletRequest): TransactionDTO {
+    fun getTransactionByID (request: HttpServletRequest): TransactionDTO? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
         val responseEntity = restTemplate(request, null, TransactionDTO::class.java)
 
+        if (responseEntity.hasBody()) {
+            // The admin can retrieve all the wallets, but a customer can retrieve only his/her wallet
+            if (!userDetailsService.correctID(principal.name, responseEntity.body!!.customerId) &&
+                !userDetailsService.isAdmin(principal.name))
+                throw RuntimeException("Normal customers can't retrieve other users transactions")
+        }
         return responseEntity.body
     }
 
-    */
 
     // --------------------------------------------
 

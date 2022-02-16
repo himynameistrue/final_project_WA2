@@ -93,13 +93,13 @@ class UserDetailsServiceImpl(
         return repository.save(user).toDTO()
     }
 
-    override fun validateVerificationToken(token: String): Boolean {
+    override fun validateVerificationToken(token: String): String? {
         val storedToken = emailVerificationTokenRepository.findByToken(token)
-        if(storedToken == null || storedToken.expiryDate.before(Date())) return false
+        if(storedToken == null || storedToken.expiryDate.before(Date())) return null
 
         enable(storedToken.user.email)
         emailVerificationTokenRepository.removeByToken(token)
-        return true
+        return storedToken.user.email
     }
 
     override fun emailAlreadyExist(email: String): Boolean {
@@ -164,6 +164,14 @@ class UserDetailsServiceImpl(
         val user = repository.findByEmail(email) ?: throw RuntimeException("User not found")
 
         if (user.getRoleList().contains(User.RoleName.ADMIN))
+            return true
+        return false
+    }
+
+    override fun isCustomer(email: String): Boolean {
+        val user = repository.findByEmail(email) ?: throw RuntimeException("User not found")
+
+        if (user.getRoleList().contains(User.RoleName.CUSTOMER))
             return true
         return false
     }

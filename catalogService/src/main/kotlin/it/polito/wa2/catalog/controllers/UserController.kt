@@ -5,11 +5,16 @@ import it.polito.wa2.catalog.dto.InformationUpdateDTO
 import it.polito.wa2.catalog.dto.UserDetailsDTO
 import it.polito.wa2.catalog.dto.PasswordUpdateDTO
 import it.polito.wa2.catalog.services.UserDetailsService
+import it.polito.wa2.dto.WalletDTO
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
+import java.net.URI
 import javax.validation.Valid
 
 @RestController
@@ -65,6 +70,21 @@ class UserController(
     @PostMapping("{username}/addRole")
     fun adminAddRole(@PathVariable("username") username: String, @RequestParam("role") role: String) {
         userDetailsService.addRole(username, User.RoleName.valueOf(role))
+
+        if (role.equals(User.RoleName.CUSTOMER)) {
+            val customerId = userDetailsService.getIdFromEmail(username)
+            val uri = URI("http", null, "wallet", 8085, "/wallets", null, null)
+
+            val responseEntity = RestTemplate().exchange(
+                uri,
+                HttpMethod.POST,
+                HttpEntity<Long>(customerId!!),
+                WalletDTO::class.java
+            )
+
+            // TODO posso essere certa che è stato creato o devo controllare?
+            responseEntity.body
+        }
     }
 
     @PostMapping("{username}/removeRole")
@@ -73,7 +93,6 @@ class UserController(
 
         if (role.compareTo("CUSTOMER") == 0){
             // TODO remove the corresponding wallet
-            // method in the gatewayController
         }
     }
 
