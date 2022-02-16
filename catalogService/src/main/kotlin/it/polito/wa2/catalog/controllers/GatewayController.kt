@@ -350,7 +350,7 @@ class GatewayController (
     // Creates a new wallet for a given customer
     @Secured("ROLE_ADMIN")
     @PostMapping("/wallets")
-    fun createWallet (request: HttpServletRequest, @RequestBody customerId: Long): WalletDTO? {
+    fun createWallet (request: HttpServletRequest, @RequestBody customerId: Int): WalletDTO? {
         val principal = (SecurityContextHolder.getContext().authentication)
 
         if (!userDetailsService.isCustomer(principal.name)) {
@@ -370,14 +370,23 @@ class GatewayController (
     }
     */
 
-    /*
     // Adds a new transaction to the wallet identified by walletID
-    // TODO Only for admin ??
     @PostMapping("/wallets/{walletID}/transactions")
-    fun addTransaction (request: HttpServletRequest, @RequestBody requestDTO: TransationDTO): TransationDTO? {
-        val responseEntity = restTemplate(request, null, TransationDTO::class.java)
+    fun addTransaction (request: HttpServletRequest, @RequestBody requestDTO: TransactionDTO): TransactionDTO? {
+        val principal = (SecurityContextHolder.getContext().authentication)
+
+        val responseEntity = if (userDetailsService.correctID(principal.name, requestDTO.customerId)) {
+            // It's customer and can make the transaction on his/her wallet
+            restTemplate(request, null, TransactionDTO::class.java)
+        } else if (userDetailsService.isAdmin(principal.name)){
+            // It's ADMIN can make everything
+            restTemplate(request, null, TransactionDTO::class.java)
+        } else
+            throw RuntimeException("A customer can make transaction only on his/her wallet")
+
+        return responseEntity.body
     }
-    */
+
 
     // Retrieves a list of transactions regarding a given wallet in a given time frame
     @Secured("ROLE_ADMIN")
