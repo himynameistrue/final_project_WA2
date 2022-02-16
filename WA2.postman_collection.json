@@ -1,0 +1,798 @@
+{
+	"info": {
+		"_postman_id": "ecd53c7a-3578-4057-92fe-2ac476e69dee",
+		"name": "WA2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": ".orderService",
+			"item": [
+				{
+					"name": "Order List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{orderService.port}}/orders?buyer_id=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{orderService.port}}",
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "buyer_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order Show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{orderService.port}}/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{orderService.port}}",
+							"path": [
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"amount\": 3\n        },\n        {\n            \"productId\": 2,\n            \"amount\": 3\n        }\n    ],\n    \"totalPrice\": 6,\n    \"buyerId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:{{orderService.port}}/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{orderService.port}}",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "status",
+									"value": "ISSUED",
+									"description": "PENDING, ISSUED, DELIVERING, DELIVERED, FAILED, CANCELED",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:{{orderService.port}}/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{orderService.port}}",
+							"path": [
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Order Delete",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/orders/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"orders",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "catalogService",
+			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Register1",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Mickey\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Mouse\",\r\n    \"deliveryAddress\": \"Via Fantasia 5\",\r\n    \"email\": \"topolino@email.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{catalogService.port}}/auth/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{catalogService.port}}",
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register2",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Donald\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Duck\",\r\n    \"deliveryAddress\": \"Via Fantasia 1\",\r\n    \"email\": \"paperino@email.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{catalogService.port}}/auth/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{catalogService.port}}",
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register3",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Goofy\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Goof\",\r\n    \"deliveryAddress\": \"Via Fantasia 3\",\r\n    \"email\": \"pippo@email.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{catalogService.port}}/auth/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{catalogService.port}}",
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register4",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Test\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Email\",\r\n    \"deliveryAddress\": \"Via Fantasia 10\",\r\n    \"email\": \"wa2team01@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:{{catalogService.port}}/auth/register",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "{{catalogService.port}}",
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"topolino@email.com\",\r\n    \"password\": \"pwd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ConfirmEmail",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/auth/registrationConfirm?token=94a9f7a0-4ea6-4407-83af-ddefb83edc20",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"registrationConfirm"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "94a9f7a0-4ea6-4407-83af-ddefb83edc20"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SendAgainConfirmation",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:8080/auth/sendAgain?email=wa2team01@gmail.com",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"sendAgain"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "wa2team01@gmail.com"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "UpdateInformationUser",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.T-qN_bRMGdMfcQmUgHWZHNRxsrELW4dsLXAI7cnjKqo",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Bob\",\r\n    \"deliveryAddress\": \"Via Fantasia 12\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/user/updateInformation",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"updateInformation"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoibHVjYUBlbWFpbC5jb20ifQ.AOgI6zK5ebyCZ3OEJtTQQNIG34dSWlbEDYkRyBTgBns",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DisableUser",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/user/paperino@email.com/disable",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"paperino@email.com",
+										"disable"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "EnableUser",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.T-qN_bRMGdMfcQmUgHWZHNRxsrELW4dsLXAI7cnjKqo",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/user/paperino@email.com/enable",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"paperino@email.com",
+										"enable"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "AddRole",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "localhost:8080/user/paperino@email.com/addRole?role=ADMIN",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"paperino@email.com",
+										"addRole"
+									],
+									"query": [
+										{
+											"key": "role",
+											"value": "ADMIN"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RemoveRole",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSLEFETUlOIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.3BV0MXOPgT5B0THmnKjWRqakU3Hm1I3gRx0jdkudQp0",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "localhost:8080/user/paperino@email.com/removeRole?role=CUSTOMER",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"paperino@email.com",
+										"removeRole"
+									],
+									"query": [
+										{
+											"key": "role",
+											"value": "CUSTOMER"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RetrieveInformation",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.T-qN_bRMGdMfcQmUgHWZHNRxsrELW4dsLXAI7cnjKqo",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/user/retrieveInformation",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"retrieveInformation"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UpdatePassword",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.T-qN_bRMGdMfcQmUgHWZHNRxsrELW4dsLXAI7cnjKqo",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"oldPassword\": \"pwd\",\r\n    \"newPassword\": \"1234\",\r\n    \"confirmPassword\": \"1234\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/user/updatePassword",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"updatePassword"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ListUser",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoid2EydGVhbTAxQGdtYWlsLmNvbSJ9.chJXh80Qv--68hNKIBaNe7JSFXMZeuQ4eNA4lvxptbA",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/user/list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"user",
+										"list"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Gateway",
+					"item": [
+						{
+							"name": "Order",
+							"item": [
+								{
+									"name": "[GW] Order List",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:{{catalogService.port}}/orders?buyer_id=1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "{{catalogService.port}}",
+											"path": [
+												"orders"
+											],
+											"query": [
+												{
+													"key": "buyer_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[GW] Order Show",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:{{catalogService.port}}/orders/1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "{{catalogService.port}}",
+											"path": [
+												"orders",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[GW] Order Create",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"amount\": 3\n        },\n        {\n            \"productId\": 2,\n            \"amount\": 3\n        }\n    ],\n    \"totalPrice\": 6\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:{{catalogService.port}}/orders",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "{{catalogService.port}}",
+											"path": [
+												"orders"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[GW] Order Update",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "status",
+													"value": "DELIVERING",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://localhost:{{catalogService.port}}/orders/1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "{{catalogService.port}}",
+											"path": [
+												"orders",
+												"1"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IkNVU1RPTUVSIiwic3ViIjoidG9wb2xpbm9AZW1haWwuY29tIn0.T-qN_bRMGdMfcQmUgHWZHNRxsrELW4dsLXAI7cnjKqo",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
