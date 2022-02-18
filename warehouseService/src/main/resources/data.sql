@@ -19,3 +19,6 @@ VALUES (1, 1, 3, 5),
        (1, 2, 3, 100),
        (2, 1, 3, 100),
        (2, 2, 3, 5);
+
+UPDATE warehouse_service_db.sequence_1 SET next_val=3;
+UPDATE warehouse_service_db.sequence_1 SET next_val=3;

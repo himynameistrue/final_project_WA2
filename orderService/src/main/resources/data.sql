@@ -12,3 +12,5 @@ VALUES (1, 2, 1.2, 1),
        (2, 3, 2.7, 1),
        (1, 2, 1.2, 2),
        (2, 3, 2.7, 3);
+
+UPDATE order_service_db.hibernate_sequence SET next_val=4;
