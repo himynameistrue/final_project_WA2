@@ -1,4 +1,4 @@
-package it.polito.wa2.warehouse.dto
+package it.polito.wa2.dto
 
 class ProductInWarehouseDTO(
         val productId: Long,

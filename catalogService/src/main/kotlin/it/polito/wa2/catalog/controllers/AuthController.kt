@@ -28,6 +28,7 @@ import javax.validation.Valid
 class AuthController(val userDetailsService: UserDetailsService,
                      val authenticationManager: AuthenticationManager,
                      val jwtUtils: JwtUtils,
+                     val gatewayController: GatewayController
 ) {
     @PostMapping("/login")
     fun login(
@@ -78,18 +79,7 @@ class AuthController(val userDetailsService: UserDetailsService,
     fun confirmRegistration(@RequestParam("token") token: String): ResponseEntity<Any> {
         val userEmail = userDetailsService.validateVerificationToken(token)
         return if (userEmail!=null) {
-            val customerId = userDetailsService.getIdFromEmail(userEmail)
-            val uri = URI("http", null, "wallet", 8085, "/wallets", null, null)
-
-            val responseEntity = RestTemplate().exchange(
-                uri,
-                HttpMethod.POST,
-                HttpEntity<Long>(customerId!!),
-                WalletDTO::class.java
-            )
-
-            // TODO posso essere certa che è stato creato o devo controllare?
-            responseEntity.body
+            gatewayController.createWallet(userEmail)
 
             ResponseEntity.status(HttpStatus.ACCEPTED).body(Message("Account enabled and created a Wallet"))
         } else {

@@ -21,6 +21,7 @@ import javax.validation.Valid
 @RequestMapping("/user")
 class UserController(
     val userDetailsService: UserDetailsService,
+    val gatewayController: GatewayController
     ) {
     @PatchMapping("/updateInformation")
     fun updateInformation(@Valid @RequestBody body: InformationUpdateDTO, br: BindingResult): ResponseEntity<Any> {
@@ -60,6 +61,11 @@ class UserController(
     @PostMapping("{username}/enable")
     fun adminEnableUser(@PathVariable("username") username: String){
         userDetailsService.enableUser(username)
+
+        if (userDetailsService.isCustomer(username)) {
+            // Add a wallet too
+            gatewayController.createWallet(username)
+        }
     }
 
     @PostMapping("{username}/disable")
@@ -71,19 +77,8 @@ class UserController(
     fun adminAddRole(@PathVariable("username") username: String, @RequestParam("role") role: String) {
         userDetailsService.addRole(username, User.RoleName.valueOf(role))
 
-        if (role.equals(User.RoleName.CUSTOMER)) {
-            val customerId = userDetailsService.getIdFromEmail(username)
-            val uri = URI("http", null, "wallet", 8085, "/wallets", null, null)
-
-            val responseEntity = RestTemplate().exchange(
-                uri,
-                HttpMethod.POST,
-                HttpEntity<Long>(customerId!!),
-                WalletDTO::class.java
-            )
-
-            // TODO posso essere certa che è stato creato o devo controllare?
-            responseEntity.body
+        if (role.compareTo("CUSTOMER") == 0) {
+            gatewayController.createWallet(username)
         }
     }
 
@@ -92,7 +87,15 @@ class UserController(
         userDetailsService.removeRole(username, User.RoleName.valueOf(role))
 
         if (role.compareTo("CUSTOMER") == 0){
-            // TODO remove the corresponding wallet
+            val customerId = userDetailsService.getIdFromEmail(username)
+            val uri = URI("http", null, "wallet", 8085, "/wallets/$customerId", null, null)
+
+            RestTemplate().exchange(
+                uri,
+                HttpMethod.DELETE,
+                null,
+                WalletDTO::class.java
+            )
         }
     }
 
