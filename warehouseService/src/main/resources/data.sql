@@ -9,8 +9,8 @@ TRUNCATE TABLE warehouse_service_db.product;
 
 INSERT INTO warehouse_service_db.product(id, average_rating, category, creation_date, description, name, picture_url,
                                          price)
-VALUES (1, 4.4, 'clothing', NOW(), 'Comfy jeans', 'Levi\'s jeans', null, 1.2),
-       (2, 3.9, 'food', NOW(), 'Just a regular pumpkin', 'A pumpkin', null, 2.7);
+VALUES (1, 4.4, 'clothing', NOW(), 'Comfy jeans', 'Levi\'s jeans', null, 1),
+       (2, 3.9, 'food', NOW(), 'Just a regular pumpkin', 'A pumpkin', null, 1);
 
 TRUNCATE TABLE warehouse_service_db.warehouse_product;
 
