@@ -15,7 +15,7 @@ class OrchestratorService(
     val walletTemplate: ReplyingKafkaTemplate<String, TransactionRequestDTO, TransactionResponseDTO>,
     val warehouseTemplate: ReplyingKafkaTemplate<String, InventoryChangeRequestDTO, InventoryChangeResponseDTO>,
     val walletRollbackTemplate: KafkaTemplate<String, WalletRequestDTO>,
-    val warehouseRollbackTemplate: KafkaTemplate<String, InventoryChangeRequestDTO>,
+    val warehouseRollbackTemplate: KafkaTemplate<String, InventoryChangeResponseDTO>,
 ) {
 
 
@@ -217,9 +217,9 @@ class OrchestratorService(
             println("Warehouse did not respond successfully -> nothing to roll back")
         } else {
             println("Rolling back warehouse")
-            val warehouseRollbackRecord = ProducerRecord<String, InventoryChangeRequestDTO>(
+            val warehouseRollbackRecord = ProducerRecord<String, InventoryChangeResponseDTO>(
                 "order-create-rollback-orchestrator-to-warehouse",
-                warehouseRequestDTO
+                warehouseResponse
             )
 
             warehouseRollbackTemplate.send(warehouseRollbackRecord)

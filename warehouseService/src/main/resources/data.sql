@@ -20,5 +20,7 @@ VALUES (1, 1, 3, 5),
        (2, 1, 3, 100),
        (2, 2, 3, 5);
 
+UPDATE warehouse_service_db.hibernate_sequence SET next_val=3;
 UPDATE warehouse_service_db.sequence_1 SET next_val=3;
-UPDATE warehouse_service_db.sequence_1 SET next_val=3;
+
+TRUNCATE TABLE warehouse_service_db.warehouse_outbox;

@@ -13,3 +13,5 @@ VALUES (1, 10.5, 1, NOW(), 1),
        (3, 8.1, 3, NOW(), 1);
 
 UPDATE wallet_service_db.hibernate_sequence SET next_val=4;
+
+TRUNCATE TABLE wallet_service_db.wallet_outbox;

@@ -133,7 +133,7 @@ class ProductAvailabilityServiceImpl(
         return orderCreateResponse
     }
 
-    override fun rollbackOrder(requestDTO: InventoryChangeResponseDTO, correlationId:  String, replyTopic: String): InventoryChangeResponseDTO {
+    override fun rollbackOrder(requestDTO: InventoryChangeResponseDTO): InventoryChangeResponseDTO {
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
@@ -141,11 +141,6 @@ class ProductAvailabilityServiceImpl(
                 updateQuantity(it.productId, it.warehouseId, (it.amount + it.remainingProducts))
                 it.remainingProducts = ((it.amount + it.remainingProducts).toInt())
             }
-
-            // TODO on rollback write on outbox????
-            /*val responseJson = Gson().toJson(requestDTO)
-            val outbox = WarehouseOutbox(correlationId, replyTopic, requestDTO.javaClass.name, responseJson)
-            warehouseOutboxRepository.save(outbox)*/
 
             return requestDTO
         }

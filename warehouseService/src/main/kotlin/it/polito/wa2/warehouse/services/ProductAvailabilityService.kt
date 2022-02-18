@@ -6,7 +6,7 @@ import it.polito.wa2.warehouse.dto.ProductInWarehouseDTO
 
 interface ProductAvailabilityService {
     fun processNewOrder(requestDTO: InventoryChangeRequestDTO, correlationId:  String, replyTopic: String) : InventoryChangeResponseDTO
-    fun rollbackOrder(requestDTO: InventoryChangeResponseDTO, correlationId:  String, replyTopic: String): InventoryChangeResponseDTO
+    fun rollbackOrder(requestDTO: InventoryChangeResponseDTO): InventoryChangeResponseDTO
     fun cancelOrder(requestDTO: InventoryCancelOrderRequestDTO, correlationId: String, replyTopic: String) : InventoryCancelOrderResponseDTO
     fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO
     fun updateQuantity(productId: Long, warehouseId: Long, quantity: Long): ProductInWarehouseDTO
