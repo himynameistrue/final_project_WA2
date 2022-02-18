@@ -24,7 +24,7 @@ class ProductServiceImpl(
     override fun getAll(category: String?): List<ProductDTO>{
         val products = productRepository.findAll()
         print(products)
-        var productsList = mutableListOf<ProductDTO>()
+        var productsList: MutableList<ProductDTO>
         if(category != null){
             productsList = products.filter { it.category == category }.map { it.toDTO() } as MutableList<ProductDTO>
         }

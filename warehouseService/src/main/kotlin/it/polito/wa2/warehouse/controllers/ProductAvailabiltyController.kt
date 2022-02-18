@@ -1,7 +1,10 @@
 package it.polito.wa2.warehouse.controllers
 
+import it.polito.wa2.dto.InventoryCancelOrderRequestDTO
+import it.polito.wa2.dto.InventoryCancelOrderResponseDTO
 import it.polito.wa2.dto.ProductAvailabilityUpdateRequestDTO
 import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.warehouse.dto.ProductInWarehouseDTO
 import it.polito.wa2.warehouse.services.ProductAvailabilityService
 import org.springframework.web.bind.annotation.*
 
@@ -26,7 +29,12 @@ class ProductAvailabiltyController(val productAvailabilityService: ProductAvaila
         @PathVariable productID: Long,
         @PathVariable warehouseID: Long,
         quantity: Long
-    ): ProductDTO {
+    ): ProductInWarehouseDTO {
         return productAvailabilityService.updateQuantity(productID, warehouseID, quantity)
     }
-    }
+
+
+
+}
+
+

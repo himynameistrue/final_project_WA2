@@ -1,5 +1,7 @@
 package it.polito.wa2.warehouse.handlers
 
+import it.polito.wa2.dto.InventoryCancelOrderRequestDTO
+import it.polito.wa2.dto.InventoryCancelOrderResponseDTO
 import it.polito.wa2.dto.InventoryChangeRequestDTO
 import it.polito.wa2.dto.InventoryChangeResponseDTO
 import it.polito.wa2.warehouse.services.InventoryService
@@ -10,22 +12,20 @@ import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.handler.annotation.Header
 
 @Configuration
-class OrderCreateEventHandler(val inventoryService: InventoryService, val productAvailabilityService: ProductAvailabilityService) {
+class OrderCancelEventHandler(val productAvailabilityService: ProductAvailabilityService) {
 
-    @KafkaListener(topics = ["order-create-orchestrator-to-warehouse"], groupId = "orchestrator-group")
-    fun consumer(
-        requestDTO: InventoryChangeRequestDTO,
-        @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
-        @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String,
-    ): InventoryChangeResponseDTO {
+    @KafkaListener(topics = ["order-cancel-orchestrator-to-warehouse"], groupId = "orchestrator-group")
+    fun cancelOrder(
+            requestDTO: InventoryCancelOrderRequestDTO,
+            @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
+            @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String,
+    ): InventoryCancelOrderResponseDTO {
         println("Received request")
         println(requestDTO)
         println(correlationId)
         println(replyTopic)
 
-        return productAvailabilityService.processNewOrder(requestDTO, correlationId, replyTopic);
-
-        //inventoryService.deductInventory(requestDTO, correlationId, replyTopic);
+        return productAvailabilityService.cancelOrder(requestDTO, correlationId, replyTopic);
     }
 
 
@@ -35,13 +35,10 @@ class OrderCreateEventHandler(val inventoryService: InventoryService, val produc
         requestDTO: InventoryChangeResponseDTO,
         @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
         @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String,
-    ) : InventoryChangeResponseDTO{
-        println("Received rollback")
+    ) {
+        println("Received request")
         println(requestDTO)
         println(correlationId)
         println(replyTopic)
-
-        return productAvailabilityService.rollbackOrder(requestDTO, correlationId, replyTopic);
-
     }
 }

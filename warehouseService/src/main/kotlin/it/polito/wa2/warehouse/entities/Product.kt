@@ -45,7 +45,7 @@ class Product(
             picture_url,
             category,
             price!!,
-            average_rating!!,
+            average_rating,
             creation_date!!,
             comments,
             map!!

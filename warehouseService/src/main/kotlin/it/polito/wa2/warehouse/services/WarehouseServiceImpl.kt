@@ -15,7 +15,7 @@ import javax.transaction.Transactional
 class WarehouseServiceImpl(
     val warehouseRepository: WarehouseRepository,
     val productRepository: ProductRepository,
-    val availabilityRepository: ProductAvailabilityRepository
+    val availabilityRepository: ProductAvailabilityRepository,
 ) : WarehouseService {
 
     override fun getAll(): List<WarehouseDTO>{
@@ -49,9 +49,10 @@ class WarehouseServiceImpl(
         var newWarehouse: Warehouse
         if(warehouse.isEmpty){
             newWarehouse = Warehouse(null, name, location, mutableListOf())
-
         }
-        newWarehouse = Warehouse(warehouseId, name, location)
+        else{
+            newWarehouse = Warehouse(warehouseId, name, location)
+        }
         return warehouseRepository.save(newWarehouse).toDTO()
 
     }

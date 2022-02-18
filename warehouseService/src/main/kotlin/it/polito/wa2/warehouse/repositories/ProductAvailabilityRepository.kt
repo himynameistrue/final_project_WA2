@@ -18,4 +18,8 @@ interface ProductAvailabilityRepository : CrudRepository<ProductAvailability, Lo
     fun sumProductAvailabilityByProductId(@Param("productIds") productIds: List<Long>): Iterable<ProductAvailabilityById>
 
     fun findAllByProductIdOrderByQuantityDesc(productId: Long): Iterable<ProductAvailability>
+
+    fun findFirstByProductIdOrderByQuantityAsc(productId: Long) : ProductAvailability?
+
+    fun findByProductIdAndWarehouseId(productId: Long, warehouseId: Long) : ProductAvailability?
 }

@@ -6,6 +6,7 @@ import it.polito.wa2.dto.*
 import it.polito.wa2.warehouse.entities.ProductAvailability
 import it.polito.wa2.warehouse.entities.ProductAvailabilityKey
 import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.warehouse.dto.ProductInWarehouseDTO
 import it.polito.wa2.warehouse.entities.Product
 import it.polito.wa2.warehouse.entities.WarehouseOutbox
 import it.polito.wa2.warehouse.repositories.ProductAvailabilityRepository
@@ -46,7 +47,7 @@ class ProductAvailabilityServiceImpl(
 
             availabilityRepository.sumProductAvailabilityByProductId(productIds).forEach {
                 quantitiesByProductId[it.product_id] = it.quantity
-            }  // per ogni prodotto controlla restituisce la quantità totale nei vari magazzini
+            }  // per ogni prodotto controlla e restituisce la quantità totale nei vari magazzini
 
             val orderProducts = HashMap<Long, Product>() // mappa id, prodotto di tutti i prodootti da ordinare
 
@@ -77,7 +78,6 @@ class ProductAvailabilityServiceImpl(
             }
 
             val oj = ObjectMapper()
-
             println(oj.writeValueAsString(quantitiesByProductId))
 
             // Verificare che l'amount sia corretto
@@ -133,23 +133,45 @@ class ProductAvailabilityServiceImpl(
         return orderCreateResponse
     }
 
-    override fun cancelOrder(requestDTO: InventoryChangeResponseDTO): OrderCancelWarehouseResponseDTO {
+    override fun rollbackOrder(requestDTO: InventoryChangeResponseDTO, correlationId:  String, replyTopic: String): InventoryChangeResponseDTO {
 
         try {
             // Tirarci fuori la lista dei prodotti con disponibilità
             requestDTO.items.forEach{
                 updateQuantity(it.productId, it.warehouseId, (it.amount + it.remainingProducts))
+                it.remainingProducts = ((it.amount + it.remainingProducts).toInt())
             }
-            return OrderCancelWarehouseResponseDTO(true)
 
+            // TODO on rollback write on outbox????
+            /*val responseJson = Gson().toJson(requestDTO)
+            val outbox = WarehouseOutbox(correlationId, replyTopic, requestDTO.javaClass.name, responseJson)
+            warehouseOutboxRepository.save(outbox)*/
+
+            return requestDTO
         }
 
         catch (e: Exception) {
-            // TODO write on outbox
             println(e.message)
             e.printStackTrace()
-            return OrderCancelWarehouseResponseDTO(false)
+            return requestDTO
         }
+    }
+
+    override fun cancelOrder(requestDTO: InventoryCancelOrderRequestDTO, correlationId: String, replyTopic: String) : InventoryCancelOrderResponseDTO{
+
+        // get warehouse that contains product x with the minimum quantity
+        requestDTO.items.forEach{
+            val warehouseToFill_availability = availabilityRepository.findFirstByProductIdOrderByQuantityAsc(it.productId)
+            if (warehouseToFill_availability != null) {
+                updateQuantity(it.productId, warehouseToFill_availability.warehouse.id!!, (warehouseToFill_availability.quantity + it.amount))
+
+            }
+            else{
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
+            }
+        }
+        val response = InventoryCancelOrderResponseDTO(true)
+        return response
     }
 
     override fun productInWarehouse(productId: Long, warehouseId: Long, quantity: Int, alarm: Int): ProductDTO {
@@ -176,34 +198,37 @@ class ProductAvailabilityServiceImpl(
         return productRepository.findById(productId).get().toDTO()
     }
 
-    override fun updateQuantity(productId: Long, warehouseId: Long, quantity: Long): ProductDTO {
-        val productInWarehouse = availabilityRepository.findAll()
+    override fun updateQuantity(productId: Long, warehouseId: Long, quantity: Long): ProductInWarehouseDTO {
+        /*val productInWarehouse = availabilityRepository.findAll()
         val availability =
             productInWarehouse.filter { it.product.id == productId && it.warehouse.id == warehouseId } as MutableList<ProductAvailability>
-
-        if (availability.isEmpty()) { // added a new relationship
+        */
+        val availability = availabilityRepository.findByProductIdAndWarehouseId(productId, warehouseId)
+        var productInWarehouseDTO : ProductInWarehouseDTO
+        if (availability == null) { // added a new relationship
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Relationship not found")
-        } else {   // update previous relationship
-            if (quantity < availability.first().alarm) {
+        }
+        else {   // update previous relationship
+            productInWarehouseDTO = ProductInWarehouseDTO(availability.product.id!!, availability.product.name!!, false, availability.quantity.toLong(), availability.warehouse.id!!, availability.warehouse.name!! )
+
+            if (quantity < availability.alarm) {
                 val message =
                     "Attenzione! Quantità del prodotto " + productId.toString() + " nel warehouse " + warehouseId.toString() + " sotto la soglia"
+                println(message)
                 //mailService.sendMessage("wa2team01@gmail.com", "prova", message)
-            }
+                productInWarehouseDTO.isUnderThreshold = true
+                 }
             if (quantity > 0) {
                 val newProductAvailability = ProductAvailability(
-                    availability.first().id,
-                    availability.first().product,
-                    availability.first().warehouse,
+                    availability.id,
+                    availability.product,
+                    availability.warehouse,
                     quantity.toInt(),
-                    availability.first().alarm
+                    availability.alarm
                 )
                 availabilityRepository.save(newProductAvailability)
             }
-
-        }
-
-
-        return availability.first().product.toDTO()
+            }
+        return productInWarehouseDTO
     }
-
 }
