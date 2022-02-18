@@ -135,3 +135,5 @@ services:
     depends_on:
       - kafka
       - mysql
+    ports:
+      - "8084:8084"
