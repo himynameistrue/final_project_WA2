@@ -22,4 +22,8 @@ interface ProductAvailabilityRepository : CrudRepository<ProductAvailability, Lo
     fun findFirstByProductIdOrderByQuantityAsc(productId: Long) : ProductAvailability?
 
     fun findByProductIdAndWarehouseId(productId: Long, warehouseId: Long) : ProductAvailability?
+
+    fun deleteAllByWarehouseId(warehouseId: Long)
+
+    fun deleteAllByProductId(productId: Long)
 }

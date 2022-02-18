@@ -96,6 +96,7 @@ class ProductServiceImpl(
         if (product.isEmpty) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
         }
+        availabilityRepository.deleteAllByProductId(productId)
         return productRepository.delete(product.get())
 
     }

@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface WarehouseRepository: CrudRepository<Warehouse, Long> {
-
 }
 

@@ -87,6 +87,7 @@ class WarehouseServiceImpl(
         if (warehouse.isEmpty) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Warehouse not found")
         }
+        availabilityRepository.deleteAllByWarehouseId(warehouseId)
         return warehouseRepository.delete(warehouse.get())
 
     }
