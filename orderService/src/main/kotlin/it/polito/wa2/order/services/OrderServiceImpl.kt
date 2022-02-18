@@ -119,7 +119,7 @@ class OrderServiceImpl(
     private fun throwIfInvalidStatusChange(currentStatus: OrderStatus, nextStatus: OrderStatus) {
         val shouldThrow = when (nextStatus) {
             OrderStatus.DELIVERING, OrderStatus.DELIVERED -> currentStatus === OrderStatus.ISSUED
-            OrderStatus.CANCELED -> currentStatus === OrderStatus.ISSUED
+            OrderStatus.CANCELED -> currentStatus === OrderStatus.ISSUED ||  currentStatus === OrderStatus.CANCELED
             OrderStatus.FAILED -> false
             else -> true
         }

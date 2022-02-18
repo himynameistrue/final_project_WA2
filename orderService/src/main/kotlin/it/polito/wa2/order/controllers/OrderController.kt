@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
@@ -62,8 +63,18 @@ class OrderController(var orderService: OrderServiceImpl) {
      * Cancels an existing order, if possible
      */
     @DeleteMapping("/{orderID}")
-    fun delete(@PathVariable("orderID") orderID: Long) {
+    fun delete(@RequestParam("buyer_id") buyerID: Long?, @PathVariable("orderID") orderID: Long) {
+
+        val order = orderService.findById(orderID)
+
+        if(buyerID !== null){
+            if(order.buyerId != buyerID){
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "You cannot cancel this order")
+            }
+        }
+
         orderService.cancel(orderID)
+
     }
 
     fun <T> restToOrchestrator(
