@@ -9,6 +9,7 @@ spring:
     password: wa2
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
+    defer-datasource-initialization: true
     generate-ddl: true
     properties:
       hibernate:
@@ -24,3 +25,6 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+  sql:
+    init:
+      mode: always
