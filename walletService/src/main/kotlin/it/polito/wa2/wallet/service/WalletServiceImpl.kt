@@ -39,7 +39,7 @@ class WalletServiceImpl(
 
         val ret = wallet.get();
 
-        if(!ret.enabled){
+        if (!ret.enabled) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Walled disabled")
         }
 
@@ -50,7 +50,7 @@ class WalletServiceImpl(
         return walletRepository.findByCustomerIdAndEnabledIsTrue(userId).get().toDTO()
     }
 
-    override fun getWalletsByUserId(userId: Long): List<WalletDTO>{
+    override fun getWalletsByUserId(userId: Long): List<WalletDTO> {
         return walletRepository.findAllByCustomerIdAndEnabledIsTrue(userId).map(Wallet::toDTO)
     }
 
@@ -144,7 +144,18 @@ class WalletServiceImpl(
 
     override fun deleteTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO {
         val transactionDTO = getTransactionByWalletIdAndTransactionId(walletId, transactionId)
-        transactionRepository.deleteById(transactionDTO.id);
+
+        val optionalWallet = walletRepository.findByIdAndEnabledIsTrue(walletId)
+        if (!optionalWallet.isPresent) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
+        }
+
+        val wallet = optionalWallet.get()
+        wallet.amount += -transactionDTO.amount
+
+        walletRepository.save(wallet)
+        transactionRepository.deleteById(transactionDTO.id)
+
         return transactionDTO;
     }
 
