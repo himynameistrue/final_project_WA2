@@ -12,10 +12,11 @@ spring:
     password: wa2
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
+    defer-datasource-initialization: true
     generate-ddl: true
     properties:
       hibernate:
-        ddl-auto: update
+        ddl-auto: create
     show-sql: true
   kafka:
     bootstrap-servers: kafka:29092
