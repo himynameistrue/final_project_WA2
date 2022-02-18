@@ -37,19 +37,25 @@ class WalletServiceImpl(
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
         }
 
+        val ret = wallet.get();
+
+        if(!ret.enabled){
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Walled disabled")
+        }
+
         return wallet.get().toDTO()
     }
 
     override fun getWalletByUserId(userId: Long): WalletDTO {
-        return walletRepository.findByCustomerId(userId).get().toDTO()
+        return walletRepository.findByCustomerIdAndEnabledIsTrue(userId).get().toDTO()
     }
 
     override fun getWalletsByUserId(userId: Long): List<WalletDTO>{
-        return walletRepository.findAllByCustomerId(userId).map(Wallet::toDTO)
+        return walletRepository.findAllByCustomerIdAndEnabledIsTrue(userId).map(Wallet::toDTO)
     }
 
-    override fun createTransaction(orderId: Long, customerId: Long, amount: Float): TransactionDTO {
-        val optionalWallet = walletRepository.findByCustomerId(customerId);
+    override fun createTransaction(orderId: Long?, customerId: Long, amount: Float): TransactionDTO {
+        val optionalWallet = walletRepository.findByCustomerIdAndEnabledIsTrue(customerId);
         if (!optionalWallet.isPresent) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
         }
@@ -57,8 +63,8 @@ class WalletServiceImpl(
         return createTransactionByWalletId(orderId, optionalWallet.get().getId()!!, amount)
     }
 
-    override fun createTransactionByWalletId(orderId: Long, walletId: Long, amount: Float): TransactionDTO {
-        val optionalCustomer = walletRepository.findById(walletId)
+    override fun createTransactionByWalletId(orderId: Long?, walletId: Long, amount: Float): TransactionDTO {
+        val optionalCustomer = walletRepository.findByIdAndEnabledIsTrue(walletId)
         if (!optionalCustomer.isPresent) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
         }
@@ -78,6 +84,17 @@ class WalletServiceImpl(
         return transaction.toDTO()
     }
 
+    override fun disableWalletById(walletId: Long): WalletDTO {
+        val optWallet = walletRepository.findById(walletId)
+        if (!optWallet.isPresent) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
+        }
+        val wallet = optWallet.get();
+        wallet.enabled = false;
+        walletRepository.save(wallet);
+        return wallet.toDTO()
+    }
+
     override fun createTransactionForOutbox(
         orderId: Long,
         customerId: Long,
@@ -95,7 +112,7 @@ class WalletServiceImpl(
             walletOutboxRepository.save(outbox)
             //warehouseOutboxRepository.delete(outbox)
 
-            ret
+            return ret
         } catch (e: Exception) {
             val ret = TransactionResponseDTO(false, null)
             ret
@@ -130,4 +147,5 @@ class WalletServiceImpl(
         transactionRepository.deleteById(transactionDTO.id);
         return transactionDTO;
     }
+
 }

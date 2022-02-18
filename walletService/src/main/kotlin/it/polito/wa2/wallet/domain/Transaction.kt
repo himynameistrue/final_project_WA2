@@ -8,7 +8,7 @@ import javax.persistence.*
 class Transaction(
     var timestamp: Date,
     var amount: Float,
-    val orderId: Long,
+    val orderId: Long?,
 
     @ManyToOne
      @JoinColumn(name="customer_wallet_id", referencedColumnName="id")
