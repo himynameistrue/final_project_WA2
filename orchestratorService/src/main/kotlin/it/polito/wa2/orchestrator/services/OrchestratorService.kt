@@ -14,9 +14,11 @@ import java.util.concurrent.CompletableFuture
 class OrchestratorService(
     val walletTemplate: ReplyingKafkaTemplate<String, TransactionRequestDTO, TransactionResponseDTO>,
     val warehouseTemplate: ReplyingKafkaTemplate<String, InventoryChangeRequestDTO, InventoryChangeResponseDTO>,
-    val walletRollbackTemplate: KafkaTemplate<String, TransactionRequestDTO>,
+    val walletRollbackTemplate: KafkaTemplate<String, WalletRequestDTO>,
     val warehouseRollbackTemplate: KafkaTemplate<String, InventoryChangeRequestDTO>,
 ) {
+
+
     private fun getTransactionRequestReplyFuture(transactionRequestDTO: TransactionRequestDTO): CompletableFuture<ConsumerRecord<String, TransactionResponseDTO>> {
         val transactionRecord = ProducerRecord<String, TransactionRequestDTO>(
             "order-create-orchestrator-to-wallet",
@@ -72,11 +74,15 @@ class OrchestratorService(
 
             responseItems = warehouseResponse.items
 
-            if (walletResponse.wasCharged
-                && warehouseResponse.isConfirmed
-            ) {
+            val successfulWalletResponse = walletResponse.wasCharged
+            val successfulWarehouseRequest = warehouseResponse.isConfirmed
+            if (successfulWalletResponse && successfulWarehouseRequest) {
                 println("Order created successfully")
                 isSuccessful = true
+            } else if (successfulWalletResponse) {
+                handleWarehouseServiceFailed(walletResponse, walletRequestDTO)
+            } else {
+                handleWalletServiceFailed(warehouseResponse, warehouseRequestDTO)
             }
 
         } catch (e: Exception) {
@@ -92,36 +98,14 @@ class OrchestratorService(
             }
 
             if (didWalletFail && !didWarehouseFail) {
-                println("Wallet service failed")
-
                 val warehouseResponse = warehouseReplyFuture.get().value()
 
-                if (!warehouseResponse.isConfirmed) {
-                    println("Warehouse did not respond successfully -> nothing to roll back")
-                } else {
-                    println("Rolling back warehouse")
-                    val warehouseRollbackRecord = ProducerRecord<String, InventoryChangeRequestDTO>(
-                        "order-create-rollback-orchestrator-to-warehouse",
-                        warehouseRequestDTO
-                    )
-
-                    warehouseRollbackTemplate.send(warehouseRollbackRecord)
-                }
+                handleWalletServiceFailed(warehouseResponse, warehouseRequestDTO)
             } else if (didWarehouseFail && !didWalletFail) {
-                println("Warehouse service failed")
-
                 val walletResponse = walletReplyFuture.get().value()
 
-                if (!walletResponse.wasCharged) {
-                    println("Wallet did not respond successfully -> nothing to roll back")
-                } else {
-                    println("Rolling back wallet")
-                    val walletRollbackRecord = ProducerRecord<String, TransactionRequestDTO>(
-                        "order-create-rollback-orchestrator-to-wallet",
-                        walletRequestDTO
-                    )
-                    walletRollbackTemplate.send(walletRollbackRecord)
-                }
+                handleWarehouseServiceFailed(walletResponse, walletRequestDTO)
+
             }
             println("End of catch block")
         }
@@ -137,7 +121,7 @@ class OrchestratorService(
         userId: Long,
         walletRequestDTO: TransactionRequestDTO,
         warehouseRequestDTO: InventoryChangeRequestDTO
-    ){
+    ) {
         /*val walletReplyFuture = getTransactionRequestReplyFuture(walletRequestDTO)
         val warehouseReplyFuture = getInventoryChangeRequestReplyFuture(warehouseRequestDTO)
 
@@ -221,5 +205,44 @@ class OrchestratorService(
             responseItems,
             isSuccessful
         )*/
+    }
+
+    fun handleWalletServiceFailed(
+        warehouseResponse: InventoryChangeResponseDTO,
+        warehouseRequestDTO: InventoryChangeRequestDTO
+    ) {
+        println("Wallet service failed")
+
+        if (!warehouseResponse.isConfirmed) {
+            println("Warehouse did not respond successfully -> nothing to roll back")
+        } else {
+            println("Rolling back warehouse")
+            val warehouseRollbackRecord = ProducerRecord<String, InventoryChangeRequestDTO>(
+                "order-create-rollback-orchestrator-to-warehouse",
+                warehouseRequestDTO
+            )
+
+            warehouseRollbackTemplate.send(warehouseRollbackRecord)
+        }
+    }
+
+    fun handleWarehouseServiceFailed(walletResponse: TransactionResponseDTO, walletRequestDTO: TransactionRequestDTO) {
+        println("Warehouse service failed")
+
+        if (!walletResponse.wasCharged) {
+            println("Wallet did not respond successfully -> nothing to roll back")
+        } else {
+            println("Rolling back wallet")
+            val walletRollbackRecord = ProducerRecord<String, WalletRequestDTO>(
+                "order-create-rollback-orchestrator-to-wallet",
+                WalletRequestDTO(
+                    walletRequestDTO.buyerId,
+                    walletRequestDTO.orderId,
+                    walletRequestDTO.amount,
+                    walletResponse.transactionId
+                )
+            )
+            walletRollbackTemplate.send(walletRollbackRecord)
+        }
     }
 }
