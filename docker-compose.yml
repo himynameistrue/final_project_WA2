@@ -124,6 +124,8 @@ services:
     depends_on:
       - kafka
       - mysql
+    ports:
+      - "8085:8085"
 
   warehouse:
     hostname: warehouse
