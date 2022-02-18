@@ -7,6 +7,7 @@ import java.util.*
 
 @Repository
 interface WalletRepository: CrudRepository<Wallet, Long>{
-    fun findByCustomerId(customerId: Long): Optional<Wallet>
-    fun findAllByCustomerId(userId: Long): List<Wallet>
+    fun findByCustomerIdAndEnabledIsTrue(customerId: Long): Optional<Wallet>
+    fun findAllByCustomerIdAndEnabledIsTrue(userId: Long): List<Wallet>
+    fun findByIdAndEnabledIsTrue(id: Long): Optional<Wallet>
 }
