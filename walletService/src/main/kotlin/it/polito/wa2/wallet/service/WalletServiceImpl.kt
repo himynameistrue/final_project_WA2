@@ -102,21 +102,22 @@ class WalletServiceImpl(
         correlationId: String,
         replyTopic: String
     ): TransactionResponseDTO {
-        return try {
+
+        var ret: TransactionResponseDTO
+        try {
             val transactionDto = createTransaction(orderId, customerId, amount)
-            val ret = TransactionResponseDTO(true, transactionDto.id)
+            ret = TransactionResponseDTO(true, transactionDto.id)
 
-            val outbox =
-                WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
-
-            walletOutboxRepository.save(outbox)
-            //warehouseOutboxRepository.delete(outbox)
-
-            return ret
         } catch (e: Exception) {
-            val ret = TransactionResponseDTO(false, null)
-            ret
+            ret = TransactionResponseDTO(false, null)
         }
+
+        val outbox =
+            WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
+
+        walletOutboxRepository.save(outbox)
+        //warehouseOutboxRepository.delete(outbox)
+        return ret;
     }
 
     override fun getTransactionsByWalletIdHavingTimestampBetween(
