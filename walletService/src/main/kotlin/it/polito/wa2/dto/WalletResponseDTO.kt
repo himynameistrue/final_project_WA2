@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class WalletResponseDTO(
     val userId: Long,
-    val orderId: Long,
+    val orderId: Long?,
     val amount: Float,
     val status: PaymentStatus
 )

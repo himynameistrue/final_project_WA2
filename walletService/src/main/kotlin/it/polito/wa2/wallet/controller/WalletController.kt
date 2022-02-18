@@ -7,6 +7,7 @@ import it.polito.wa2.dto.WalletResponseDTO
 import it.polito.wa2.enums.PaymentStatus
 import it.polito.wa2.wallet.service.WalletService
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpClientErrorException
 import java.time.Instant
 import java.util.*
 
@@ -17,22 +18,12 @@ class WalletController(val service: WalletService) {
     //TODO: in caso di eccezione, ritorna un errore
     @GetMapping
     fun getListOfWalletByUserId(@RequestParam userId: Long): List<WalletDTO>{
-        return try{
-            service.getWalletsByUserId(userId)
-        }
-        catch (e: Exception){
-            return emptyList()
-        }
+        return service.getWalletsByUserId(userId)
     }
 
     @GetMapping("/{walletId}")
-    fun getWalletById(@PathVariable walletId: Long): WalletDTO?{
-        return try{
-            service.getWalletById(walletId)
-        }
-        catch (e: Exception){
-            null
-        }
+    fun getWalletById(@PathVariable walletId: Long): WalletDTO{
+        return service.getWalletById(walletId)
     }
 
     @PostMapping("/{walletId}/transactions")
@@ -47,8 +38,9 @@ class WalletController(val service: WalletService) {
     }
 
     @PostMapping
-    fun createWallet(@RequestBody customerId: Long): WalletDTO{
-        return service.createWalletForCustomer(customerId);
+    fun createWallet(@RequestBody customerData: Map<String, String>): WalletDTO{
+        val customerId = customerData.get("customerId") ?: return WalletDTO(-1, -1, 0.0f)
+        return service.createWalletForCustomer(customerId.toLong());
     }
 
     @GetMapping("/{walletId}/transactions")
@@ -61,14 +53,24 @@ class WalletController(val service: WalletService) {
         }
     }
 
-     @GetMapping("/{walletId}/transactions/{transactionId}")
-     fun getTransactionById(@PathVariable walletId: Long, @PathVariable transactionId: Long): TransactionDTO?{
-         return try{
-             service.getTransactionByWalletIdAndTransactionId(walletId, transactionId)
-         }
-         catch (e: Exception){
-             null
-         }
-     }
+    @GetMapping("/{walletId}/transactions/{transactionId}")
+    fun getTransactionById(@PathVariable walletId: Long, @PathVariable transactionId: Long): TransactionDTO?{
+        return try{
+            service.getTransactionByWalletIdAndTransactionId(walletId, transactionId)
+        }
+        catch (e: Exception){
+            null
+        }
+    }
+
+    @DeleteMapping("/{walletId}")
+    fun disableWallet(@PathVariable walletId: Long): WalletDTO?{
+        return try{
+            service.disableWalletById(walletId)
+        }
+        catch (e: Exception){
+            null
+        }
+    }
 
 }
