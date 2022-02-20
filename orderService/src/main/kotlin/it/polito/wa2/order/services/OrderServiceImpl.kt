@@ -1,12 +1,9 @@
 package it.polito.wa2.order.services
 
-import it.polito.wa2.dto.OrderCreateOrchestratorRequestDTO
-import it.polito.wa2.dto.OrderCreateOrchestratorResponseDTO
-import it.polito.wa2.dto.OrderCreateOrderResponseDTO
+import it.polito.wa2.dto.*
 import it.polito.wa2.enums.OrderStatus
 import it.polito.wa2.order.domain.Order
 import it.polito.wa2.order.domain.OrderProduct
-import it.polito.wa2.dto.RequestOrderProductDTO
 import it.polito.wa2.order.repositories.OrderRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -41,50 +38,14 @@ class OrderServiceImpl(
         buyerId: Long,
         totalPrice: Float,
         items: List<RequestOrderProductDTO>
-    ): OrderCreateOrderResponseDTO {
-        var order = Order(buyerId, listOf(), OrderStatus.PENDING)
+    ): Order {
+        val order = Order(buyerId, listOf(), OrderStatus.PENDING)
 
         order.items = items.map {
             OrderProduct(order, it.productId, it.amount, null)
         }
 
-        order = orderRepository.save(order)
-
-        // Throws ResponseStatusException if it fails
-        val orchestratorResponse = runCreationSaga(order, totalPrice, items)
-
-        confirm(order, orchestratorResponse)
-
-        return orchestratorResponse.mapToOrderResponse(order.getId()!!)
-    }
-
-    private fun runCreationSaga(
-        order: Order,
-        totalPrice: Float,
-        items: List<RequestOrderProductDTO>
-    ): OrderCreateOrchestratorResponseDTO {
-        val uri = getOrchestratorUri("/orders")
-
-        val body = OrderCreateOrchestratorRequestDTO(
-            order.getId()!!,
-            order.buyerId,
-            totalPrice,
-            items
-        )
-
-        val responseEntity = RestTemplate().exchange(
-            uri,
-            HttpMethod.POST,
-            HttpEntity<OrderCreateOrchestratorRequestDTO>(body),
-            OrderCreateOrchestratorResponseDTO::class.java
-        )
-
-        if (!responseEntity.statusCode.is2xxSuccessful || responseEntity.body === null || !responseEntity.body!!.isSuccessful) {
-            updateStatus(order.getId()!!, OrderStatus.FAILED)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Order creation failed")
-        }
-
-        return responseEntity.body!!
+        return orderRepository.save(order)
     }
 
     override fun confirm(order: Order, confirmedOrderDTO: OrderCreateOrchestratorResponseDTO): Order {
@@ -103,10 +64,7 @@ class OrderServiceImpl(
         return orderRepository.save(order)
     }
 
-
-    override fun updateStatus(orderId: Long, newStatus: OrderStatus): Order {
-        val order = findById(orderId)
-
+    override fun updateStatus(order: Order, newStatus: OrderStatus): Order {
         throwIfInvalidStatusChange(order.status, newStatus);
 
         order.status = newStatus
@@ -114,12 +72,16 @@ class OrderServiceImpl(
         return orderRepository.save(order)
     }
 
-    override fun cancel(orderId: Long): Order = updateStatus(orderId, OrderStatus.CANCELED)
+    override fun cancel(order: Order, buyerId: Long?): Order {
+        return updateStatus(order, OrderStatus.CANCELED)
+    }
 
     private fun throwIfInvalidStatusChange(currentStatus: OrderStatus, nextStatus: OrderStatus) {
         val shouldThrow = when (nextStatus) {
-            OrderStatus.DELIVERING, OrderStatus.DELIVERED -> currentStatus === OrderStatus.ISSUED
-            OrderStatus.CANCELED -> currentStatus === OrderStatus.ISSUED ||  currentStatus === OrderStatus.CANCELED
+            OrderStatus.ISSUED -> currentStatus !== OrderStatus.PENDING
+            OrderStatus.DELIVERING -> currentStatus !== OrderStatus.ISSUED
+            OrderStatus.DELIVERED -> currentStatus !== OrderStatus.ISSUED && currentStatus !== OrderStatus.DELIVERING
+            OrderStatus.CANCELED -> currentStatus !== OrderStatus.ISSUED
             OrderStatus.FAILED -> false
             else -> true
         }
@@ -134,13 +96,6 @@ class OrderServiceImpl(
             HttpStatus.BAD_REQUEST,
             "Order status cannot be updated to the provided value"
         )
-    }
-
-    private fun getOrchestratorUri(path: String): URI {
-        val host = "orchestrator"
-        val port = 8082;
-
-        return URI("http", null, host, port, path, null, null)
     }
 
 }

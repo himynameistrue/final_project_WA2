@@ -20,8 +20,9 @@ class KafkaConfig(val producerFactory: ProducerFactory<*, *>) {
      * All topics this service is going to wait for
      */
     private val allTopics = arrayOf(
-        "order-create-wallet-to-orchestrator",
-        "order-create-warehouse-to-orchestrator"
+        "transaction-created",
+        "inventory-changed",
+        "inventory-returned",
     )
 
     /**

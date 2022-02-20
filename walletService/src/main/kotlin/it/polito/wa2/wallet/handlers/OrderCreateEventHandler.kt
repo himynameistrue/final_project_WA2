@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.Header
 @Configuration
 class OrderCreateEventHandler(val walletService: WalletService) {
 
-    @KafkaListener(topics = ["order-create-orchestrator-to-wallet"], groupId = "orchestrator-group")
+    @KafkaListener(topics = ["transaction-create"], groupId = "orchestrator-group")
     fun consumer(requestDTO: TransactionRequestDTO, @Header(KafkaHeaders.CORRELATION_ID) correlationId: String,
                  @Header(KafkaHeaders.REPLY_TOPIC) replyTopic: String) {
         println("Received request")

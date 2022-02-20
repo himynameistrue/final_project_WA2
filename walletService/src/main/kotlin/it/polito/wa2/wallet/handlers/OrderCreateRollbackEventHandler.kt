@@ -9,7 +9,7 @@ import org.springframework.messaging.handler.annotation.SendTo
 @Configuration
 class OrderCreateRollbackEventHandler(val walletService: WalletService)  {
 
-    @KafkaListener(topics = ["order-create-rollback-orchestrator-to-wallet"], groupId = "orchestrator-group")
+    @KafkaListener(topics = ["transaction-created-rollback"], groupId = "orchestrator-group")
     @SendTo
     fun consumer(requestDTO: WalletRequestDTO): Boolean {
         println("Received rollback request")
