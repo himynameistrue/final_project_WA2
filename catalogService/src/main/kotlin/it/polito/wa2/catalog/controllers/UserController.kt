@@ -103,7 +103,6 @@ class UserController(
             } catch (e: HttpStatusCodeException) {
                 throw ResponseStatusException(e.statusCode, e.message)
             }
-
         }
     }
 
@@ -111,11 +110,4 @@ class UserController(
     fun listUsers(): List<InformationUpdateDTO> {
         return userDetailsService.getAll()
     }
-
- /*   @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    fun handleCustomException(ce: Exception): Message {
-        return Message(ce.message.toString())
-    }*/
 }

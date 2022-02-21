@@ -93,13 +93,6 @@ class AuthController(val userDetailsService: UserDetailsService,
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(Message("Please confirm the email"))
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    fun handleCustomException(ce: Exception): Message {
-        return Message(ce.message.toString())
-    }
 }
 
 class Message(val message: String?) {}

@@ -85,9 +85,8 @@ class GatewayController (
         if (responseEntity.hasBody()) {
             // The admin can retrieve all the orders, but a customer can retrieve only his/her orders
             if (!userDetailsService.correctID(principal.name, responseEntity.body!!.buyer_id) &&
-                !userDetailsService.isAdmin(principal.name)
-            )
-                throw RuntimeException("Normal customers can't retrieve other users orders")
+                !userDetailsService.isAdmin(principal.name))
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Normal customers can't retrieve other users orders")
         }
         return responseEntity.body
     }
@@ -117,8 +116,14 @@ class GatewayController (
             }
         }
         if (responseBody.isSuccessful) {
-            mailService.sendMessage(principal.name, "Order confirmed", "Your order is confirmed!\nOrder ID: " + responseBody.id +
-            "You will receive and email every time your order is updated\nThank you for your purchase")
+            mailService.sendMessage(principal.name, "Your order is confirmed", "Your order is confirmed!\nOrder ID: " + responseBody.id +
+            "\nYou will receive and email every time your order is updated.\nThank you for your purchase.")
+
+            // Email to Admin
+            userDetailsService.getAdminsEmail().forEach { email ->
+                mailService.sendMessage(email, "Order confirmed", "The order with OrderID: " + responseBody.id +
+                " is confirmed.")
+            }
         }
 
         return responseBody
@@ -130,6 +135,13 @@ class GatewayController (
     @PatchMapping("/orders/{orderID}")
     fun updateOrder (request: HttpServletRequest, @RequestBody orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderDTO? {
         val responseEntity = restTemplate(request, orderUpdateRequestDTO, OrderDTO::class.java)
+
+        val responseBody = responseEntity.body
+        if (responseBody != null) {
+            mailService.sendMessage(userDetailsService.getEmailFromId(responseBody.buyer_id), "Order updated",
+                "Your order has been updated:\nOrder ID: " + responseBody.id +
+                    "\nNew status: " + responseBody.status)
+        }
 
         return responseEntity.body
     }
@@ -145,7 +157,12 @@ class GatewayController (
             val userID = userDetailsService.getIdFromEmail(principal.name)
             val uri = URI("http", null, "order", 8081, request.requestURI, "buyer_id=$userID", null)
 
-            RestTemplate().exchange(uri, HttpMethod.valueOf(request.method), null, Void::class.java)
+            try {
+                RestTemplate().exchange(uri, HttpMethod.valueOf(request.method), null, Void::class.java)
+            } catch (e: HttpStatusCodeException) {
+                throw ResponseStatusException(e.statusCode, e.message)
+            }
+
         } else {
             restTemplate(request, null, Void::class.java)
         }
@@ -192,7 +209,6 @@ class GatewayController (
     }
 
     // Add a comment about a product
-    // TODO ?? must check that the product was bought from this user?
     @Secured("ROLE_CUSTOMER")
     @PutMapping("/products/{productID}/comments")
     fun addComment(request: HttpServletRequest, @RequestBody commentDTO : CommentDTO): ProductDTO? {
@@ -334,7 +350,7 @@ class GatewayController (
             // It's correct customer or an admin and can retrieve the wallets
             restTemplate(request, null, arrayOf<WalletDTO>()::class.java)
         } else
-            throw RuntimeException("Only the Admin can retrieve all the wallets, a customer can retrieve only his/her wallets")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only the Admin can retrieve all the wallets, a customer can retrieve only his/her wallets")
 
         return responseEntity.body
     }
@@ -350,7 +366,7 @@ class GatewayController (
             // The admin can retrieve all the wallets, but a customer can retrieve only his/her wallet
             if (!userDetailsService.correctID(principal.name, responseEntity.body!!.customerId) &&
                 !userDetailsService.isAdmin(principal.name))
-                throw RuntimeException("Normal customers can't retrieve other users wallets")
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Normal customers can't retrieve other users wallets")
         }
         return responseEntity.body
     }
@@ -359,38 +375,39 @@ class GatewayController (
     @Secured("ROLE_ADMIN")
     @PostMapping("/wallets")
     fun createWallet (request: HttpServletRequest, @RequestBody customerData: Map<String, String>): WalletDTO? {
-        val principal = (SecurityContextHolder.getContext().authentication)
+        val customerIdString = customerData["customerId"]?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "It's necessary a customerId")
 
-        if (!userDetailsService.isCustomer(principal.name)) {
-            throw RuntimeException("Only a CUSTOMER can have a wallet!")
+        if (!userDetailsService.isCustomer(userDetailsService.getEmailFromId(customerIdString.toLong()))) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Only a CUSTOMER can have a wallet!")
         }
         val responseEntity = restTemplate(request, customerData, WalletDTO::class.java)
 
         return responseEntity.body
     }
 
+    // Disable the wallet for a given wallet
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping("wallets/{walletId}")
+    fun disableWalletByWalletId(request: HttpServletRequest): WalletDTO? {
+        val responseEntity = restTemplate(request, null, WalletDTO::class.java)
+
+        return responseEntity.body
+    }
+
     // Disable the wallet for a given customer
     @Secured("ROLE_ADMIN")
-    @DeleteMapping("/{customerID}")
-    fun disableWallet(request: HttpServletRequest): WalletDTO? {
+    @DeleteMapping("/customers/{customerId}")
+    fun disableWalletByCustomerId(request: HttpServletRequest): WalletDTO? {
         val responseEntity = restTemplate(request, null, WalletDTO::class.java)
 
         return responseEntity.body
     }
 
     // Adds a new transaction to the wallet identified by walletID
+    @Secured("ROLE_ADMIN")
     @PostMapping("/wallets/{walletID}/transactions")
     fun addTransaction (request: HttpServletRequest, @RequestBody requestDTO: WalletRequestDTO): WalletResponseDTO? {
-        val principal = (SecurityContextHolder.getContext().authentication)
-
-        val responseEntity = if (userDetailsService.correctID(principal.name, requestDTO.userId)) {
-            // It's customer and can make the transaction on his/her wallet
-            restTemplate(request, requestDTO, WalletResponseDTO::class.java)
-        } else if (userDetailsService.isAdmin(principal.name)){
-            // It's ADMIN can make everything
-            restTemplate(request, requestDTO, WalletResponseDTO::class.java)
-        } else
-            throw RuntimeException("A customer can make transaction only on his/her wallet")
+        val responseEntity = restTemplate(request, requestDTO, WalletResponseDTO::class.java)
 
         return responseEntity.body
     }
@@ -415,7 +432,7 @@ class GatewayController (
             // The admin can retrieve all the wallets, but a customer can retrieve only his/her wallet
             if (!userDetailsService.correctID(principal.name, responseEntity.body!!.customerId) &&
                 !userDetailsService.isAdmin(principal.name))
-                throw RuntimeException("Normal customers can't retrieve other users transactions")
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Normal customers can't retrieve other users transactions")
         }
         return responseEntity.body
     }
@@ -483,21 +500,19 @@ class GatewayController (
         val customerId = userDetailsService.getIdFromEmail(userEmail).toString()
         val uri = URI("http", null, "wallet", 8085, "/wallets", null, null)
 
-        val responseEntity = RestTemplate().exchange(
-            uri,
-            HttpMethod.POST,
-            HttpEntity<Map<String, String>>(mapOf<String, String>(Pair<String, String>("customerId", customerId))),
-            WalletDTO::class.java
-        )
+        val responseEntity: ResponseEntity<WalletDTO>
 
-        // TODO posso essere certa che è stato creato o devo controllare?
+        try {
+            responseEntity = RestTemplate().exchange(
+                uri,
+                HttpMethod.POST,
+                HttpEntity<Map<String, String>>(mapOf(Pair("customerId", customerId))),
+                WalletDTO::class.java
+            )
+        } catch (e: HttpStatusCodeException){
+            throw ResponseStatusException(e.statusCode, e.message)
+        }
+
         responseEntity.body
     }
-/*
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)*//*
-    @ResponseBody
-    fun handleCustomException(ce: Exception): Message {
-        return Message(ce.message!!.substringBefore("\",\"path").substringAfter("error\":\""))
-    }*/
 }

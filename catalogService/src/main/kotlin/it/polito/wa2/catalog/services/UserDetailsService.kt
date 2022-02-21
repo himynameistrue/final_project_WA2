@@ -51,4 +51,6 @@ interface UserDetailsService: UserDetailsService {
     fun getIdFromEmail(email: String): Long?
 
     fun getAdminsEmail(): List<String>
+
+    fun getEmailFromId(id: Long): String
 }
