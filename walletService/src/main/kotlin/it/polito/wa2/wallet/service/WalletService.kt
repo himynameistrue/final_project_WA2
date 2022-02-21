@@ -32,4 +32,5 @@ interface WalletService {
     fun deleteTransactionByWalletIdAndTransactionId(walletId: Long, transactionId: Long): TransactionDTO
 
     fun disableWalletById(walletId: Long): WalletDTO
+    fun disableWalletByCustomerId(userId: Long): WalletDTO
 }

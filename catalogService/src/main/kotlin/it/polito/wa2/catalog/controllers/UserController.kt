@@ -91,7 +91,7 @@ class UserController(
 
         if (role.compareTo("CUSTOMER") == 0) {
             val customerId = userDetailsService.getIdFromEmail(username)
-            val uri = URI("http", null, "wallet", 8085, "/wallets/$customerId", null, null)
+            val uri = URI("http", null, "wallet", 8085, "/customers/$customerId", null, null)
 
             try {
                 RestTemplate().exchange(
@@ -112,10 +112,10 @@ class UserController(
         return userDetailsService.getAll()
     }
 
-    @ExceptionHandler
+ /*   @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     fun handleCustomException(ce: Exception): Message {
         return Message(ce.message.toString())
-    }
+    }*/
 }

@@ -94,6 +94,18 @@ class WalletServiceImpl(
         walletRepository.save(wallet);
         return wallet.toDTO()
     }
+    override fun disableWalletByCustomerId(customerId: Long): WalletDTO {
+        val optWallet = walletRepository.findByCustomerIdAndEnabledIsTrue(customerId)
+        if (!optWallet.isPresent) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Wallet not found")
+        }
+        val wallet = optWallet.get()
+        wallet.enabled = false
+
+        walletRepository.save(wallet)
+
+        return wallet.toDTO()
+    }
 
     override fun createTransactionForOutbox(
         orderId: Long,
