@@ -12,9 +12,9 @@ data class ProductDTO(
     val average_rating: Float,
     val creation_date: Date,
     val comments: List<CommentDTO> = listOf(),
-    val availabilities: Map<Long, Int>
+    val availabilities: Long
 ) {
     override fun toString(): String {
-        return "$id ,$name ,$description, $picture_url, ${availabilities.map { print(it) }}"
+        return "$id ,$name ,$description, $picture_url, $availabilities"
     }
 }

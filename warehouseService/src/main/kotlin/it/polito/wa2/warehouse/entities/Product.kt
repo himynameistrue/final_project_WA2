@@ -34,10 +34,8 @@ class Product(
 
 
     fun toDTO(): ProductDTO {
-        var map = mutableMapOf<Long, Int>()
-        for (a in availabilities) {
-            map.put(a.warehouse.id!!, a.quantity)
-        }
+        val totProd = availabilities.sumOf { it.quantity }
+
         return ProductDTO(
             id!!,
             name!!,
@@ -48,7 +46,7 @@ class Product(
             average_rating,
             creation_date!!,
             comments.map { it.toDTO() },
-            map!!
+            totProd.toLong()!!
         )
     }
 
