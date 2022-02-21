@@ -166,6 +166,29 @@ class ProductAvailabilityServiceImpl(
             }
         }
         val response = InventoryCancelOrderResponseDTO(true)
+
+        val responseJson = Gson().toJson(response)
+        val outbox = WarehouseOutbox(correlationId, replyTopic, response.javaClass.name, responseJson)
+        warehouseOutboxRepository.save(outbox)
+
+        return response
+    }
+
+    override fun rollbackCancelOrder(requestDTO: InventoryCancelOrderRequestDTO): InventoryCancelOrderResponseDTO {
+
+        // get warehouse that contains product x with the minimum quantity
+        requestDTO.items.forEach{
+            val warehouseToFill_availability = availabilityRepository.findFirstByProductIdOrderByQuantityAsc(it.productId)
+            if (warehouseToFill_availability != null) {
+                updateQuantity(it.productId, warehouseToFill_availability.warehouse.id!!, (warehouseToFill_availability.quantity - it.amount))
+
+            }
+            else{
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
+            }
+        }
+        val response = InventoryCancelOrderResponseDTO(false)
+
         return response
     }
 
