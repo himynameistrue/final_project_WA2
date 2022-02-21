@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import it.polito.wa2.dto.*
 import it.polito.wa2.warehouse.entities.ProductAvailability
 import it.polito.wa2.warehouse.entities.ProductAvailabilityKey
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.ProductInWarehouseDTO
 import it.polito.wa2.warehouse.entities.Product
 import it.polito.wa2.warehouse.entities.WarehouseOutbox

@@ -13,6 +13,7 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
 
@@ -68,7 +69,7 @@ class GatewayController (
             // It's ADMIN retrieve all the orders
             restTemplate(request, null, arrayOf<OrderDTO>()::class.java)
         } else
-            throw RuntimeException("Only the Admin can retrieve all the orders, a customer can retrieve only his/her orders")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Only the Admin can retrieve all the orders, a customer can retrieve only his/her orders")
 
         return responseEntity.body
     }
@@ -396,8 +397,8 @@ class GatewayController (
     // Retrieves a list of transactions regarding a given wallet in a given time frame
     @Secured("ROLE_ADMIN")
     @GetMapping("/wallets/{walletID}/transactions")
-    fun getListTransactions (request: HttpServletRequest): List<TransactionDTO>? {
-        val responseEntity = restTemplate(request, null, listOf<TransactionDTO>()::class.java)
+    fun getListTransactions (request: HttpServletRequest): Array<TransactionDTO>? {
+        val responseEntity = restTemplate(request, null, arrayOf<TransactionDTO>()::class.java)
 
         return responseEntity.body
     }

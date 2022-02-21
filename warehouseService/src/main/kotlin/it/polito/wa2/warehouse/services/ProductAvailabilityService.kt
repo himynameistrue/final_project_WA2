@@ -1,7 +1,7 @@
 package it.polito.wa2.warehouse.services
 
 import it.polito.wa2.dto.*
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.ProductInWarehouseDTO
 
 interface ProductAvailabilityService {

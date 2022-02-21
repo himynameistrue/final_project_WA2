@@ -1,6 +1,6 @@
 package it.polito.wa2.warehouse.entities
 
-import it.polito.wa2.warehouse.dto.CommentDTO
+import it.polito.wa2.dto.CommentDTO
 import javax.persistence.*
 
 

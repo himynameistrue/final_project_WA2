@@ -1,6 +1,6 @@
 package it.polito.wa2.warehouse.entities
 
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.ProductDTO
 import java.util.*
 import javax.persistence.*
 
@@ -47,7 +47,7 @@ class Product(
             price!!,
             average_rating,
             creation_date!!,
-            comments,
+            comments.map { it.toDTO() },
             map!!
         )
     }

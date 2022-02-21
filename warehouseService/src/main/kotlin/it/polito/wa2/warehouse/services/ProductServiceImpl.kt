@@ -1,8 +1,8 @@
 package it.polito.wa2.warehouse.services
 
-import it.polito.wa2.warehouse.dto.CommentDTO
+import it.polito.wa2.dto.CommentDTO
 import it.polito.wa2.warehouse.entities.Product
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
 import it.polito.wa2.warehouse.entities.Comment
 import it.polito.wa2.warehouse.repositories.ProductAvailabilityRepository
@@ -36,7 +36,7 @@ class ProductServiceImpl(
         return productsList
     }
 
-    override fun getById(productId: Long) : ProductDTO{
+    override fun getById(productId: Long) : ProductDTO {
         val product = productRepository.findById(productId)
 
         if (product.isEmpty) {
@@ -45,13 +45,13 @@ class ProductServiceImpl(
         return product.get().toDTO()
     }
 
-    override fun create(name: String, description: String, picture_url: String, category: String, price: Float) : ProductDTO{
+    override fun create(name: String, description: String, picture_url: String, category: String, price: Float) : ProductDTO {
         val creation_date = Date()
         val product = Product(null, name, description, picture_url, category, price, 0F, creation_date, mutableListOf())
         return productRepository.save(product).toDTO()
     }
 
-    override fun updateFull(productId: Long, name: String, description: String, picture_url: String, category: String, price: Float, average_rating: Float) : ProductDTO{
+    override fun updateFull(productId: Long, name: String, description: String, picture_url: String, category: String, price: Float, average_rating: Float) : ProductDTO {
         var product = productRepository.findById(productId)
         var newProduct: Product
         val creation_date = Date()
@@ -65,7 +65,7 @@ class ProductServiceImpl(
         return productRepository.save(newProduct).toDTO()
     }
 
-    override fun updatePartial(productId: Long, name: String?, description: String?, picture_url: String?, category: String?, price: Float?, average_rating: Float?, creation_date: Date?) : ProductDTO{
+    override fun updatePartial(productId: Long, name: String?, description: String?, picture_url: String?, category: String?, price: Float?, average_rating: Float?, creation_date: Date?) : ProductDTO {
         var product = productRepository.findById(productId)
         var newProduct: Product
 
@@ -110,7 +110,7 @@ class ProductServiceImpl(
         return product.get().picture_url ?: ""
     }
 
-    override fun updatePicture(productId: Long, picture_url: String): ProductDTO{
+    override fun updatePicture(productId: Long, picture_url: String): ProductDTO {
         var product = productRepository.findById(productId)
         var newProduct: Product = product.get()
 
@@ -135,7 +135,7 @@ class ProductServiceImpl(
         return warehouses
     }
 
-    override fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO{
+    override fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO {
         var product = productRepository.findById(productId).get()
         val newComment = Comment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
 

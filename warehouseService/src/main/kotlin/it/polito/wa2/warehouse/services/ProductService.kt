@@ -1,8 +1,8 @@
 package it.polito.wa2.warehouse.services
 
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
-import it.polito.wa2.warehouse.dto.CommentDTO
+import it.polito.wa2.dto.CommentDTO
 import java.util.*
 
 interface ProductService {

@@ -2,7 +2,7 @@ TRUNCATE TABLE wallet_service_db.wallet;
 
 INSERT INTO wallet_service_db.wallet(id, amount, customer_id, enabled)
 VALUES (1, 1000, 1, true),
-       (2, 0, 2, true),
+       (2, 800, 2, true),
        (3, 5000, 3, false);
 
 TRUNCATE TABLE wallet_service_db.transaction;

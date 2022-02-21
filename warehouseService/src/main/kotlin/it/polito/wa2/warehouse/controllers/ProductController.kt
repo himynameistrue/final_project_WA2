@@ -4,13 +4,12 @@ package it.polito.wa2.warehouse.controllers
 import it.polito.wa2.dto.ProductCreateRequestDTO
 import it.polito.wa2.dto.ProductFullUpdateRequestDTO
 import it.polito.wa2.dto.ProductPartialUpdateRequestDTO
-import it.polito.wa2.warehouse.dto.CommentDTO
-import it.polito.wa2.warehouse.dto.ProductDTO
+import it.polito.wa2.dto.CommentDTO
+import it.polito.wa2.dto.ProductDTO
 import it.polito.wa2.warehouse.dto.WarehouseDTO
 import it.polito.wa2.warehouse.services.ProductService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 @RequestMapping("/products")
