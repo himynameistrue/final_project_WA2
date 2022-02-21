@@ -12,6 +12,7 @@ class MailServiceImpl: MailService {
 
     override fun sendMessage(toMail: String, subject: String, mailBody: String) {
         val message =  SimpleMailMessage()
+        message.setFrom("wa2@final.project")
         message.setTo(toMail)
         message.setSubject(subject)
         message.setText(mailBody)
