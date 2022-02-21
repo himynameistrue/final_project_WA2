@@ -1,7 +1,6 @@
 package it.polito.wa2.orchestrator.controllers
 
 import it.polito.wa2.dto.*
-import it.polito.wa2.orchestrator.services.OrchestratorService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.header.internals.RecordHeader
@@ -21,10 +20,10 @@ import javax.validation.Valid
 class OrchestratorController(
     val transactionCreateTemplate: ReplyingKafkaTemplate<String, TransactionRequestDTO, TransactionResponseDTO>,
     val inventoryChangeTemplate: ReplyingKafkaTemplate<String, InventoryChangeRequestDTO, InventoryChangeResponseDTO>,
-    val inventoryCancelTemplate: ReplyingKafkaTemplate<String, InventoryCancelOrderRequestDTO, InventoryCancelOrderResponseDTO>,
+    val inventoryReturnTemplate: ReplyingKafkaTemplate<String, InventoryCancelOrderRequestDTO, InventoryCancelOrderResponseDTO>,
     val transactionCreateRollbackTemplate: KafkaTemplate<String, WalletRequestDTO>,
     val inventoryChangeRollbackTemplate: KafkaTemplate<String, InventoryChangeResponseDTO>,
-    val inventoryReturnRollbackTemplate: KafkaTemplate<String, InventoryCancelOrderResponseDTO>
+    val inventoryReturnRollbackTemplate: KafkaTemplate<String, InventoryCancelOrderRequestDTO>
 ) {
 
     @PostMapping("/orders")
@@ -130,21 +129,20 @@ class OrchestratorController(
         warehouseRecord.headers()
             .add(RecordHeader(KafkaHeaders.REPLY_TOPIC, "inventory-returned".toByteArray()))
 
-        return inventoryCancelTemplate.sendAndReceive(warehouseRecord).completable()
+        return inventoryReturnTemplate.sendAndReceive(warehouseRecord).completable()
     }
 
     private fun getInventoryReturnedRollbackFuture(
-    )/*: ListenableFuture<SendResult<String, InventoryChangeResponseDTO>> */{
-        println("Rolling back inventory change")
+        warehouseRequestDTO: InventoryCancelOrderRequestDTO
+    ): ListenableFuture<SendResult<String, InventoryCancelOrderRequestDTO>> {
+        println("Rolling back inventory return")
 
-        // TODO
-
-        /*val warehouseRollbackRecord = ProducerRecord<String, InventoryChangeResponseDTO>(
-            "inventory-returned-rollback",
-            warehouseResponse
+        val warehouseRollbackRecord = ProducerRecord<String, InventoryCancelOrderRequestDTO>(
+            "inventory-changed-rollback",
+            warehouseRequestDTO
         )
 
-        return inventoryChangeRollbackTemplate.send(warehouseRollbackRecord)*/
+        return inventoryReturnRollbackTemplate.send(warehouseRollbackRecord)
     }
 
     private fun runCreationSaga(
@@ -282,8 +280,7 @@ class OrchestratorController(
             if (isTransactionCreated) {
                 getTransactionCreatedRollbackFuture(transactionCreateResponseDTO!!, transactionCreateRequestDTO)
             } else if (isInventoryReturned) {
-                // TODO
-                getInventoryReturnedRollbackFuture()
+                getInventoryReturnedRollbackFuture(inventoryReturnRequestDTO)
             } else {
                 println("Everything failed -> nothing to rollback!")
             }

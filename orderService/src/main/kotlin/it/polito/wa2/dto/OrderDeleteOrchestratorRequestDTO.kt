@@ -9,5 +9,6 @@ import javax.validation.constraints.NotNull
 data class OrderDeleteOrchestratorRequestDTO(
     @NotNull val orderId: Long,
     @NotNull val buyerId: Long,
+    @NotNull val totalPrice: Float,
     @Valid @NotNull val items: List<RequestOrderProductDTO>
 )

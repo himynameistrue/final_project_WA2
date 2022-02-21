@@ -15,4 +15,5 @@ interface OrderService {
     fun confirm(order: Order, confirmedOrderDTO: OrderCreateOrchestratorResponseDTO): Order
     fun updateStatus(order: Order, newStatus: OrderStatus): Order
     fun cancel(order: Order, buyerId: Long?): Order
+    fun getOrderTotal(order: Order): Float
 }

@@ -98,4 +98,10 @@ class OrderServiceImpl(
         )
     }
 
+    override fun getOrderTotal(order: Order): Float {
+        var total = 0F
+        order.items.forEach { total += it.amount * it.unitPrice!! }
+
+        return total
+    }
 }
