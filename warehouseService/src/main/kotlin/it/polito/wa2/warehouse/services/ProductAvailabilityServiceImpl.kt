@@ -128,7 +128,9 @@ class ProductAvailabilityServiceImpl(
 
         val responseJson = Gson().toJson(orderCreateResponse)
         val outbox = WarehouseOutbox(correlationId, replyTopic, orderCreateResponse.javaClass.name, responseJson)
+
         warehouseOutboxRepository.save(outbox)
+        warehouseOutboxRepository.delete(outbox)
 
         return orderCreateResponse
     }
@@ -169,7 +171,9 @@ class ProductAvailabilityServiceImpl(
 
         val responseJson = Gson().toJson(response)
         val outbox = WarehouseOutbox(correlationId, replyTopic, response.javaClass.name, responseJson)
+
         warehouseOutboxRepository.save(outbox)
+        warehouseOutboxRepository.delete(outbox)
 
         return response
     }

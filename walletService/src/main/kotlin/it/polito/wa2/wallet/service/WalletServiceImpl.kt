@@ -116,8 +116,9 @@ class WalletServiceImpl(
             WalletOutbox(correlationId, replyTopic, ret.javaClass.name, ObjectMapper().writeValueAsString(ret));
 
         walletOutboxRepository.save(outbox)
-        //warehouseOutboxRepository.delete(outbox)
-        return ret;
+        walletOutboxRepository.delete(outbox)
+
+        return ret
     }
 
     override fun getTransactionsByWalletIdHavingTimestampBetween(

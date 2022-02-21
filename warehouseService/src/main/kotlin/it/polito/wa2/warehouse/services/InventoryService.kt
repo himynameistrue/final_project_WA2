@@ -45,7 +45,7 @@ class InventoryService(val warehouseOutboxRepository: WarehouseOutboxRepository)
         val outbox = WarehouseOutbox(correlationId, replyTopic, responseDTO.javaClass.name, responseJson)
 
         warehouseOutboxRepository.save(outbox)
-        //warehouseOutboxRepository.delete(outbox)
+        warehouseOutboxRepository.delete(outbox)
 
         return
     }
