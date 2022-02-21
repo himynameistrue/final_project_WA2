@@ -12,6 +12,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 import java.net.URI
@@ -463,12 +464,19 @@ class GatewayController (
         val restTemplate = RestTemplate()
         restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory()
 
-        return restTemplate.exchange(
-            uri,
-            httpMethod,
-            if(requestBody == null) null else HttpEntity<V>(requestBody),
-            responseType
-        )
+        val restResponse: ResponseEntity<T>
+        try {
+            restResponse = restTemplate.exchange(
+                uri,
+                httpMethod,
+                if (requestBody == null) null else HttpEntity<V>(requestBody),
+                responseType
+            )
+        } catch (e: HttpStatusCodeException){
+            throw ResponseStatusException(e.statusCode, e.message)
+        }
+
+        return restResponse
     }
 
     fun createWallet(userEmail: String) {
@@ -485,11 +493,11 @@ class GatewayController (
         // TODO posso essere certa che è stato creato o devo controllare?
         responseEntity.body
     }
-
+/*
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)*//*
     @ResponseBody
     fun handleCustomException(ce: Exception): Message {
         return Message(ce.message!!.substringBefore("\",\"path").substringAfter("error\":\""))
-    }
+    }*/
 }

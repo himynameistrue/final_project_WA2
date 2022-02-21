@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import javax.validation.Valid
 
@@ -22,7 +24,7 @@ import javax.validation.Valid
 class UserController(
     val userDetailsService: UserDetailsService,
     val gatewayController: GatewayController
-    ) {
+) {
     @PatchMapping("/updateInformation")
     fun updateInformation(@Valid @RequestBody body: InformationUpdateDTO, br: BindingResult): ResponseEntity<Any> {
         if (br.hasErrors()) {
@@ -30,14 +32,15 @@ class UserController(
         }
         val principal = (SecurityContextHolder.getContext().authentication)
         userDetailsService.updateInformation(body.email, body.name, body.surname, body.deliveryAddress, principal.name)
-        if (body.email!=null) {
-            return ResponseEntity.status(HttpStatus.OK).body(Message("Information updated: email updated, please login again"))
+        if (body.email != null) {
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(Message("Information updated: email updated, please login again"))
         }
         return ResponseEntity.status(HttpStatus.OK).body(Message("Information updated"))
     }
 
     @PutMapping("/updatePassword")
-    fun updatePassword(@Valid @RequestBody body: PasswordUpdateDTO, br:BindingResult): ResponseEntity<Any> {
+    fun updatePassword(@Valid @RequestBody body: PasswordUpdateDTO, br: BindingResult): ResponseEntity<Any> {
         if (br.hasErrors()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Message(br.allErrors[0].defaultMessage))
         }
@@ -59,7 +62,7 @@ class UserController(
     }
 
     @PostMapping("{username}/enable")
-    fun adminEnableUser(@PathVariable("username") username: String){
+    fun adminEnableUser(@PathVariable("username") username: String) {
         userDetailsService.enableUser(username)
 
         if (userDetailsService.isCustomer(username)) {
@@ -69,7 +72,7 @@ class UserController(
     }
 
     @PostMapping("{username}/disable")
-    fun adminDisableUser(@PathVariable("username") username: String){
+    fun adminDisableUser(@PathVariable("username") username: String) {
         userDetailsService.disableUser(username)
     }
 
@@ -86,16 +89,21 @@ class UserController(
     fun adminRemoveRole(@PathVariable("username") username: String, @RequestParam("role") role: String) {
         userDetailsService.removeRole(username, User.RoleName.valueOf(role))
 
-        if (role.compareTo("CUSTOMER") == 0){
+        if (role.compareTo("CUSTOMER") == 0) {
             val customerId = userDetailsService.getIdFromEmail(username)
             val uri = URI("http", null, "wallet", 8085, "/wallets/$customerId", null, null)
 
-            RestTemplate().exchange(
-                uri,
-                HttpMethod.DELETE,
-                null,
-                WalletDTO::class.java
-            )
+            try {
+                RestTemplate().exchange(
+                    uri,
+                    HttpMethod.DELETE,
+                    null,
+                    WalletDTO::class.java
+                )
+            } catch (e: HttpStatusCodeException) {
+                throw ResponseStatusException(e.statusCode, e.message)
+            }
+
         }
     }
 
