@@ -87,18 +87,16 @@
 						"method": "PATCH",
 						"header": [],
 						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "status",
-									"value": "ISSUED",
-									"description": "PENDING, ISSUED, DELIVERING, DELIVERED, FAILED, CANCELED",
-									"type": "text"
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"CANCELED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders/1",
+							"raw": "http://localhost:{{orderService.port}}/orders/4",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -106,7 +104,7 @@
 							"port": "{{orderService.port}}",
 							"path": [
 								"orders",
-								"1"
+								"4"
 							]
 						}
 					},
@@ -118,7 +116,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders/5?buyer_id=1",
+							"raw": "http://localhost:{{orderService.port}}/orders/4?buyer_id=1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -126,7 +124,7 @@
 							"port": "{{orderService.port}}",
 							"path": [
 								"orders",
-								"5"
+								"4"
 							],
 							"query": [
 								{
@@ -846,17 +844,16 @@
 										"method": "PATCH",
 										"header": [],
 										"body": {
-											"mode": "formdata",
-											"formdata": [
-												{
-													"key": "status",
-													"value": "DELIVERING",
-													"type": "text"
+											"mode": "raw",
+											"raw": "{\n    \"status\": \"CANCELED\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
 												}
-											]
+											}
 										},
 										"url": {
-											"raw": "http://localhost:{{catalogService.port}}/orders/1",
+											"raw": "http://localhost:{{catalogService.port}}/orders/4",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -864,23 +861,33 @@
 											"port": "{{catalogService.port}}",
 											"path": [
 												"orders",
-												"1"
+												"4"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "[GW] Order Delete",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:{{catalogService.port}}/orders/4",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "{{catalogService.port}}",
+											"path": [
+												"orders",
+												"4"
 											]
 										}
 									},
 									"response": []
 								}
 							],
-							"auth": {
-								"type": "bearer",
-								"bearer": [
-									{
-										"key": "token",
-										"value": "",
-										"type": "string"
-									}
-								]
-							},
 							"event": [
 								{
 									"listen": "prerequest",
