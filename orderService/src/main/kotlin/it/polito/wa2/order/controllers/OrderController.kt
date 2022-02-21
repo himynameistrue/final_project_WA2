@@ -60,7 +60,7 @@ class OrderController(var orderService: OrderServiceImpl) {
      * Updates the order identified by orderID
      */
     @PatchMapping("/{orderID}")
-    fun updateStatus(@PathVariable("orderID") orderID: Long, request: OrderUpdateRequestDTO): OrderDTO {
+    fun updateStatus(@PathVariable("orderID") orderID: Long, @RequestBody request: OrderUpdateRequestDTO): OrderDTO {
         val order = orderService.findById(orderID)
 
         return orderService.updateStatus(order, request.status).toDTO()
@@ -143,10 +143,13 @@ class OrderController(var orderService: OrderServiceImpl) {
         val requestItems = order.items.map {
             RequestOrderProductDTO(it.productId, it.amount)
         }
+
+        val orderTotal = orderService.getOrderTotal(order)
+
         val responseEntity = RestTemplate().exchange(
             uri,
             HttpMethod.DELETE,
-            HttpEntity(OrderDeleteOrchestratorRequestDTO(order.getId()!!, order.buyerId, requestItems)),
+            HttpEntity(OrderDeleteOrchestratorRequestDTO(order.getId()!!, order.buyerId, orderTotal,  requestItems)),
             OrderDeleteOrchestratorResponseDTO::class.java
         )
 

@@ -126,7 +126,7 @@ class GatewayController (
     // updates the order identified by orderID
     @Secured("ROLE_ADMIN")
     @PatchMapping("/orders/{orderID}")
-    fun updateOrder (request: HttpServletRequest, orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderDTO? {
+    fun updateOrder (request: HttpServletRequest, @RequestBody orderUpdateRequestDTO: OrderUpdateRequestDTO): OrderDTO? {
         val responseEntity = restTemplate(request, orderUpdateRequestDTO, OrderDTO::class.java)
 
         return responseEntity.body
