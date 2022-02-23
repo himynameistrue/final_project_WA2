@@ -4,7 +4,6 @@ import it.polito.wa2.dto.OrderDTO
 import it.polito.wa2.enums.OrderStatus
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
-import java.time.Instant
 import java.time.LocalDateTime
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -28,6 +27,6 @@ class Order(
 ) : EntityBase<Long>() {
 
     fun toDTO(): OrderDTO {
-        return OrderDTO(getId()!!, buyerId, items.map { it.toDTO() }, status)
+        return OrderDTO(getId()!!, buyerId, items.map { it.toDTO() }, status, createdAt, updatedAt)
     }
 }
