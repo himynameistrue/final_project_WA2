@@ -184,10 +184,10 @@ class UserDetailsServiceImpl(
         return user.getId()==userID
     }
 
-    override fun getIdFromEmail(email: String): Long? {
+    override fun getIdFromEmail(email: String): Long {
         val user = repository.findByEmail(email) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
 
-        return user.getId()
+        return user.getId()!!
     }
 
     override fun getAdminsEmail(): List<String> {

@@ -48,7 +48,7 @@ interface UserDetailsService: UserDetailsService {
 
     fun correctID(email: String, userID: Long): Boolean
 
-    fun getIdFromEmail(email: String): Long?
+    fun getIdFromEmail(email: String): Long
 
     fun getAdminsEmail(): List<String>
 
