@@ -536,7 +536,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Mickey\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Mouse\",\r\n    \"deliveryAddress\": \"Via Fantasia 5\",\r\n    \"email\": \"topolino@email.com\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Mickey\",\r\n    \"password\": \"pwd\",\r\n    \"confirmPassword\": \"pwd\",\r\n    \"surname\": \"Mouse\",\r\n    \"deliveryAddress\": \"Via Fantasia 5\",\r\n    \"email\": \"topolino2@email.com\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -709,7 +709,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"paperino@email.com\",\r\n    \"password\": \"pwd\"\r\n}",
+									"raw": "{\r\n    \"email\": \"topolino2@email.com\",\r\n    \"password\": \"pwd\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1106,7 +1106,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://localhost:{{catalogService.port}}/orders?buyer_id=1",
+											"raw": "http://localhost:{{catalogService.port}}/orders?buyer_id=4",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -1118,7 +1118,7 @@
 											"query": [
 												{
 													"key": "buyer_id",
-													"value": "1"
+													"value": "4"
 												}
 											]
 										}
@@ -1175,11 +1175,21 @@
 								{
 									"name": "[GW] Order Update",
 									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{adminToken}}",
+													"type": "string"
+												}
+											]
+										},
 										"method": "PATCH",
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"status\": \"DELIVERED\"\n}",
+											"raw": "{\n    \"status\": \"DELIVERING\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1207,7 +1217,7 @@
 										"method": "DELETE",
 										"header": [],
 										"url": {
-											"raw": "http://localhost:{{catalogService.port}}/orders/2",
+											"raw": "http://localhost:{{catalogService.port}}/orders/5",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -1215,7 +1225,7 @@
 											"port": "{{catalogService.port}}",
 											"path": [
 												"orders",
-												"2"
+												"5"
 											]
 										}
 									},
@@ -1264,7 +1274,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:{{catalogService.port}}/wallets?userId=4",
+											"raw": "http://localhost:{{catalogService.port}}/wallets",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -1272,12 +1282,6 @@
 											"port": "{{catalogService.port}}",
 											"path": [
 												"wallets"
-											],
-											"query": [
-												{
-													"key": "userId",
-													"value": "4"
-												}
 											]
 										}
 									},
@@ -1316,7 +1320,7 @@
 									"response": []
 								},
 								{
-									"name": "![GW] Wallet Create",
+									"name": "[GW] Wallet Create",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -1346,11 +1350,21 @@
 								{
 									"name": "[GW] Transaction Create",
 									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{adminToken}}",
+													"type": "string"
+												}
+											]
+										},
 										"method": "POST",
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"id\": 1,\r\n    \"customerId\": 1,\r\n    \"amount\": 10\r\n}",
+											"raw": "{\r\n    \"amount\": 1000\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1358,7 +1372,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/wallets/2/transactions",
+											"raw": "http://localhost:8080/wallets/4/transactions",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -1366,7 +1380,7 @@
 											"port": "8080",
 											"path": [
 												"wallets",
-												"2",
+												"4",
 												"transactions"
 											]
 										}
@@ -1501,7 +1515,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{host}}:{{catalogService.port}}/products?category=food",
+											"raw": "{{host}}:{{catalogService.port}}/products",
 											"host": [
 												"{{host}}"
 											],
@@ -1512,7 +1526,8 @@
 											"query": [
 												{
 													"key": "category",
-													"value": "food"
+													"value": "food",
+													"disabled": true
 												}
 											]
 										}
@@ -1603,14 +1618,14 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}:{{catalogService.port}}/products/3/comments",
+											"raw": "{{host}}:{{catalogService.port}}/products/2/comments",
 											"host": [
 												"{{host}}"
 											],
 											"port": "{{catalogService.port}}",
 											"path": [
 												"products",
-												"3",
+												"2",
 												"comments"
 											]
 										}
