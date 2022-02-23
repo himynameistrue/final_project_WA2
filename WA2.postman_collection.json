@@ -14,10 +14,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders?buyer_id=1",
-							"protocol": "http",
+							"raw": "{{host}}:{{orderService.port}}/orders?buyer_id=1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "{{orderService.port}}",
 							"path": [
@@ -39,10 +38,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders/1",
-							"protocol": "http",
+							"raw": "{{host}}:{{orderService.port}}/orders/1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "{{orderService.port}}",
 							"path": [
@@ -68,10 +66,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders",
-							"protocol": "http",
+							"raw": "{{host}}:{{orderService.port}}/orders",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "{{orderService.port}}",
 							"path": [
@@ -96,10 +93,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders/4",
-							"protocol": "http",
+							"raw": "{{host}}:{{orderService.port}}/orders/4",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "{{orderService.port}}",
 							"path": [
@@ -116,10 +112,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:{{orderService.port}}/orders/4?buyer_id=1",
-							"protocol": "http",
+							"raw": "{{host}}:{{orderService.port}}/orders/4?buyer_id=1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "{{orderService.port}}",
 							"path": [
@@ -131,6 +126,35 @@
 									"key": "buyer_id",
 									"value": "1"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[FW] Add comment to purchased product",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"title\": \"Polposo si\",\n    \"body\": \"Molto rinfrescante\",\n    \"stars\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{orderService.port}}/products/3/comments",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{orderService.port}}",
+							"path": [
+								"products",
+								"3",
+								"comments"
 							]
 						}
 					},
@@ -287,6 +311,211 @@
 								"1",
 								"transactions",
 								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": ".warehouseService",
+			"item": [
+				{
+					"name": "Warehouse List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/warehouses/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"warehouses",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warehouse Delete Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/warehouse/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"warehouse",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warehouse Show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/warehouses/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warehouse Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/warehouses/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Product Availability And Alarm Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"quantity\": 25,\r\n    \"alarm\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/availability/1/warehouse/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"availability",
+								"1",
+								"warehouse",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Product List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/products?category=food",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "food"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Product Show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/products/12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"products",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Comment Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Bel prodotto\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:{{warehouseService.port}}/products/3/comments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "{{warehouseService.port}}",
+							"path": [
+								"products",
+								"3",
+								"comments"
 							]
 						}
 					},
@@ -756,14 +985,14 @@
 									}
 								],
 								"url": {
-									"raw": "localhost:8080/user/paperino@email.com/removeRole?role=CUSTOMER",
+									"raw": "localhost:8080/user/topolino@email.com/removeRole?role=CUSTOMER",
 									"host": [
 										"localhost"
 									],
 									"port": "8080",
 									"path": [
 										"user",
-										"paperino@email.com",
+										"topolino@email.com",
 										"removeRole"
 									],
 									"query": [
@@ -1296,7 +1525,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://localhost:8080/products/1",
+											"raw": "http://localhost:8080/products/12",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -1304,7 +1533,7 @@
 											"port": "8080",
 											"path": [
 												"products",
-												"1"
+												"12"
 											]
 										}
 									},
@@ -1366,7 +1595,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"title\": \"Polposo si\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
+											"raw": "{\r\n    \"title\": \"Test\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1374,15 +1603,14 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/products/2/comments",
-											"protocol": "http",
+											"raw": "{{host}}:{{catalogService.port}}/products/3/comments",
 											"host": [
-												"localhost"
+												"{{host}}"
 											],
-											"port": "8080",
+											"port": "{{catalogService.port}}",
 											"path": [
 												"products",
-												"2",
+												"3",
 												"comments"
 											]
 										}
@@ -1893,211 +2121,6 @@
 							""
 						]
 					}
-				}
-			]
-		},
-		{
-			"name": ".warehouseService",
-			"item": [
-				{
-					"name": "Warehouse List",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/warehouses/",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"warehouses",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Warehouse Delete Copy",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/warehouse/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"warehouse",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Warehouse Show",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/warehouses/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"warehouses",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Warehouse Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/warehouses/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"warehouses",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Product Availability And Alarm Update",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"quantity\": 25,\r\n    \"alarm\": 5\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/availability/1/warehouse/2",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"availability",
-								"1",
-								"warehouse",
-								"2"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Product List",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/products?category=food",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"products"
-							],
-							"query": [
-								{
-									"key": "category",
-									"value": "food"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Product Show",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/products/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"products",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Comment Create",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"Bel prodotto\",\r\n    \"body\": \"Molto rinfrescante\",\r\n    \"stars\": 5\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:{{warehouseService.port}}/products/1/comments",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "{{warehouseService.port}}",
-							"path": [
-								"products",
-								"1",
-								"comments"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		}
