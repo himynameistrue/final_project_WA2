@@ -1,9 +1,9 @@
 TRUNCATE TABLE order_service_db.orders;
 
-INSERT INTO order_service_db.orders(id, buyer_id, status)
-VALUES (1, 1, 1),
-       (2, 2, 1),
-       (3, 1, 2);
+INSERT INTO order_service_db.orders(id, buyer_id, status, created_at, updated_at)
+VALUES (1, 1, 1, NOW(), NOW()),
+       (2, 2, 1, NOW(), NOW()),
+       (3, 1, 2, NOW(), NOW());
 
 TRUNCATE TABLE order_service_db.order_product;
 
