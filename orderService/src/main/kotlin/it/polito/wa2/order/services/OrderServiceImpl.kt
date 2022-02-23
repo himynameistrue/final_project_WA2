@@ -87,21 +87,24 @@ class OrderServiceImpl(
         }
 
         if (shouldThrow) {
-            throwBadStatus()
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Order status cannot be updated to the provided value"
+            )
         }
     }
 
-    private fun throwBadStatus() {
-        throw ResponseStatusException(
-            HttpStatus.BAD_REQUEST,
-            "Order status cannot be updated to the provided value"
-        )
-    }
 
     override fun getOrderTotal(order: Order): Float {
         var total = 0F
         order.items.forEach { total += it.amount * it.unitPrice!! }
 
         return total
+    }
+
+    override fun hasUserBought(buyerId: Long, productId: Long): Boolean {
+        val count = orderRepository.countByBuyerId_AndItems_ProductId(buyerId, productId)
+
+        return count > 0
     }
 }

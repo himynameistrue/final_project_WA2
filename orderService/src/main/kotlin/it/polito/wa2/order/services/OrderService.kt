@@ -16,4 +16,5 @@ interface OrderService {
     fun updateStatus(order: Order, newStatus: OrderStatus): Order
     fun cancel(order: Order, buyerId: Long?): Order
     fun getOrderTotal(order: Order): Float
+    fun hasUserBought(buyerId: Long, productId: Long): Boolean
 }

@@ -21,14 +21,13 @@ class ProductServiceImpl(
     val availabilityRepository: ProductAvailabilityRepository
 ) : ProductService {
 
-    override fun getAll(category: String?): List<ProductDTO>{
+    override fun getAll(category: String?): List<ProductDTO> {
         val products = productRepository.findAll()
         print(products)
         var productsList: MutableList<ProductDTO>
-        if(category != null){
+        if (category != null) {
             productsList = products.filter { it.category == category }.map { it.toDTO() } as MutableList<ProductDTO>
-        }
-        else productsList = products.map { it.toDTO() } as MutableList<ProductDTO>
+        } else productsList = products.map { it.toDTO() } as MutableList<ProductDTO>
         /*for(p in products){
             productsList.add(p.toDTO())
             // print(w.toDTO())
@@ -36,7 +35,7 @@ class ProductServiceImpl(
         return productsList
     }
 
-    override fun getById(productId: Long) : ProductDTO {
+    override fun getById(productId: Long): ProductDTO {
         val product = productRepository.findById(productId)
 
         if (product.isEmpty) {
@@ -45,31 +44,65 @@ class ProductServiceImpl(
         return product.get().toDTO()
     }
 
-    override fun create(name: String, description: String, picture_url: String, category: String, price: Float) : ProductDTO {
+    override fun create(
+        name: String,
+        description: String,
+        picture_url: String,
+        category: String,
+        price: Float
+    ): ProductDTO {
         val creation_date = Date()
         val product = Product(null, name, description, picture_url, category, price, 0F, creation_date, mutableListOf())
         return productRepository.save(product).toDTO()
     }
 
-    override fun updateFull(productId: Long, name: String, description: String, picture_url: String, category: String, price: Float, average_rating: Float) : ProductDTO {
+    override fun updateFull(
+        productId: Long,
+        name: String,
+        description: String,
+        picture_url: String,
+        category: String,
+        price: Float,
+        average_rating: Float
+    ): ProductDTO {
         var product = productRepository.findById(productId)
         var newProduct: Product
         val creation_date = Date()
 
-        if(product.isEmpty){
-            newProduct = Product(null, name, description, picture_url, category, price, 0F, creation_date, mutableListOf())
-        }
-        else{
-            newProduct = Product(productId, name, description, picture_url, category, price, average_rating, creation_date , product.get().comments, product.get().availabilities)
+        if (product.isEmpty) {
+            newProduct =
+                Product(null, name, description, picture_url, category, price, 0F, creation_date, mutableListOf())
+        } else {
+            newProduct = Product(
+                productId,
+                name,
+                description,
+                picture_url,
+                category,
+                price,
+                average_rating,
+                creation_date,
+                product.get().comments,
+                product.get().availabilities
+            )
         }
         return productRepository.save(newProduct).toDTO()
     }
 
-    override fun updatePartial(productId: Long, name: String?, description: String?, picture_url: String?, category: String?, price: Float?, average_rating: Float?, creation_date: Date?) : ProductDTO {
+    override fun updatePartial(
+        productId: Long,
+        name: String?,
+        description: String?,
+        picture_url: String?,
+        category: String?,
+        price: Float?,
+        average_rating: Float?,
+        creation_date: Date?
+    ): ProductDTO {
         var product = productRepository.findById(productId)
         var newProduct: Product
 
-        if(product.isEmpty){
+        if (product.isEmpty) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
         }
 
@@ -85,7 +118,16 @@ class ProductServiceImpl(
             newProduct = Product(productId, name!!, location!!)
         }*/
 
-        newProduct = Product(productId, name ?: product.get().name, description ?: product.get().description, picture_url ?: product.get().picture_url, category ?: product.get().category, price ?: product.get().price , average_rating ?: product.get().average_rating, creation_date ?: product.get().creation_date)
+        newProduct = Product(
+            productId,
+            name ?: product.get().name,
+            description ?: product.get().description,
+            picture_url ?: product.get().picture_url,
+            category ?: product.get().category,
+            price ?: product.get().price,
+            average_rating ?: product.get().average_rating,
+            creation_date ?: product.get().creation_date
+        )
         return productRepository.save(newProduct).toDTO()
 
     }
@@ -101,7 +143,7 @@ class ProductServiceImpl(
 
     }
 
-    override fun getPictureByID(productId: Long): String{
+    override fun getPictureByID(productId: Long): String {
         val product = productRepository.findById(productId)
 
         if (product.isEmpty) {
@@ -117,7 +159,16 @@ class ProductServiceImpl(
         if (product.isEmpty) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
         }
-        newProduct = Product(newProduct.id, newProduct.name, newProduct.description, picture_url, newProduct.category, newProduct.price, newProduct.average_rating, newProduct.creation_date)
+        newProduct = Product(
+            newProduct.id,
+            newProduct.name,
+            newProduct.description,
+            picture_url,
+            newProduct.category,
+            newProduct.price,
+            newProduct.average_rating,
+            newProduct.creation_date
+        )
         return productRepository.save(newProduct).toDTO()
     }
 
@@ -125,21 +176,29 @@ class ProductServiceImpl(
         val product = productRepository.findById(productId)
         val warehouses = mutableListOf<WarehouseDTO>()
 
-        if (product.isEmpty){
+        if (product.isEmpty) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
         }
         val availabilityById = product.get().availabilities
-        for(a in availabilityById){
-           warehouses.add(a.warehouse.toDTO())
+        for (a in availabilityById) {
+            warehouses.add(a.warehouse.toDTO())
         }
         return warehouses
     }
 
-    override fun addComment(productId: Long, commentRequestDTO : CommentDTO): ProductDTO {
-        var product = productRepository.findById(productId).get()
+    override fun addComment(productId: Long, commentRequestDTO: CommentDTO): ProductDTO {
+        val optionalProduct = productRepository.findById(productId)
+
+        if (optionalProduct.isEmpty) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "This product does not exist")
+        }
+
+        var product = optionalProduct.get()
+
         val newComment = Comment(commentRequestDTO.title, commentRequestDTO.body, commentRequestDTO.stars)
 
-        product.average_rating = ((product.average_rating * product.comments.size) + commentRequestDTO.stars ) / (product.comments.size +1)
+        product.average_rating =
+            ((product.average_rating * product.comments.size) + commentRequestDTO.stars) / (product.comments.size + 1)
         product.comments.add(newComment)
 
         product = productRepository.save(product)
