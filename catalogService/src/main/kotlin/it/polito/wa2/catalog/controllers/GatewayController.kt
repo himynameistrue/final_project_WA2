@@ -176,10 +176,13 @@ class GatewayController(
 
             try {
                 RestTemplate().exchange(uri, HttpMethod.valueOf(request.method), null, Void::class.java)
-            }  catch (e: RestClientResponseException) {
+            } catch (e: RestClientResponseException) {
                 val mapper = ObjectMapper()
                 val incomingException = mapper.readTree(e.responseBodyAsString)
-                throw ResponseStatusException(HttpStatus.resolve(e.rawStatusCode)!!, incomingException.path("message").textValue())
+                throw ResponseStatusException(
+                    HttpStatus.resolve(e.rawStatusCode)!!,
+                    incomingException.path("message").textValue()
+                )
             }
 
         } else {
@@ -255,11 +258,10 @@ class GatewayController(
         } catch (e: RestClientResponseException) {
             val mapper = ObjectMapper()
             val incomingException = mapper.readTree(e.responseBodyAsString)
-            println("Eccezione:")
-            println(e.responseBodyAsString)
-            println(e.message)
-            println(incomingException)
-            throw ResponseStatusException(HttpStatus.resolve(e.rawStatusCode)!!, incomingException.path("message").textValue())
+            throw ResponseStatusException(
+                HttpStatus.resolve(e.rawStatusCode)!!,
+                incomingException.path("message").textValue()
+            )
         }
 
         return restResponse.body
@@ -411,21 +413,47 @@ class GatewayController(
 
     // Retrieve the list of the wallets of a buyer ID
     @GetMapping("/wallets")
-    fun getListOfWalletByUserId(request: HttpServletRequest, @RequestParam userId: Long): Array<WalletDTO>? {
+    fun getListOfWalletByUserId(request: HttpServletRequest, @RequestParam userId: Long?): Array<WalletDTO>? {
         val principal = (SecurityContextHolder.getContext().authentication)
 
-        val responseEntity = if (userDetailsService.correctID(principal.name, userId) ||
-            userDetailsService.isAdmin(principal.name)
-        ) {
-            // It's correct customer or an admin and can retrieve the wallets
-            restTemplate(request, null, arrayOf<WalletDTO>()::class.java)
-        } else
+        val principalId = userDetailsService.getIdFromEmail(principal.name)
+
+        val forwardedUserId: Long = if (userId == null || userId == principalId) {
+            principalId
+        } else if (!userDetailsService.isAdmin(principal.name)) {
             throw ResponseStatusException(
                 HttpStatus.UNAUTHORIZED,
                 "Only the Admin can retrieve all the wallets, a customer can retrieve only his/her wallets"
             )
+        } else {
+            userId
+        }
 
-        return responseEntity.body
+        val uri = URI("http", null, "wallet", 8085, request.requestURI, "userId=$forwardedUserId", null)
+
+        val restTemplate = RestTemplate()
+        restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory()
+
+        val restResponse: ResponseEntity<Array<WalletDTO>>
+
+        try {
+            restResponse = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                Array<WalletDTO>::class.java
+            )
+        } catch (e: RestClientResponseException) {
+            val mapper = ObjectMapper()
+            val incomingException = mapper.readTree(e.responseBodyAsString)
+            throw ResponseStatusException(
+                HttpStatus.resolve(e.rawStatusCode)!!,
+                incomingException.path("message").textValue()
+            )
+        }
+
+
+        return restResponse.body
     }
 
     // Retrieves the wallet identified by walletID
@@ -573,10 +601,13 @@ class GatewayController(
                 if (requestBody == null) null else HttpEntity<V>(requestBody),
                 responseType
             )
-        }  catch (e: RestClientResponseException) {
+        } catch (e: RestClientResponseException) {
             val mapper = ObjectMapper()
             val incomingException = mapper.readTree(e.responseBodyAsString)
-            throw ResponseStatusException(HttpStatus.resolve(e.rawStatusCode)!!, incomingException.path("message").textValue())
+            throw ResponseStatusException(
+                HttpStatus.resolve(e.rawStatusCode)!!,
+                incomingException.path("message").textValue()
+            )
         }
 
         return restResponse
@@ -601,7 +632,10 @@ class GatewayController(
         } catch (e: RestClientResponseException) {
             val mapper = ObjectMapper()
             val incomingException = mapper.readTree(e.responseBodyAsString)
-            throw ResponseStatusException(HttpStatus.resolve(e.rawStatusCode)!!, incomingException.path("message").textValue())
+            throw ResponseStatusException(
+                HttpStatus.resolve(e.rawStatusCode)!!,
+                incomingException.path("message").textValue()
+            )
         }
 
         responseEntity.body
