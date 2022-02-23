@@ -60,7 +60,7 @@ class OrchestratorController(
             requestDTO.items
         )
 
-        return runDeletionSaga(requestDTO.buyerId, walletRequestDTO, warehouseRequestDTO)
+        return runDeletionSaga(walletRequestDTO, warehouseRequestDTO)
     }
 
     private fun getTransactionCreateFuture(transactionRequestDTO: TransactionRequestDTO)
@@ -222,7 +222,6 @@ class OrchestratorController(
     }
 
     private fun runDeletionSaga(
-        userId: Long,
         transactionCreateRequestDTO: TransactionRequestDTO,
         inventoryReturnRequestDTO: InventoryCancelOrderRequestDTO
     ): OrderDeleteOrchestratorResponseDTO {
@@ -249,7 +248,7 @@ class OrchestratorController(
         var isTransactionCreated = false
         var isInventoryReturned = false
 
-        var inventoryReturnResponse: InventoryCancelOrderResponseDTO? = null
+        val inventoryReturnResponse: InventoryCancelOrderResponseDTO?
         var transactionCreateResponseDTO: TransactionResponseDTO? = null
 
         if (didWarehouseFail) {
