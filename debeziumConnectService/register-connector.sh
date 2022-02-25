@@ -3,7 +3,7 @@ curl -X POST \
   http://localhost:8083/connectors/ \
   -H 'content-type: application/json' \
   -d '{
-   "name": "warehouse-outbox-connector",
+   "name": "outbox-connector",
    "config": {
       "connector.class": "io.debezium.connector.mysql.MySqlConnector",
       "tasks.max": "1",
